@@ -1,0 +1,64 @@
+import { createRouter, createWebHistory } from "vue-router";
+import store from "@/store";
+
+import Layout from "@/components/home/Layout.vue";
+import HomePage from "@/components/home/HomePage.vue";
+import Login from "@/components/registration/Login.vue";
+import Register from "@/components/registration/Register.vue";
+import Papers from "@/components/papers/Papers.vue";
+import PaperDetails from "@/components/papers/PaperDetails.vue";
+import Dashboard from "@/components/dashboard/Dashboard.vue";
+import Uploads from "@/components/dashboard/Uploads.vue";
+import Downloads from "@/components/dashboard/Downloads.vue";
+import Profile from "@/components/dashboard/Profile.vue";
+import Earnings from "@/components/dashboard/Earnings.vue";
+import UploadFile from "@/components/dashboard/UploadFile.vue";
+import Reviews from "@/components/dashboard/Reviews.vue";
+import Statistics from "@/components/dashboard/Statistics.vue";
+import DashboardLayout from "@/components/dashboard/DashboardLayout.vue";
+import Checkout from "@/components/dashboard/checkout.vue";
+
+const routes = [
+  {
+    path: "/",
+    component: Layout, // Layout wraps HomePage, Login, and Register
+    children: [
+      { path: "", component: HomePage },
+      { path: "login", component: Login },
+      { path: "register", component: Register },
+      { path: "papers", component: Papers },
+      { path: '/papers/:id', name: 'paper-details', component: PaperDetails },
+    ],
+  },
+  {
+    path: "/dashboard",
+    component: DashboardLayout, // Wrap Dashboard with DashboardLayout
+    meta: { requiresAuth: true },
+    children: [
+      { path: "", component: Dashboard },
+      { path: "uploads", component: Uploads },
+      { path: "downloads", component: Downloads },
+      { path: "profile", component: Profile },
+      { path: "earnings", component: Earnings },
+      { path: "upload-file", component: UploadFile },
+      { path: "reviews", component: Reviews },
+      { path: "statistics", component: Statistics },
+      { path: "checkout", component: Checkout },
+    ],
+  },
+];
+
+const router = createRouter({
+  history: createWebHistory(),
+  routes,
+});
+
+router.beforeEach((to, from, next) => {
+  if (to.meta.requiresAuth && !store.state.authentication.token) {
+    next("/login");
+  } else {
+    next();
+  }
+});
+
+export default router;
