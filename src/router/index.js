@@ -17,6 +17,10 @@ import Reviews from "@/components/dashboard/Reviews.vue";
 import Statistics from "@/components/dashboard/Statistics.vue";
 import DashboardLayout from "@/components/dashboard/DashboardLayout.vue";
 import Checkout from "@/components/dashboard/checkout.vue";
+import PaypalSuccess from "../components/papers/PaypalSuccess.vue";
+import PaypalFailure from "../components/papers/PaypalFailure.vue";
+import StripePaymentSuccess from "@/components/papers/StripePaymentSuccess.vue";
+import StripePaymentFailure from "@/components/papers/StripePaymentFailure.vue";
 
 const routes = [
   {
@@ -28,6 +32,10 @@ const routes = [
       { path: "register", component: Register },
       { path: "papers", component: Papers },
       { path: '/papers/:id', name: 'paper-details', component: PaperDetails },
+      { path: "/payment-success", component: PaypalSuccess },
+      { path: "/payment-failure", component: PaypalFailure },
+      { path: "/stripe-payment-success", component: StripePaymentSuccess },
+      { path: "/stripe-payment-cancelled", component: StripePaymentFailure },
     ],
   },
   {

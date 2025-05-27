@@ -30,9 +30,9 @@
         </router-link>
       </div>
       <PaymentModal 
-        :visible="showModal" 
-        @close="showModal = false" 
-        message="Your paper was uploaded successfully!"
+        :visible="showModal"
+        :amount="paperDetails.price"
+        @close="showModal = false"
       />
     </div>
   </template>
@@ -42,7 +42,7 @@
   import PaymentModal from '@/components/papers/PaymentModal.vue';
   import { VPdfViewer } from '@vue-pdf-viewer/viewer';
   import { mapActions } from 'vuex';
-  
+
   export default {
     name: 'PaperDetails',
     components: { 
@@ -55,7 +55,8 @@
         paperDetails: null,
         isLoading: true,
         showPreview: false,
-        showModal: false
+        showModal: false,
+        // selectedOrder: null
       };
     },
     methods: {
@@ -71,6 +72,24 @@
           this.isLoading = false;
         }
       },
+      // async handleProceedToPayment() {
+      //   if (!this.paperDetails) return;
+
+      //   try {
+      //     // create a new order for this paper
+      //     const order = await this.createOrder({
+      //       paperId: this.paperDetails.id,
+      //       price:   this.paperDetails.price
+      //     });
+
+      //     // store and open the modal
+      //     this.selectedOrder = order;
+      //     this.showModal = true;
+      //   } catch (err) {
+      //     console.error('Order creation failed:', err);
+      //     alert('Could not create order. Please try again.');
+      //   }
+      // },
       addToCart(paper) {
         alert(`✅ "${paper.title}" has been added to your cart!`);
       },

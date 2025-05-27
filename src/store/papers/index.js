@@ -9,6 +9,8 @@ const state = {
   paperDetails: null,
   uploadedPapers: [],
   downloadedPapers: [],
+  orders: [],
+  orderDetails: null,
 };
 
 const mutations = {
@@ -35,6 +37,12 @@ const mutations = {
   },
   SET_DOWNLOADED_PAPERS(state, papers) {
     state.downloadedPapers = papers;
+  },
+  SET_ORDERS(state, orders) {
+    state.orders = orders;
+  },
+  SET_ORDER_DETAILS(state, order) {
+    state.orderDetails = order;
   },
 };
 
@@ -139,7 +147,71 @@ const actions = {
     } catch (error) {
       throw error;
     }
-  }
+  },
+
+  async initiateMpesaPayment({ rootState }, { phoneNumber, amount }) {
+    // you might pull the JWT token automatically via your api instance
+    const payload = {
+      phone_number: phoneNumber,
+      amount:       amount,
+    };
+    const response = await api.post('/mpesa_api/lipa-online/', payload);
+    return response.data;
+  },
+
+  async createPaypalOrder({ rootState }, { amount }) {
+    try {
+      const response = await api.post('/paypal_api/create/', { amount });
+      return response.data;  // { orderID: '...' }
+    } catch (error) {
+      console.error('Error creating PayPal order:', error);
+      throw error;
+    }
+  },
+
+  async capturePaypalOrder({ rootState }, { orderID, payerID }) {
+    try {
+      const response = await api.post('/paypal_api/capture/', { orderID, payerID });
+      return response.data;  // { status: 'COMPLETED', ... }
+    } catch (error) {
+      console.error('Error capturing PayPal order:', error);
+      throw error;
+    }
+  },
+
+  async createStripeSession({ rootState }, { amount, title }) {
+    try {
+      const { data } = await api.post('/stripe_api/create/', { amount, title });
+      return data.id; // sessionId
+    } catch (err) {
+      console.error('Stripe session creation failed:', err);
+      throw err;
+    }
+  },  
+
+
+  async fetchOrders({ commit }) {
+    const { data } = await api.get('/exampapers/orders/');
+    commit('SET_ORDERS', data);
+    return data;
+  },
+  async fetchOrderById({ commit }, orderId) {
+    const { data } = await api.get(`/exampapers/orders/${orderId}/`);
+    commit('SET_ORDER_DETAILS', data);
+    return data;
+  },
+
+  async createOrder({ dispatch }, { paperId, price }) {
+    const { data } = await api.post('/exampapers/create-order/', {
+      paper: paperId,
+      price,
+    });
+    // optionally: reload orders list
+    await dispatch('fetchOrders');
+    return data;
+  },
+
+
 };
 
 const getters = {
@@ -147,6 +219,8 @@ const getters = {
   courses: (state) => state.courses,
   schools: (state) => state.schools,
   paperDetails: (state) => state.paperDetails,
+  allOrders: (state) => state.orders,
+  orderDetails: (state) => state.orderDetails,
 };
 
 export default {

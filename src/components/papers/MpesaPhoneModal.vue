@@ -29,14 +29,6 @@
         type: Boolean,
         default: false
       },
-      onClose: {
-        type: Function,
-        default: () => {}
-      },
-      onConfirm: {
-        type: Function,
-        default: () => {}
-      }
     },
     data() {
       return {
@@ -46,17 +38,11 @@
     },
     methods: {
       validatePhoneNumber() {
-        // Basic phone number validation for 10 digits
         const phonePattern = /^[0-9]{10}$/;
         this.isPhoneValid = phonePattern.test(this.phoneNumber);
       },
       confirmPayment() {
-        if (!this.isPhoneValid) {
-          alert('Please enter a valid phone number.');
-          return;
-        }
-        this.onConfirm(this.phoneNumber); // Pass the phone number back to parent
-        this.closeModal();
+        this.$emit('confirm', this.phoneNumber);
       },
       closeModal() {
         this.onClose(); // Emit close event to parent
