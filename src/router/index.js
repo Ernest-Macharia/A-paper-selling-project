@@ -17,10 +17,14 @@ import Reviews from "@/components/dashboard/Reviews.vue";
 import Statistics from "@/components/dashboard/Statistics.vue";
 import DashboardLayout from "@/components/dashboard/DashboardLayout.vue";
 import Checkout from "@/components/dashboard/checkout.vue";
-import PaypalSuccess from "../components/papers/PaypalSuccess.vue";
-import PaypalFailure from "../components/papers/PaypalFailure.vue";
+import PaypalSuccess from "@/components/papers/PaypalSuccess.vue";
+import PaypalFailure from "@/components/papers/PaypalFailure.vue";
 import StripePaymentSuccess from "@/components/papers/StripePaymentSuccess.vue";
 import StripePaymentFailure from "@/components/papers/StripePaymentFailure.vue";
+import CoursesPage from "@/components/papers/CoursesPage.vue";
+import CategoriesPage from "@/components/papers/CategoriesPage.vue";
+import CategoryPapersPage from "@/components/papers/CategoryPapersPage.vue";
+import CoursePapersPage from "@/components/papers/CoursePapersPage.vue";
 
 const routes = [
   {
@@ -36,6 +40,18 @@ const routes = [
       { path: "/payment-failure", component: PaypalFailure },
       { path: "/stripe-payment-success", component: StripePaymentSuccess },
       { path: "/stripe-payment-cancelled", component: StripePaymentFailure },
+      { path: '/courses', name: 'Courses', component: CoursesPage },
+      { path: '/categories', name: 'Categories', component: CategoriesPage },
+      {
+        path: '/categories/:categoryId/papers',
+        name: 'CategoryPapersPage',
+        component: CategoryPapersPage
+      },
+      {
+        path: '/courses/:courseId/papers',
+        name: 'CoursePapersPage',
+        component: CoursePapersPage
+      }
     ],
   },
   {

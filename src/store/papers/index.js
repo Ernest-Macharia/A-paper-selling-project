@@ -47,23 +47,30 @@ const mutations = {
 };
 
 const actions = {
-  async fetchCategories({ commit, rootState }) {
+  async fetchCategories({ commit }, { search = '', page = 1 } = {}) {
     try {
-      const response = await api.get('/exampapers/categories/',);
+      const response = await api.get('/exampapers/categories/', {
+        params: {
+          search,
+          page,
+          ordering: '-paper_count',
+        },
+      });
       commit('SET_CATEGORIES', response.data);
+      return response.data;
     } catch (error) {
-      if (error.response && error.response.status === 401) {
-        console.error('Unauthorized - Please log in again.');
-      } else {
-        console.error('Error fetching categories:', error);
-      }
+      console.error('Error fetching categories:', error);
+      throw error;
     }
-  },
+  },  
 
-  async fetchCourses({ commit, rootState }) {
+  async fetchCourses({ commit }, { search = '', page = 1 } = {}) {
     try {
-      const response = await api.get('/exampapers/courses/');
+      const response = await api.get('/exampapers/courses/', {
+        params: { search, page },
+      });
       commit('SET_COURSES', response.data);
+      return response.data;
     } catch (error) {
       if (error.response && error.response.status === 401) {
         console.error('Unauthorized - Please log in again.');
@@ -71,12 +78,13 @@ const actions = {
         console.error('Error fetching courses:', error);
       }
     }
-  },
+  },  
 
   async fetchPopularCourses({ commit }) {
     try {
       const response = await api.get('/exampapers/popular-courses/');
       commit('SET_POPULAR_COURSES', response.data);
+      return response.data;
     } catch (error) {
       console.error('Error fetching popular courses:', error);
     }

@@ -1,66 +1,72 @@
 <template>
   <nav class="navbar navbar-expand-lg custom-navbar">
     <div class="container">
-      <router-link class="navbar-brand me-auto" to="/">GradesHub</router-link>
+      <router-link class="navbar-brand" to="/">GradesWorld</router-link>
 
-      <div class="d-flex flex-grow-1 justify-content-center">
-        <div class="input-group search-box">
-          <span class="input-group-text bg-white border-end-0">
-            <i class="bi bi-search text-primary"></i>
-          </span>
-          <input 
-            type="text" 
-            class="form-control border-start-0"
-            placeholder="Search papers..."
-            @input="searchPapers"
-          />
+      <!-- 📱 Toggler button for mobile -->
+      <button
+        class="navbar-toggler"
+        type="button"
+        data-bs-toggle="collapse"
+        data-bs-target="#navbarContent"
+        aria-controls="navbarContent"
+        aria-expanded="false"
+        aria-label="Toggle navigation"
+      >
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <!-- 🌐 Navbar content collapsible on mobile -->
+      <div class="collapse navbar-collapse" id="navbarContent">
+        <ul class="navbar-nav me-auto ms-3 mb-2 mb-lg-0">
+          <li class="nav-item">
+            <router-link class="nav-link text-white" to="/courses">Courses</router-link>
+          </li>
+          <li class="nav-item">
+            <router-link class="nav-link text-white" to="/categories">Categories</router-link>
+          </li>
+        </ul>
+
+        <!-- 🔍 Centered search box (will move under on small screens) -->
+        <div class="d-flex mx-auto my-2 my-lg-0" style="width: 100%; max-width: 400px;">
+          <div class="input-group search-box w-100">
+            <span class="input-group-text bg-white border-end-0">
+              <i class="bi bi-search text-primary"></i>
+            </span>
+            <input
+              type="text"
+              class="form-control border-start-0"
+              placeholder="Search papers..."
+              @input="searchPapers"
+            />
+          </div>
         </div>
-      </div>
 
-      <div class="d-flex">
-        <router-link class="btn btn-outline-primary mx-2" to="/login">Login</router-link>
-        <router-link class="btn btn-outline-success mx-2" to="/register">Sell</router-link>
+        <!-- 👤 Auth buttons -->
+        <div class="d-flex ms-auto mt-2 mt-lg-0">
+          <router-link class="btn btn-outline-primary mx-2" to="/login">Login</router-link>
+          <router-link class="btn btn-outline-success mx-2" to="/register">Sell</router-link>
+        </div>
       </div>
     </div>
   </nav>
 </template>
-  
-  <script>
-  // import { mapActions } from "vuex";
-  
-  export default {
-    name: "Home",
-    // data() {
-    //   return {
-    //     query: "",
-    //     papers: [],
-    //     loading: false,
-    //   };
-    // },
-    // methods: {
-    //   ...mapActions(["fetchPapers"]),
-  
-    //   async searchPapers() {
-    //     if (!this.query.trim()) {
-    //       this.papers = [];
-    //       return;
-    //     }
-  
-    //     this.loading = true;
-    //     try {
-    //       const results = await this.fetchPapers(this.query);
-    //       this.papers = results;
-    //     } catch (error) {
-    //       console.error("Error fetching papers:", error);
-    //     } finally {
-    //       this.loading = false;
-    //     }
-    //   },
-    // },
-  };
-  </script>
 
-  <style scoped>
+<script>
+export default {
+  name: "Home",
+  methods: {
+    searchPapers(event) {
+      const query = event.target.value.trim();
+      if (query.length > 2) {
+        this.$router.push({ path: '/search', query: { q: query } });
+      }
+    },
+  },
+};
+</script>
+
+<style scoped>
   .custom-navbar {
     position: sticky;
     top: 0;
@@ -73,6 +79,10 @@
     font-weight: bold;
     font-size: 1.4rem;
     color: #fff !important;
+  }
+
+  .navbar-toggler {
+    border: none;
   }
 
   .navbar-brand:hover {
@@ -113,4 +123,3 @@
   }
 
 </style>
-  

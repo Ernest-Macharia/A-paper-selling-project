@@ -4,13 +4,13 @@
     <!-- Hero Section -->
     <section class="hero text-center text-white d-flex align-items-center" data-aos="fade-up" data-aos-delay="200" data-aos-duration="1000">
       <div class="container">
-        <h1 class="fade-in">📚 Share & Discover Academic Papers</h1>
+        <h1 class="fade-in">Share & Discover Academic Papers</h1>
         <p class="lead fade-in">
           Upload, download, and earn from academic content with ease.
         </p>
         <div class="btn-container fade-in">
-          <router-link to="/register" class="btn btn-primary btn-lg">🚀 Get Started</router-link>
-          <router-link to="/login" class="btn btn-outline-light btn-lg ms-2">🔑 Login</router-link>
+          <router-link to="/register" class="btn btn-primary btn-lg">Get Started</router-link>
+          <router-link to="/login" class="btn btn-outline-light btn-lg ms-2">Login</router-link>
         </div>
       </div>
     </section>
@@ -18,7 +18,7 @@
     <!-- How It Works Section -->
     <section class="how-it-works text-center my-5" data-aos="zoom-in" data-aos-delay="200" data-aos-duration="1000">
       <div class="container">
-        <h2>🛠️ How It Works</h2>
+        <h2>How It Works</h2>
         <div class="row">
           <div class="col-md-3">
             <i class="fas fa-user-graduate step-icon"></i>
@@ -47,7 +47,7 @@
     <!-- Featured Papers Section -->
     <section class="featured-papers bg-light py-5" data-aos="slide-left">
       <div class="container">
-        <h2 class="text-center mb-4">📚 Latest Papers</h2>
+        <h2 class="text-center mb-4">Latest Papers</h2>
         <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-3">
           <div class="col" v-for="(paper, index) in latestPapers" :key="index">
             <router-link :to="{ name: 'paper-details', params: { id: paper.id } }" class="paper-link card p-3 shadow-sm h-100 text-decoration-none">
@@ -65,7 +65,7 @@
     <!-- Popular Courses Section -->
     <section class="popular-courses py-5 bg-white" data-aos="slide-up" >
       <div class="container">
-        <h2 class="text-center mb-4">🔥 Popular Courses</h2>
+        <h2 class="text-center mb-4">Popular Courses</h2>
         <swiper
           :slides-per-view="3"
           :space-between="20"
@@ -88,7 +88,7 @@
     <!-- Top Contributors Section -->
     <section class="top-contributors text-center bg-light py-5" data-aos="zoom-in-up" data-aos-delay="200" data-aos-duration="1000">
       <div class="container">
-        <h2>🏆 Top Contributors</h2>
+        <h2>Top Contributors</h2>
         <div class="row">
           <div class="col-md-4" v-for="(user, index) in topContributors" :key="index">
             <div class="card p-3 shadow-sm mb-3">
@@ -104,7 +104,7 @@
     <!-- Why Choose Us -->
     <section class="why-us text-center py-5" data-aos="fade-right">
       <div class="container">
-        <h2>💡 Why Choose GradesHub?</h2>
+        <h2>Why Choose GradesHub?</h2>
         <div class="row">
           <div class="col-md-4">
             <i class="fas fa-bolt fa-2x text-primary mb-2"></i>
@@ -128,7 +128,7 @@
     <!-- Testimonials Section -->
     <section class="testimonials text-center my-5" data-aos="fade-up" data-aos-delay="200" data-aos-duration="1000">
       <div class="container">
-        <h2>⭐ What Our Users Say</h2>
+        <h2>What Our Users Say</h2>
         <div id="testimonialCarousel" class="carousel slide" data-bs-ride="carousel" data-bs-interval="2000">
           <div class="carousel-inner">
             <div 
@@ -165,7 +165,7 @@
     <!-- Newsletter CTA -->
     <section class="newsletter text-center text-white py-5" data-aos="zoom-in">
       <div class="container">
-        <h2>📬 Stay Updated</h2>
+        <h2>Stay Updated</h2>
         <p class="lead">Get notified about new papers, features, and opportunities.</p>
         <form class="row justify-content-center">
           <div class="col-md-6">
@@ -180,7 +180,7 @@
 
     <!-- Call to Action -->
     <section class="cta text-center bg-primary text-white py-5" data-aos="slide-up">
-      <h2>🚀 Start Your Journey Today!</h2>
+      <h2>Start Your Journey Today!</h2>
       <router-link to="/register" class="btn btn-light btn-lg">Sign Up</router-link>
     </section>
 
@@ -227,6 +227,8 @@ export default {
   components: {
     Footer,
     Navbar,
+    Swiper,
+    SwiperSlide,
   },
   data() {
     return {
@@ -256,9 +258,9 @@ export default {
     };
   },
 
-  created() {
-    this.loadLatestPapers();
-    this.loadPopularCourses();
+  async created() {
+    await this.loadLatestPapers();
+    await this.loadPopularCourses();
   },
 
   methods: {
@@ -266,23 +268,23 @@ export default {
     async loadLatestPapers() {
       try {
         const data = await this.fetchAllPapers();
-        // Sort papers by upload_date in descending order
-        const sortedPapers = data.sort((a, b) => new Date(b.upload_date) - new Date(a.upload_date));
-        // Take the top 6 latest papers
+        const sortedPapers = data.results.sort(
+          (a, b) => new Date(b.upload_date) - new Date(a.upload_date)
+        );
         this.latestPapers = sortedPapers.slice(0, 6);
       } catch (error) {
         console.error('Error fetching latest papers:', error);
       }
     },
+
     async loadPopularCourses() {
       try {
         const data = await this.fetchPopularCourses();
-        this.popularCourses = data;
+        this.popularCourses = data.results;
       } catch (error) {
         console.error('Error fetching popular courses:', error);
       }
     }
-
   },
 };
 </script>
