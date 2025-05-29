@@ -4,6 +4,7 @@ const state = {
   categories: [],
   courses: [],
   popularCourses: [],
+  popularCategories: [],
   schools: [],
   allPapers: [],
   paperDetails: null,
@@ -22,6 +23,9 @@ const mutations = {
   },
   SET_POPULAR_COURSES(state, popularCourses) {
     state.popularCourses = popularCourses;
+  },
+  SET_POPULAR_CATEGORIES(state, popularCategories) {
+    state.popularCategories = popularCategories;
   },
   SET_SCHOOLS (state, schools) {
     state.schools = schools;
@@ -87,6 +91,16 @@ const actions = {
       return response.data;
     } catch (error) {
       console.error('Error fetching popular courses:', error);
+    }
+  },
+
+  async fetchPopularCategories({ commit }) {
+    try {
+      const response = await api.get('/exampapers/popular-categories/');
+      commit('SET_POPULAR_CATEGORIES', response.data);
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching popular categories:', error);
     }
   },
 

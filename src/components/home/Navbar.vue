@@ -45,7 +45,7 @@
         <!-- 👤 Auth buttons -->
         <div class="d-flex ms-auto mt-2 mt-lg-0">
           <router-link class="btn btn-outline-primary mx-2" to="/login">Login</router-link>
-          <router-link class="btn btn-outline-success mx-2" to="/register">Sell</router-link>
+          <router-link class="btn btn-outline-success mx-2" to="/register"><i class="fas fa-upload fa-lg"></i>Sell</router-link>
         </div>
       </div>
     </div>
