@@ -1,10 +1,10 @@
 <template>
   <Navbar />
   <div class="container py-5">
-    <h2 class="mb-4 text-primary">Browse by Categories</h2>
+    <h2 class="mb-4 text-primary-emphasis">Browse by Categories</h2>
 
-    <!--  Search Bar -->
-    <div class="mb-4">
+    <!-- Search Bar -->
+    <div class="mb-4 search-bar">
       <input
         v-model="searchQuery"
         @input="onSearch"
@@ -19,47 +19,77 @@
       <p>No categories found.</p>
     </div>
 
-    <!-- Category Cards -->
-    <div v-else class="row g-4">
-      <div
-        v-for="category in categories"
-        :key="category.id"
-        class="col-md-4"
-      >
-        <router-link class="text-decoration-none">
-          <div class="card h-100 shadow border-0 rounded-4 bg-light">
-            <div class="card-body">
-              <h5 class="card-title text-primary">{{ category.name }}</h5>
-              <p v-if="category.paper_count > 0" class="card-text text-muted">
+    <!-- Categories Table -->
+    <div v-else class="table-responsive rounded-4 shadow-sm">
+      <table class="table table-bordered table-hover align-middle mb-0">
+        <thead class="table-light">
+          <tr>
+            <th @click="toggleSort('name')" class="sortable">
+              Name
+              <i
+                v-if="sortKey === 'name'"
+                :class="sortAsc ? 'bi bi-caret-up-fill' : 'bi bi-caret-down-fill'"
+                class="ms-2"
+              ></i>
+              <i v-else class="bi bi-caret-up bi bi-caret-down text-muted ms-2"></i>
+            </th>
+
+            <th @click="toggleSort('paper_count')" class="sortable">
+              Paper Count
+              <i
+                v-if="sortKey === 'paper_count'"
+                :class="sortAsc ? 'bi bi-caret-up-fill' : 'bi bi-caret-down-fill'"
+                class="ms-2"
+              ></i>
+              <i v-else class="bi bi-caret-up bi bi-caret-down text-muted ms-2"></i>
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr
+            v-for="category in sortedCategories"
+            :key="category.id"
+          >
+            <td>
+              <router-link
+                :to="`/categories/${category.id}`"
+                class="text-decoration-none text-primary fw-semibold"
+              >
+                {{ category.name }}
+              </router-link>
+            </td>
+            <td>
+              <span v-if="category.paper_count > 0">
                 {{ category.paper_count }} {{ category.paper_count === 1 ? 'paper' : 'papers' }}
-              </p>
-              <p v-else class="card-text text-muted">No papers available.</p>
-            </div>
-          </div>
-        </router-link>
-      </div>
+              </span>
+              <span v-else>No papers</span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
     </div>
 
-    <!-- 📄 Pagination Controls -->
+    <!-- Pagination Controls -->
     <div
       v-if="totalPages > 1"
-      class="d-flex justify-content-center align-items-center gap-3 mt-4"
+      class="d-flex justify-content-center mt-4"
     >
-      <button
-        class="btn btn-outline-primary"
-        :disabled="currentPage === 1"
-        @click="changePage(currentPage - 1)"
-      >
-        Previous
-      </button>
-      <span class="fw-semibold text-primary">Page {{ currentPage }} of {{ totalPages }}</span>
-      <button
-        class="btn btn-outline-primary"
-        :disabled="currentPage === totalPages"
-        @click="changePage(currentPage + 1)"
-      >
-        Next
-      </button>
+      <ul class="pagination">
+        <li class="page-item" :class="{ disabled: currentPage === 1 }">
+          <button class="page-link" @click="changePage(currentPage - 1)">« Prev</button>
+        </li>
+        <li
+          v-for="page in totalPages"
+          :key="page"
+          class="page-item"
+          :class="{ active: currentPage === page }"
+        >
+          <button class="page-link" @click="changePage(page)">{{ page }}</button>
+        </li>
+        <li class="page-item" :class="{ disabled: currentPage === totalPages }">
+          <button class="page-link" @click="changePage(currentPage + 1)">Next »</button>
+        </li>
+      </ul>
     </div>
   </div>
 </template>
@@ -78,7 +108,25 @@ export default {
       searchQuery: '',
       currentPage: 1,
       totalPages: 1,
+      sortKey: 'name',
+      sortAsc: true,
     };
+  },
+
+  computed: {
+    sortedCategories() {
+      return [...this.categories].sort((a, b) => {
+        const aVal = a[this.sortKey];
+        const bVal = b[this.sortKey];
+        if (typeof aVal === 'string') {
+          return this.sortAsc
+            ? aVal.localeCompare(bVal)
+            : bVal.localeCompare(aVal);
+        } else {
+          return this.sortAsc ? aVal - bVal : bVal - aVal;
+        }
+      });
+    },
   },
 
   async created() {
@@ -113,6 +161,42 @@ export default {
         this.loadCategories();
       }
     },
-  },
+
+    toggleSort(key) {
+      if (this.sortKey === key) {
+        this.sortAsc = !this.sortAsc;
+      } else {
+        this.sortKey = key;
+        this.sortAsc = true;
+      }
+    },
+  }
 };
 </script>
+
+<style scoped>
+.sortable {
+  cursor: pointer;
+  user-select: none;
+}
+
+.sortable i {
+  font-size: 0.85rem;
+}
+.search-bar input {
+  max-width: 400px;
+}
+.pagination .page-link {
+  color: #007bff;
+  border: none;
+  background-color: transparent;
+}
+.pagination .page-link:hover {
+  background-color: #e9f5ff;
+}
+.pagination .active .page-link {
+  background-color: #007bff;
+  color: white;
+  border-radius: 0.25rem;
+}
+</style>

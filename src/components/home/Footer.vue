@@ -53,7 +53,7 @@
 
       <div class="text-center mt-4">
         <small class="text-primary">
-          &copy; {{ new Date().getFullYear() }} GradesHub. All rights reserved.
+          &copy; {{ new Date().getFullYear() }} Gradesworld. All rights reserved.
         </small>
       </div>
     </div>
