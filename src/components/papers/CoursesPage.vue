@@ -22,17 +22,34 @@
     </div>
 
     <!-- Courses Table -->
-    <div v-else>
-      <table class="table table-hover align-middle">
+    <div v-else class="table-responsive rounded-4 shadow-sm">
+      <table class="table table-bordered table-hover align-middle mb-0">
         <thead class="table-light">
           <tr>
-            <th>Course Name</th>
-            <th class="text-center">Papers</th>
+            <th @click="toggleSort('name')" class="sortable">
+              Course Name
+              <i
+                v-if="sortKey === 'name'"
+                :class="sortAsc ? 'bi bi-caret-up-fill' : 'bi bi-caret-down-fill'"
+                class="ms-2"
+              ></i>
+              <i v-else class="bi bi-caret-up bi bi-caret-down text-muted ms-2"></i>
+            </th>
+
+            <th @click="toggleSort('paper_count')" class="sortable">
+              Paper Count
+              <i
+                v-if="sortKey === 'paper_count'"
+                :class="sortAsc ? 'bi bi-caret-up-fill' : 'bi bi-caret-down-fill'"
+                class="ms-2"
+              ></i>
+              <i v-else class="bi bi-caret-up bi bi-caret-down text-muted ms-2"></i>
+            </th>
           </tr>
         </thead>
         <tbody>
           <tr
-            v-for="course in courses"
+            v-for="course in sortedCourses"
             :key="course.id"
             class="cursor-pointer"
           >
@@ -92,7 +109,25 @@ export default {
       currentPage: 1,
       totalPages: 1,
       isLoading: false,
+      sortKey: 'name',
+      sortAsc: true,
     };
+  },
+
+  computed: {
+    sortedCourses() {
+      return [...this.courses].sort((a, b) => {
+        const aVal = a[this.sortKey];
+        const bVal = b[this.sortKey];
+        if (typeof aVal === 'string') {
+          return this.sortAsc
+            ? aVal.localeCompare(bVal)
+            : bVal.localeCompare(aVal);
+        } else {
+          return this.sortAsc ? aVal - bVal : bVal - aVal;
+        }
+      });
+    },
   },
 
   async created() {
@@ -134,11 +169,28 @@ export default {
       this.currentPage = 1;
       this.loadCourses();
     },
+
+    toggleSort(key) {
+      if (this.sortKey === key) {
+        this.sortAsc = !this.sortAsc;
+      } else {
+        this.sortKey = key;
+        this.sortAsc = true;
+      }
+    },
   },
 };
 </script>
 
 <style scoped>
+.sortable {
+  cursor: pointer;
+  user-select: none;
+}
+
+.sortable i {
+  font-size: 0.85rem;
+}
 .cursor-pointer {
   cursor: pointer;
 }

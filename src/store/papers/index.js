@@ -108,6 +108,7 @@ const actions = {
     try {
       const response = await api.get('/exampapers/schools/');
       commit('SET_SCHOOLS', response.data);
+      return response.data;
     } catch (error) {
       if (error.response && error.response.status === 401) {
         console.error('Unauthorized - Please log in again.');
@@ -138,9 +139,15 @@ const actions = {
     }
   },
 
-  async fetchUploadedPapers({ commit }) {
+  async fetchUploadedPapers({ commit }, { search = '', page = 1 } = {}) {
     try {
-      const response = await api.get('/exampapers/my-uploads/');
+      const response = await api.get('/exampapers/my-uploads/', {
+        params: {
+          search,
+          page,
+          ordering: '-paper_count',
+        },
+      });
       commit('SET_UPLOADED_PAPERS', response.data);
       return response.data;
     } catch (error) {
@@ -148,10 +155,25 @@ const actions = {
     }
   },
 
-  async fetchDownloadedPapers({ commit }) {
+  async fetchDownloadedPapers({ commit }, { search = '', page = 1 } = {}) {
     try {
-      const response = await api.get('/exampapers/my-downloads/');
+      const response = await api.get('/exampapers/my-downloads/', {
+        params: {
+          search,
+          page,
+          ordering: '-paper_count',
+        },
+      });
       commit('SET_DOWNLOADED_PAPERS', response.data);
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  async fetchDashboardStatistics({ commit }) {
+    try {
+      const response = await api.get('/exampapers/dashboard-stats/');
       return response.data;
     } catch (error) {
       throw error;

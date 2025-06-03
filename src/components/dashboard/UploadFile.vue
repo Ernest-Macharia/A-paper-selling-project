@@ -1,6 +1,6 @@
 <template>
   <div class="container py-5">
-    <h2 class="mb-4">📄 Upload a New Paper</h2>
+    <h2 class="mb-4 text-primary-emphasis">Upload a New Paper</h2>
 
     <form @submit.prevent="handleUpload" class="p-4 shadow-sm bg-white rounded">
       <!-- Title Input -->
@@ -322,8 +322,8 @@ export default {
 
     async loadCategories() {
       try {
-        await this.fetchCategories();
-        this.categories = this.$store.state.papers.categories;
+        const data = await this.fetchCategories();
+        this.categories = data.results;
       } catch (err) {
         console.error('Error loading categories:', err);
       }
@@ -331,8 +331,8 @@ export default {
 
     async loadCourses() {
       try {
-        await this.fetchCourses();
-        this.courses = this.$store.state.papers.courses;
+        const data = await this.fetchCourses();
+        this.courses = data.results;
       } catch (err) {
         console.error('Error loading courses:', err);
       }
@@ -340,8 +340,8 @@ export default {
 
     async loadSchools() {
       try {
-        await this.fetchSchools();
-        this.schools = this.$store.state.papers.schools;
+        const data = await this.fetchSchools();
+        this.schools = data.results;
       } catch (err) {
         console.error('Error loading schools:', err);
       }

@@ -70,8 +70,8 @@
               <div class="card-body d-flex flex-column justify-content-between">
                 <div>
                   <h5 class="card-title text-secondary mb-2 fw-semibold">{{ paper.title }}</h5>
-                  <p class="mb-1 text-muted small"><i class="bi bi-book"></i> {{ paper.course.name }}</p>
-                  <p class="mb-1 text-muted small"><i class="bi bi-tags"></i> {{ paper.category.name }}</p>
+                  <p class="mb-1 text-muted small"><i class="bi bi-book"></i> {{ paper.course?.name }}</p>
+                  <p class="mb-1 text-muted small"><i class="bi bi-tags"></i> {{ paper.category?.name }}</p>
                   <p class="mb-3 text-muted small"><i class="bi bi-calendar-check"></i> {{ formatDate(paper.upload_date) }}</p>
                 </div>
               </div>

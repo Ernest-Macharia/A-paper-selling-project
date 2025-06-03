@@ -16,7 +16,7 @@
 
     <!-- Empty State -->
     <div v-if="categories.length === 0" class="text-center text-muted mt-5">
-      <p>No categories found.</p>
+      <p>No categories found matching your search.</p>
     </div>
 
     <!-- Categories Table -->
@@ -25,7 +25,7 @@
         <thead class="table-light">
           <tr>
             <th @click="toggleSort('name')" class="sortable">
-              Name
+              Category Name
               <i
                 v-if="sortKey === 'name'"
                 :class="sortAsc ? 'bi bi-caret-up-fill' : 'bi bi-caret-down-fill'"

@@ -1,53 +1,65 @@
 <template>
   <div class="downloads-container">
-    <h2>📥 My Downloaded Papers</h2>
+    <h2 class="mb-4 text-primary-emphasis">My Downloaded Papers</h2>
 
-    <table class="papers-table">
-      <thead>
-        <tr>
-          <th>Title</th>
-          <th>File</th>
-          <th>Price</th>
-          <th>Download Date</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="paper in paginatedDownloads" :key="paper.id">
-          <td>{{ paper.title }}</td>
-          <td>
-            <a :href="paper.file" target="_blank" class="btn btn-sm btn-outline-primary">
-              View File
-            </a>
-          </td>
-          <td>
-            {{ paper.price !== null && paper.price !== undefined 
-              ? '$' + Number(paper.price).toFixed(2) 
-              : '—' }}
-          </td>
-          <td>{{ formatDate(paper.download_date) }}</td>
-        </tr>
-      </tbody>
-    </table>
+    <template v-if="downloadedPapersList.length">
+      <table class="papers-table">
+        <thead>
+          <tr>
+            <th>Title</th>
+            <th>File</th>
+            <th>Price</th>
+            <th>Download Date</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="paper in paginatedDownloads" :key="paper.id">
+            <td>{{ paper.title }}</td>
+            <td>
+              <a
+                :href="paper.file"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="btn btn-sm btn-outline-primary"
+                download
+              >
+                View File
+              </a>
+            </td>
+            <td>
+              {{ paper.price != null
+                ? '$' + Number(paper.price).toFixed(2)
+                : '—' }}
+            </td>
+            <td>{{ formatDate(paper.download_date) }}</td>
+          </tr>
+        </tbody>
+      </table>
 
-    <!-- <p v-else>No papers downloaded yet.</p> -->
+      <div class="pagination" v-if="totalPages > 1">
+        <button
+          :disabled="currentPage === 1"
+          @click="currentPage--"
+          aria-label="Previous Page"
+        >
+          ⬅ Prev
+        </button>
 
-    <div class="pagination" v-if="totalPages > 1">
-      <button 
-        :disabled="currentPage === 1" 
-        @click="currentPage--"
-      >
-        ⬅ Prev
-      </button>
+        <span>Page {{ currentPage }} of {{ totalPages }}</span>
 
-      <span>Page {{ currentPage }} of {{ totalPages }}</span>
+        <button
+          :disabled="currentPage === totalPages"
+          @click="currentPage++"
+          aria-label="Next Page"
+        >
+          Next ➡
+        </button>
+      </div>
+    </template>
 
-      <button 
-        :disabled="currentPage === totalPages" 
-        @click="currentPage++"
-      >
-        Next ➡
-      </button>
-    </div>
+    <p v-else class="no-downloads-message">
+      You haven't downloaded any papers yet.
+    </p>
   </div>
 </template>
 
@@ -69,23 +81,22 @@ export default {
     },
     paginatedDownloads() {
       const start = (this.currentPage - 1) * this.perPage;
-      const end = start + this.perPage;
-      return this.downloadedPapersList.slice(start, end);
+      return this.downloadedPapersList.slice(start, start + this.perPage);
     }
   },
   methods: {
     ...mapActions('papers', ['fetchDownloadedPapers']),
-
     async fetchPapers() {
       try {
         const response = await this.fetchDownloadedPapers();
-        this.downloadedPapersList = response;
-        this.currentPage = 1; // Reset to page 1 when fetching
+        this.downloadedPapersList = Array.isArray(response) ? response : [];
+        this.currentPage = 1;
       } catch (error) {
         console.error('❌ Failed to fetch downloaded papers:', error);
       }
     },
     formatDate(date) {
+      if (!date) return '—';
       return new Date(date).toLocaleDateString(undefined, {
         year: 'numeric',
         month: 'short',
@@ -93,8 +104,8 @@ export default {
       });
     }
   },
-  async created() {
-    await this.fetchPapers();
+  created() {
+    this.fetchPapers();
   }
 };
 </script>
@@ -148,7 +159,10 @@ export default {
   cursor: not-allowed;
 }
 
-button.btn-secondary {
-  margin-top: 10px;
+.no-downloads-message {
+  margin-top: 1rem;
+  text-align: center;
+  font-style: italic;
+  color: #666;
 }
 </style>

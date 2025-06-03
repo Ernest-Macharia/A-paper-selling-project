@@ -1,93 +1,168 @@
 <template>
-  <div class="uploads-container">
-    <h2>📚 My Uploaded Papers</h2>
+  <div class="container py-5">
+    <h2 class="mb-4 text-primary-emphasis">My Uploaded Papers</h2>
 
-    <table class="papers-table" v-if="paginatedPapers.length">
-      <thead>
-        <tr>
-          <th>Title</th>
-          <th>File</th>
-          <th>Price</th>
-          <th>Upload Date</th>
-          <th>Status</th>
-          <th>Views</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="paper in paginatedPapers" :key="paper.id">
-          <td>{{ paper.title }}</td>
-          <td>
-            <a :href="paper.file" target="_blank" class="btn btn-sm btn-outline-primary">
-                View File
-              </a>
-          </td>
-          <td>
-            {{ paper.price !== null && paper.price !== undefined 
-              ? '$' + Number(paper.price).toFixed(2) 
-              : '—' }}
-          </td>
-          <td>{{ formatDate(paper.upload_date) }}</td>
-          <td>{{ statusLabel(paper.status) }}</td>
-          <td>{{ paper.views }}</td>
-        </tr>
-      </tbody>
-    </table>
+    <!-- Search -->
+    <div class="mb-4 search-bar">
+      <input
+        v-model="searchQuery"
+        @input="onSearch"
+        type="text"
+        class="form-control"
+        placeholder="Search uploaded papers..."
+      />
+    </div>
 
-    <p v-else>No papers uploaded yet.</p>
+    <!-- Empty State -->
+    <div v-if="filteredPapers.length === 0" class="text-center text-muted mt-5">
+      <p>No uploaded papers found.</p>
+    </div>
 
-    <div class="pagination" v-if="totalPages > 1">
-      <button 
-        :disabled="currentPage === 1" 
-        @click="currentPage--"
-      >
-        ⬅ Prev
-      </button>
+    <!-- Table -->
+    <div v-else class="table-responsive rounded-4 shadow-sm">
+      <table class="table table-bordered table-hover align-middle mb-0">
+        <thead class="table-light">
+          <tr>
+            <th @click="toggleSort('title')" class="sortable">
+              Title
+              <i :class="sortIcon('title')" class="ms-2"></i>
+            </th>
+            <th>File</th>
+            <th @click="toggleSort('price')" class="sortable">
+              Price
+              <i :class="sortIcon('price')" class="ms-2"></i>
+            </th>
+            <th @click="toggleSort('upload_date')" class="sortable">
+              Upload Date
+              <i :class="sortIcon('upload_date')" class="ms-2"></i>
+            </th>
+            <th @click="toggleSort('status')" class="sortable">
+              Status
+              <i :class="sortIcon('status')" class="ms-2"></i>
+            </th>
+            <th @click="toggleSort('views')" class="sortable">
+              Views
+              <i :class="sortIcon('views')" class="ms-2"></i>
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="paper in paginatedPapers" :key="paper.id">
+            <td>{{ paper.title }}</td>
+            <td>
+              <a :href="paper.file" target="_blank" class="btn btn-sm btn-outline-primary">View File</a>
+            </td>
+            <td>
+              {{ paper.price != null ? '$' + Number(paper.price).toFixed(2) : '—' }}
+            </td>
+            <td>{{ formatDate(paper.upload_date) }}</td>
+            <td>{{ statusLabel(paper.status) }}</td>
+            <td>{{ paper.views }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
 
-      <span>Page {{ currentPage }} of {{ totalPages }}</span>
-
-      <button 
-        :disabled="currentPage === totalPages" 
-        @click="currentPage++"
-      >
-        Next ➡
-      </button>
+    <!-- Pagination -->
+    <div v-if="totalPages > 1" class="d-flex justify-content-center mt-4">
+      <ul class="pagination">
+        <li class="page-item" :class="{ disabled: currentPage === 1 }">
+          <button class="page-link" @click="changePage(currentPage - 1)">« Prev</button>
+        </li>
+        <li
+          v-for="page in totalPages"
+          :key="page"
+          class="page-item"
+          :class="{ active: currentPage === page }"
+        >
+          <button class="page-link" @click="changePage(page)">{{ page }}</button>
+        </li>
+        <li class="page-item" :class="{ disabled: currentPage === totalPages }">
+          <button class="page-link" @click="changePage(currentPage + 1)">Next »</button>
+        </li>
+      </ul>
     </div>
   </div>
 </template>
 
 <script>
+import Navbar from '@/components/home/Navbar.vue';
 import { mapActions } from 'vuex';
 
 export default {
   name: 'Uploads',
+  components: { Navbar },
   data() {
     return {
       uploadedPapersList: [],
       currentPage: 1,
-      perPage: 4,
+      perPage: 8,
+      searchQuery: '',
+      sortKey: 'upload_date',
+      sortAsc: false,
     };
   },
   computed: {
-    totalPages() {
-      return Math.ceil(this.uploadedPapersList.length / this.perPage);
+    filteredPapers() {
+      const query = this.searchQuery.toLowerCase();
+      return this.uploadedPapersList.filter(paper =>
+        paper.title.toLowerCase().includes(query)
+      );
+    },
+    sortedPapers() {
+      return [...this.filteredPapers].sort((a, b) => {
+        const aVal = a[this.sortKey];
+        const bVal = b[this.sortKey];
+
+        if (typeof aVal === 'string') {
+          return this.sortAsc
+            ? aVal.localeCompare(bVal)
+            : bVal.localeCompare(aVal);
+        } else {
+          return this.sortAsc ? aVal - bVal : bVal - aVal;
+        }
+      });
     },
     paginatedPapers() {
       const start = (this.currentPage - 1) * this.perPage;
-      const end = start + this.perPage;
-      return this.uploadedPapersList.slice(start, end);
+      return this.sortedPapers.slice(start, start + this.perPage);
+    },
+    totalPages() {
+      return Math.ceil(this.filteredPapers.length / this.perPage);
     }
   },
   methods: {
     ...mapActions('papers', ['fetchUploadedPapers']),
-
     async fetchPapers() {
       try {
         const response = await this.fetchUploadedPapers();
-        this.uploadedPapersList = response;
-        this.currentPage = 1; // Reset to page 1 when fetching
+        this.uploadedPapersList = response.results;
+        this.currentPage = 1;
       } catch (error) {
-        console.error('❌ Failed to fetch papers:', error);
+        console.error('Error fetching uploaded papers:', error);
       }
+    },
+    onSearch() {
+      this.currentPage = 1;
+    },
+    changePage(page) {
+      if (page >= 1 && page <= this.totalPages) {
+        this.currentPage = page;
+      }
+    },
+    toggleSort(key) {
+      if (this.sortKey === key) {
+        this.sortAsc = !this.sortAsc;
+      } else {
+        this.sortKey = key;
+        this.sortAsc = true;
+      }
+    },
+    sortIcon(key) {
+      if (this.sortKey === key) {
+        return this.sortAsc ? 'bi bi-caret-up-fill' : 'bi bi-caret-down-fill';
+      }
+      return 'bi bi-caret-up bi bi-caret-down text-muted';
     },
     formatDate(date) {
       return new Date(date).toLocaleDateString(undefined, {
@@ -98,11 +173,11 @@ export default {
     },
     statusLabel(status) {
       const map = {
-        draft: "📝 Draft",
-        published: "✅ Published",
-        archived: "📦 Archived",
+        draft: '📝 Draft',
+        published: '✅ Published',
+        archived: '📦 Archived',
       };
-      return map[status] || "❓ Unknown";
+      return map[status] || '❓ Unknown';
     }
   },
   async created() {
@@ -112,55 +187,32 @@ export default {
 </script>
 
 <style scoped>
-.uploads-container {
-  padding: 1rem;
-}
-
-.papers-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-bottom: 1rem;
-}
-
-.papers-table th,
-.papers-table td {
-  border: 1px solid #ddd;
-  padding: 0.75rem;
-  text-align: center;
-}
-
-.papers-table th {
-  background: #4a90e2;
-  color: white;
-}
-
-.papers-table tbody tr:hover {
-  background-color: #f1f5ff;
-}
-
-.pagination {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 1rem;
-  margin: 1rem 0;
-}
-
-.pagination button {
-  padding: 0.5rem 1rem;
-  background: #4a90e2;
-  color: white;
-  border: none;
-  border-radius: 4px;
+.sortable {
   cursor: pointer;
+  user-select: none;
 }
 
-.pagination button:disabled {
-  background: #cccccc;
-  cursor: not-allowed;
+.sortable i {
+  font-size: 0.85rem;
 }
 
-button.btn-secondary {
-  margin-top: 10px;
+.search-bar input {
+  max-width: 400px;
+}
+
+.pagination .page-link {
+  color: #007bff;
+  border: none;
+  background-color: transparent;
+}
+
+.pagination .page-link:hover {
+  background-color: #e9f5ff;
+}
+
+.pagination .active .page-link {
+  background-color: #007bff;
+  color: white;
+  border-radius: 0.25rem;
 }
 </style>
