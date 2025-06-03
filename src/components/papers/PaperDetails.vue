@@ -44,7 +44,7 @@
             <div class="info-grid">
               <div><strong>📝 Title:</strong> {{ paperDetails.title }}</div>
               <div><strong>📖 Description:</strong> {{ paperDetails.description }}</div>
-              <div><strong>💰 Price:</strong> ${{ paperDetails.price }}</div>
+              <div><strong>💰 Price:</strong> ${{ paperDetails?.price }}</div>
               <div><strong>📅 Uploaded:</strong> {{ formatDate(paperDetails.upload_date) }}</div>
               <div><strong>📘 Course:</strong> {{ paperDetails.course.name || 'N/A' }}</div>
               <div><strong>🏷️ Category:</strong> {{ paperDetails.category.name || 'N/A' }}</div>
@@ -59,7 +59,7 @@
 
       <!-- Section: Action Buttons -->
       <section class="d-grid gap-3">
-        <button class="btn btn-success btn-lg w-100" @click="showModal = true">
+        <button class="btn btn-success btn-lg w-100" @click="handleProceedToPayment">
           🛒 Proceed to Payment
         </button>
         <button class="btn btn-outline-dark btn-lg w-100" @click="addToCart(paperDetails)">
@@ -80,7 +80,7 @@
 import Navbar from '@/components/home/Navbar.vue';
 import PaymentModal from '@/components/papers/PaymentModal.vue';
 import { VPdfViewer } from '@vue-pdf-viewer/viewer';
-import { mapActions } from 'vuex';
+import { mapActions, mapGetters } from 'vuex';
 
 export default {
   name: 'PaperDetails',
@@ -97,6 +97,11 @@ export default {
       showModal: false
     };
   },
+
+  computed: {
+    ...mapGetters('authentication', ['isAuthenticated'])
+  },
+
   methods: {
     ...mapActions('papers', ['fetchPaperById']),
     async fetchPaperDetails() {
@@ -119,7 +124,16 @@ export default {
         month: 'short',
         day: 'numeric'
       });
-    }
+    },
+
+    handleProceedToPayment() {
+      // if (this.isAuthenticated) {
+      //   // Redirect to login and remember the current route
+      //   this.$router.push('/login');
+      // } else {
+        this.showModal = true;
+      // }
+    },
   },
   created() {
     this.fetchPaperDetails();

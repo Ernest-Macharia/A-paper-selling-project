@@ -1,5 +1,8 @@
 <template>
-  <Navbar />
+  <Navbar
+    :categories="categories"
+    :papers="papers"
+  />
   <div class="container py-5">
     <h2 class="mb-4 text-center fw-bold text-primary-emphasis display-6">Explore Academic Papers</h2>
     

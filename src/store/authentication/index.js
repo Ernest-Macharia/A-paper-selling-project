@@ -13,6 +13,10 @@ const state = {
   token: localStorage.getItem("access") || ""
 };
 
+const getters = {
+  isAuthenticated: (state) => !!state.user,
+};
+
 const mutations = {
   SET_USER(state, user) {
     state.user = user;
@@ -68,6 +72,7 @@ const actions = {
 export default {
   namespaced: true,
   state,
+  getters,
   mutations,
   actions
 };

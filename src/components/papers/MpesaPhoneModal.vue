@@ -45,7 +45,7 @@
         this.$emit('confirm', this.phoneNumber);
       },
       closeModal() {
-        this.onClose(); // Emit close event to parent
+        this.$emit('close');
       }
     }
   };
