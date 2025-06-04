@@ -198,6 +198,7 @@
 <script>
 import { mapActions } from 'vuex';
 import UploadSuccessModal from '@/components/dashboard/UploadSuccessModal.vue';
+import { toast } from 'vue3-toastify';
 
 export default {
   name: 'UploadPaper',
@@ -279,17 +280,18 @@ export default {
       formData.append('title', this.paper.title);
       formData.append('description', this.paper.description);
       formData.append('price', this.paper.price);
-      formData.append('category', this.paper.category);
-      formData.append('course', this.paper.course);
-      formData.append('school', this.paper.school);
+      formData.append('category_id', this.paper.category);
+      formData.append('course_id', this.paper.course);
+      formData.append('school_id', this.paper.school);
       if (this.paper.file) formData.append('file', this.paper.file);
 
       try {
         await this.uploadPaper(formData);
         this.resetForm();
+        toast.success('Paper uploaded successfully!');
         this.successVisible = true;
-      } catch (err) {
-        console.error('Upload failed:', err);
+      } catch {
+        toast.error('Error uploading paper.');
       } finally {
         this.isLoading = false;
       }
@@ -300,9 +302,9 @@ export default {
         this.paper.title &&
         this.paper.description &&
         this.paper.price !== '' && this.paper.price >= 0 &&
-        this.paper.category &&
-        this.paper.course &&
-        this.paper.school &&
+        this.paper?.category &&
+        this.paper?.course &&
+        this.paper?.school &&
         this.paper.file
       );
     },
@@ -324,8 +326,8 @@ export default {
       try {
         const data = await this.fetchCategories();
         this.categories = data.results;
-      } catch (err) {
-        console.error('Error loading categories:', err);
+      } catch {
+        this.categories = [];
       }
     },
 
@@ -333,8 +335,8 @@ export default {
       try {
         const data = await this.fetchCourses();
         this.courses = data.results;
-      } catch (err) {
-        console.error('Error loading courses:', err);
+      } catch {
+        this.courses = [];
       }
     },
 
@@ -343,7 +345,7 @@ export default {
         const data = await this.fetchSchools();
         this.schools = data.results;
       } catch (err) {
-        console.error('Error loading schools:', err);
+        this.schools = [];
       }
     },
 

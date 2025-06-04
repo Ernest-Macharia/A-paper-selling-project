@@ -138,8 +138,8 @@ export default {
         const response = await this.fetchUploadedPapers();
         this.uploadedPapersList = response.results;
         this.currentPage = 1;
-      } catch (error) {
-        console.error('Error fetching uploaded papers:', error);
+      } catch {
+        this.uploadedPapersList = [];
       }
     },
     onSearch() {

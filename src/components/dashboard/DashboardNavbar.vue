@@ -41,7 +41,6 @@
           <li><router-link class="dropdown-item" to="/dashboard/downloads">📥 Downloads</router-link></li>
           <li><router-link class="dropdown-item" to="/dashboard/earnings">💰 Earnings</router-link></li>
           <li><router-link class="dropdown-item" to="/dashboard/reviews">⭐ Reviews</router-link></li>
-          <li><router-link class="dropdown-item" to="/dashboard/statistics">📊 Statistics</router-link></li>
           <li><hr class="dropdown-divider" /></li>
           <li>
             <button class="dropdown-item text-danger" @click="logout">🚪 Logout</button>

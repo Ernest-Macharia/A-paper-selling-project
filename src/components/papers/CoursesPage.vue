@@ -1,7 +1,7 @@
 <template>
   <Navbar />
   <div class="container py-5">
-    <h2 class="mb-4 text-primary">Explore Our Courses</h2>
+    <h2 class="mb-4 text-primary-emphasis fw-bold">Explore Our Courses</h2>
 
     <!-- Search Input -->
     <div class="row mb-3">

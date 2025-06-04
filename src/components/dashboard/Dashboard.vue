@@ -86,7 +86,6 @@ export default {
   name: "Dashboard",
   data() {
     return {
-      userName: "John Doe",
       statistics: [],
       // recentActivities: [
       //   "📄 Uploaded a new research paper on AI",
@@ -104,7 +103,9 @@ export default {
         {
           title: "Uploads",
           value: stats.user_papers_uploaded,
-          display: stats.user_papers_uploaded > 0 ? `${stats.user_papers_uploaded} papers` : "No uploads",
+          display: stats.user_papers_uploaded > 0
+            ? `${stats.user_papers_uploaded} ${stats.user_papers_uploaded === 1 ? 'paper' : 'papers'}`
+            : "No uploads",
           icon: "📄",
           isEmpty: stats.user_papers_uploaded === 0,
           tooltip: "You haven't uploaded any papers yet.",

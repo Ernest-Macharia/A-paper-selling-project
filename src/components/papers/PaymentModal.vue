@@ -53,6 +53,7 @@
 import { mapActions } from 'vuex';
 import MpesaPhoneModal from '@/components/papers/MpesaPhoneModal.vue';
 import { loadStripe } from '@stripe/stripe-js';
+import { toast } from 'vue3-toastify';
 
 const stripePromise = loadStripe('pk_test_51RTIWaReA2jsJqbBHslgQ6ToQrGYGJevwQk0sa7vRUFkQVaRQfdJU9FReZ9qShUx3XBFw2pCe8HqbyQdXb6dDm2e00Uc12H9UJ');
 
@@ -107,10 +108,11 @@ export default {
           phoneNumber: normalized,
           amount: this.amount
         });
-        alert(resp.CustomerMessage || 'Check your phone for the payment prompt.');
+        toast.success('M-Pesa payment initiated. Please check your phone for the payment prompt.');
         this.showSuccessThenClose();
       } catch (err) {
         this.paymentError = 'Failed to initiate M-Pesa payment.';
+        toast.error('Failed to initiate M-Pesa payment.');
       } finally {
         this.isProcessing = false;
         this.closePhoneModal();
@@ -129,6 +131,7 @@ export default {
         if (error) this.paymentError = error.message;
       } catch {
         this.paymentError = 'Stripe payment failed.';
+        toast.error('Stripe payment failed.');
       } finally {
         this.isProcessing = false;
       }
@@ -187,13 +190,17 @@ export default {
             try {
               const details = await actions.order.capture();
               alert('Transaction completed by ' + details.payer.name.given_name);
+              toast.success('Transaction completed by ' + details.payer.name.given_name);
+
               this.showSuccessThenClose();
-            } catch (err) {
+            } catch {
               this.paymentError = 'Error capturing PayPal payment.';
+              toast.error('Error capturing PayPal payment.');
             }
           },
           onError: err => {
             this.paymentError = 'PayPal error: ' + err.message;
+            toast.error('PayPal error: ' + err.message);
           }
         }).render('#paypal-button-container');
       }

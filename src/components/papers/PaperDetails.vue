@@ -40,7 +40,7 @@
         <div class="section-column">
           <!-- Section: Paper Details -->
           <section class="mb-4">
-            <h4 class="section-title">📚 Paper Details</h4>
+            <h4 class="section-title">Paper Details</h4>
             <div class="info-grid">
               <div><strong>📝 Title:</strong> {{ paperDetails.title }}</div>
               <div><strong>📖 Description:</strong> {{ paperDetails.description }}</div>
@@ -81,6 +81,7 @@ import Navbar from '@/components/home/Navbar.vue';
 import PaymentModal from '@/components/papers/PaymentModal.vue';
 import { VPdfViewer } from '@vue-pdf-viewer/viewer';
 import { mapActions, mapGetters } from 'vuex';
+import { toast } from 'vue3-toastify';
 
 export default {
   name: 'PaperDetails',
@@ -116,7 +117,7 @@ export default {
       }
     },
     addToCart(paper) {
-      alert(`✅ "${paper.title}" has been added to your cart!`);
+      toast.success(`✅ "${paper.title}" has been added to your cart!`);
     },
     formatDate(date) {
       return new Date(date).toLocaleDateString(undefined, {

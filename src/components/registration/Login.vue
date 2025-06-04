@@ -1,12 +1,12 @@
 <template>
   <nav class="navbar navbar-expand-lg custom-navbar">
     <div class="container">
-      <router-link class="navbar-brand me-auto" to="/">GradesHub</router-link>
+      <router-link class="navbar-brand me-auto" to="/">GradesWorld</router-link>
     </div>
   </nav>
   <div class="vh-100 d-flex justify-content-center align-items-center">
     <div class="card p-4 shadow-lg" style="width: 22rem;">
-      <h3 class="text-center mb-1 text-primary">Welcome to GradesHub</h3>
+      <h3 class="text-center mb-1 text-primary">Welcome to GradesWorld</h3>
       <p class="text-center mb-3 text-muted">Sign in to your account</p>
       <form @submit.prevent="handleLogin">
         <div class="mb-3">

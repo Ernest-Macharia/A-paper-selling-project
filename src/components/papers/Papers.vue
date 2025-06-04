@@ -92,9 +92,9 @@
                   {{ paper.title }}
                 </router-link>
               </td>
-              <td>{{ paper.category?.name || paper.category || 'N/A' }}</td>
-              <td>{{ paper.downloads }}</td>
-              <td>{{ paper.reviews || 0 }} / 5</td>
+              <td>{{ paper.category?.name || 'No Category' }}</td>
+              <td>{{ paper.downloads || 'No Downloads' }}</td>
+              <td>{{ paper.reviews || 'No Reviews'}}</td>
               <td class="fw-bold text-success">
                 {{ paper.is_free ? 'Free' : `$${paper.price}` }}
               </td>

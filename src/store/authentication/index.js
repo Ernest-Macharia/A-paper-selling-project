@@ -10,11 +10,13 @@ const state = {
       return null;
     }
   })(),
-  token: localStorage.getItem("access") || ""
+  token: localStorage.getItem("access") || "",
+  users: []
 };
 
 const getters = {
   isAuthenticated: (state) => !!state.user,
+  allUsers: (state) => state.users,
 };
 
 const mutations = {
@@ -32,6 +34,9 @@ const mutations = {
     localStorage.removeItem("user");
     localStorage.removeItem("access");
     localStorage.removeItem("refresh");
+  },
+  SET_USERS(state, users) {
+    state.users = users;
   }
 };
 
@@ -39,10 +44,8 @@ const actions = {
   async register({ commit }, userData) {
     try {
       const response = await api.post('/users/register/', userData);
-
       localStorage.setItem("access", response.data.access);
       localStorage.setItem("refresh", response.data.refresh);
-
       commit("SET_USER", response.data.user);
       commit("SET_TOKEN", response.data.access);
       return response;
@@ -50,13 +53,12 @@ const actions = {
       return Promise.reject(error.response);
     }
   },
+
   async login({ commit }, userData) {
     try {
       const response = await api.post('/users/login/', userData);
-
       localStorage.setItem("access", response.data.access);
       localStorage.setItem("refresh", response.data.refresh);
-
       commit("SET_USER", response.data.user);
       commit("SET_TOKEN", response.data.access);
       return response;
@@ -64,8 +66,39 @@ const actions = {
       return Promise.reject(error.response);
     }
   },
+
   logout({ commit }) {
     commit("LOGOUT");
+  },
+
+  async fetchUsers({ commit }) {
+    try {
+      const response = await api.get("/users/all_users/");
+      commit("SET_USERS", response.data);
+      return response.data;
+    } catch (error) {
+      return Promise.reject(error.response);
+    }
+  },
+
+  async fetchCurrentUserDetails({ commit }) {
+    try {
+      const response = await api.get("/users/current-user/");
+      commit("SET_USER", response.data);
+      return response.data;
+    } catch (error) {
+      return Promise.reject(error.response);
+    }
+  },
+
+  async updateCurrentUserDetails({ commit }, updatedData) {
+    try {
+      const response = await api.put("/users/current-user/update/", updatedData);
+      commit("SET_USER", response.data);
+      return response.data;
+    } catch (error) {
+      return Promise.reject(error.response);
+    }
   }
 };
 
