@@ -197,7 +197,7 @@ const actions = {
     // you might pull the JWT token automatically via your api instance
     const payload = {
       phone_number: phoneNumber,
-      amount:       amount,
+      amount: amount,
     };
     const response = await api.post('/mpesa_api/lipa-online/', payload);
     return response.data;

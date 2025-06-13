@@ -97,7 +97,7 @@ export default {
     normalizePhone(raw) {
       if (/^0\d{9}$/.test(raw)) return '254' + raw.slice(1);
       if (/^254\d{9}$/.test(raw)) return raw;
-      throw new Error('Invalid Kenyan phone number');
+      toast.error('Invalid phone number');
     },
 
     async onMpesaConfirm(phoneNumber) {
@@ -106,7 +106,7 @@ export default {
         const normalized = this.normalizePhone(phoneNumber);
         const resp = await this.initiateMpesaPayment({
           phoneNumber: normalized,
-          amount: this.amount
+          amount: parseFloat(this.amount)
         });
         toast.success('M-Pesa payment initiated. Please check your phone for the payment prompt.');
         this.showSuccessThenClose();

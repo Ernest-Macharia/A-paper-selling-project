@@ -51,7 +51,7 @@ const routes = [
         path: '/courses/:courseId/papers',
         name: 'CoursePapersPage',
         component: CoursePapersPage
-      }
+      }      
     ],
   },
   {
@@ -79,7 +79,10 @@ const router = createRouter({
 
 router.beforeEach((to, from, next) => {
   if (to.meta.requiresAuth && !store.state.authentication.token) {
-    next("/login");
+    next({
+      path: "/login",
+      query: { redirect: to.fullPath }
+    });
   } else {
     next();
   }

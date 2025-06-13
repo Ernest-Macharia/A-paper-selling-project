@@ -44,6 +44,13 @@
         <button type="submit" class="btn btn-primary w-100">Register</button>
         <div v-if="serverError" class="alert alert-danger mt-3 text-center">{{ serverError }}</div>
       </form>
+
+      <div class="my-3 text-center text-muted">OR</div>
+
+      <button class="btn btn-outline-primary w-100" @click="registerWithAuth0">
+        <i class="bi bi-google me-2"></i> Continue with Google
+      </button>
+
       <p class="mt-3 text-center text-muted">
         Already have an account? <router-link to="/login" class="text-primary">Login</router-link>
       </p>
@@ -53,8 +60,10 @@
 
 <script>
 import { mapActions } from "vuex";
+import { useAuth0 } from "@auth0/auth0-vue";
 
 export default {
+  name: "Register",
   data() {
     return {
       firstName: "",
@@ -71,8 +80,13 @@ export default {
       showPassword: false,
     };
   },
+  setup() {
+    const { loginWithRedirect } = useAuth0();
+    return { loginWithRedirect };
+  },
   methods: {
-    ...mapActions('authentication',["register"]),
+    ...mapActions("authentication", ["register"]),
+
     validateFirstName() {
       this.firstNameError = this.firstName ? "" : "First name is required.";
     },
@@ -127,7 +141,6 @@ export default {
       this.validateEmail();
       this.validatePassword();
 
-      // Stop submission if there are errors
       if (this.firstNameError || this.lastNameError || this.emailError || this.passwordError) {
         return;
       }
@@ -146,7 +159,11 @@ export default {
         }
       }
     },
-  },
+
+    async registerWithAuth0() {
+      await this.loginWithRedirect();
+    },
+  }
 };
 </script>
 

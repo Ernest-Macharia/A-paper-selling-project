@@ -40,6 +40,13 @@
         <button type="submit" class="btn btn-primary w-100">Login</button>
         <div v-if="serverError" class="alert alert-danger mt-3 text-center">{{ serverError }}</div>
       </form>
+
+      <div class="my-3 text-center text-muted">OR</div>
+
+      <button class="btn btn-outline-primary w-100" @click="loginWithAuth0">
+        <i class="bi bi-google me-2"></i> Continue with Google
+      </button>
+
       <p class="mt-3 text-center text-muted">
         Don't have an account? <router-link to="/register" class="text-primary">Register</router-link>
       </p>
@@ -49,6 +56,7 @@
 
 <script>
 import { mapActions } from "vuex";
+import { useAuth0 } from "@auth0/auth0-vue";
 
 export default {
   name: "Login",
@@ -59,8 +67,12 @@ export default {
       emailError: "",
       passwordError: "",
       serverError: "",
-      showPassword: false
+      showPassword: false,
     };
+  },
+  setup() {
+    const { loginWithRedirect } = useAuth0();
+    return { loginWithRedirect };
   },
   methods: {
     ...mapActions('authentication', ["login"]),
@@ -110,12 +122,17 @@ export default {
           email: this.email,
           password: this.password,
         });
-        this.$router.push("/dashboard");
+        const redirectTo = this.$route.query.redirect || "/dashboard";
+        this.$router.push(redirectTo);
       } catch (error) {
         this.serverError = error.response?.data?.detail || "Invalid email or password.";
       }
     },
-  },
+
+    async loginWithAuth0() {
+      await this.loginWithRedirect();
+    },
+  }
 };
 </script>
 
