@@ -21,14 +21,14 @@ const app = createApp(App);
 const redirectUri = window.location.origin;
 
 app.use(
-  createAuth0({
-    domain: import.meta.env.VITE_AUTH0_DOMAIN,
-    clientId: import.meta.env.VITE_AUTH0_CLIENT_ID,
-    authorizationParams: {
-      redirect_uri: redirectUri,  // dynamically use current origin
-      audience: import.meta.env.VITE_AUTH0_AUDIENCE
-    }
-  })
+    createAuth0({
+        domain: import.meta.env.VITE_AUTH0_DOMAIN,
+        clientId: import.meta.env.VITE_AUTH0_CLIENT_ID,
+        authorizationParams: {
+            redirect_uri: redirectUri, // dynamically use current origin
+            audience: import.meta.env.VITE_AUTH0_AUDIENCE,
+        },
+    }),
 );
 
 // Register plugins
