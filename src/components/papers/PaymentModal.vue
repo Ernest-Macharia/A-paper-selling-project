@@ -29,17 +29,26 @@
             >
                 <p>Select your preferred payment method:</p>
 
-                <button class="btn btn-outline-primary w-100" @click="selectPaymentMethod('mpesa')">
-                    Pay with M-Pesa
+                <!-- <button class="btn btn-success w-100 py-3 d-flex align-items-center justify-content-center gap-2 mt-3" @click="handleMpesaPayment">
+                    <i class="fas fa-mobile-alt fa-lg"></i> Pay with M-Pesa
+                </button> -->
+
+                <!-- Stripe -->
+                <button
+                    class="btn btn-dark w-100 py-3 d-flex align-items-center justify-content-center gap-2"
+                    @click="handleStripePayment"
+                >
+                    <i class="fab fa-cc-stripe fa-lg"></i> Credit or Debit Card
                 </button>
 
-                <button class="btn btn-dark w-100 mt-3" @click="handleStripePayment">
-                    Pay with 💳 Stripe
+                <!-- PayPal -->
+                <button
+                    class="btn btn-primary w-100 py-3 d-flex align-items-center justify-content-center gap-2 mt-3"
+                    @click="handlePaypalPayment"
+                >
+                    <i class="fab fa-cc-paypal fa-lg"></i> PayPal
                 </button>
             </div>
-
-            <!-- PayPal Button Container (always shown) -->
-            <div id="paypal-button-container" class="my-3"></div>
 
             <!-- Close Button -->
             <button class="btn btn-danger mt-3" @click="handleClose" :disabled="isProcessing">
@@ -49,23 +58,18 @@
     </div>
 
     <!-- M-Pesa Phone Modal -->
-    <MpesaPhoneModal
+    <!-- <MpesaPhoneModal
         v-if="selectedPaymentMethod === 'mpesa'"
         :visible="selectedPaymentMethod === 'mpesa'"
         @close="closePhoneModal"
         @confirm="onMpesaConfirm"
-    />
+    /> -->
 </template>
 
 <script>
 import { mapActions } from 'vuex';
 import MpesaPhoneModal from '@/components/papers/MpesaPhoneModal.vue';
-import { loadStripe } from '@stripe/stripe-js';
 import { toast } from 'vue3-toastify';
-
-const stripePromise = loadStripe(
-    'pk_test_51RTIWaReA2jsJqbBHslgQ6ToQrGYGJevwQk0sa7vRUFkQVaRQfdJU9FReZ9qShUx3XBFw2pCe8HqbyQdXb6dDm2e00Uc12H9UJ',
-);
 
 export default {
     name: 'PaymentModal',
@@ -73,6 +77,8 @@ export default {
     props: {
         visible: Boolean,
         amount: Number,
+        cartItems: Array,
+        paperIds: Array,
     },
     data() {
         return {
@@ -80,22 +86,21 @@ export default {
             paymentError: null,
             isProcessing: false,
             showSuccessMessage: false,
-            paypalScriptLoaded: false,
         };
     },
 
-    watch: {
-        visible(newVal) {
-            if (newVal && !this.paypalScriptLoaded) {
-                this.loadPaypalScript();
-            } else if (!newVal) {
-                this.resetModal();
-            }
+    computed: {
+        selectedPaperIds() {
+            return this.cartItems.map((p) => p?.id).filter((id) => id != null);
         },
     },
 
     methods: {
-        ...mapActions('papers', ['initiateMpesaPayment', 'createStripeSession']),
+        ...mapActions('payment', [
+            'initiateMpesaPayment',
+            'createStripeSession',
+            'createPaypalSession',
+        ]),
 
         selectPaymentMethod(method) {
             this.selectedPaymentMethod = method;
@@ -131,16 +136,28 @@ export default {
         async handleStripePayment() {
             this.isProcessing = true;
             try {
-                const stripe = await stripePromise;
-                const sessionId = await this.createStripeSession({
-                    amount: this.amount,
-                    title: 'Exam Paper Purchase',
+                const checkoutUrl = await this.createStripeSession({
+                    paperIds: this.selectedPaperIds,
                 });
-                const { error } = await stripe.redirectToCheckout({ sessionId });
-                if (error) this.paymentError = error.message;
+                window.location.href = checkoutUrl;
             } catch {
                 this.paymentError = 'Stripe payment failed.';
                 toast.error('Stripe payment failed.');
+            } finally {
+                this.isProcessing = false;
+            }
+        },
+
+        async handlePaypalPayment() {
+            this.isProcessing = true;
+            try {
+                const paypalUrl = await this.createPaypalSession({
+                    paperIds: this.selectedPaperIds,
+                });
+                window.location.href = paypalUrl;
+            } catch (err) {
+                this.paymentError = 'PayPal payment failed.';
+                toast.error('PayPal payment failed.');
             } finally {
                 this.isProcessing = false;
             }
@@ -170,55 +187,6 @@ export default {
             this.paymentError = null;
             this.isProcessing = false;
             this.showSuccessMessage = false;
-        },
-
-        loadPaypalScript() {
-            const vm = this;
-            const script = document.createElement('script');
-            (script.src = import.meta.env.PAYPAL_SDK),
-                (script.onload = function () {
-                    vm.paypalScriptLoaded = true;
-                    vm.renderPaypalButton();
-                });
-            document.body.appendChild(script);
-        },
-
-        renderPaypalButton() {
-            if (window.paypal) {
-                window.paypal
-                    .Buttons({
-                        createOrder: (data, actions) => {
-                            return actions.order.create({
-                                purchase_units: [
-                                    {
-                                        amount: {
-                                            value: this.amount.toString(),
-                                        },
-                                    },
-                                ],
-                            });
-                        },
-                        onApprove: async (data, actions) => {
-                            try {
-                                const details = await actions.order.capture();
-                                alert('Transaction completed by ' + details.payer.name.given_name);
-                                toast.success(
-                                    'Transaction completed by ' + details.payer.name.given_name,
-                                );
-
-                                this.showSuccessThenClose();
-                            } catch {
-                                this.paymentError = 'Error capturing PayPal payment.';
-                                toast.error('Error capturing PayPal payment.');
-                            }
-                        },
-                        onError: (err) => {
-                            this.paymentError = 'PayPal error: ' + err.message;
-                            toast.error('PayPal error: ' + err.message);
-                        },
-                    })
-                    .render('#paypal-button-container');
-            }
         },
     },
 };

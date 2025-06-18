@@ -24,12 +24,12 @@
                 </div>
 
                 <div
-                    v-if="papers.length"
+                    v-if="cartItems.length"
                     class="modal-body overflow-auto py-3"
                     style="max-height: 400px"
                 >
                     <div
-                        v-for="paper in papers"
+                        v-for="paper in cartItems"
                         :key="paper.id"
                         class="border rounded-3 p-3 mb-3 bg-white shadow-sm d-flex align-items-center justify-content-between"
                     >
@@ -47,7 +47,7 @@
                         <button
                             type="button"
                             class="btn btn-sm btn-outline-danger d-flex align-items-center gap-1"
-                            @click="removePaper(paper.id)"
+                            @click="removeFromCart(paper.id)"
                             title="Remove"
                         >
                             <i class="bi bi-trash-fill"></i> Remove
@@ -61,11 +61,11 @@
                 </div>
 
                 <div
-                    v-if="papers.length"
+                    v-if="cartItems.length"
                     class="modal-footer border-0 pt-3 d-flex justify-content-between align-items-center"
                 >
                     <div class="fs-5 fw-semibold text-primary">
-                        Total: ${{ totalPrice.toFixed(2) }}
+                        Total: ${{ totalAmount.toFixed(2) }}
                     </div>
                     <div class="d-flex gap-2">
                         <button
@@ -78,6 +78,7 @@
                         <button
                             type="button"
                             class="btn btn-primary d-flex align-items-center gap-2"
+                            :disabled="cartCount === 0"
                             @click="openPaymentModal"
                         >
                             <i class="bi bi-credit-card-2-front-fill"></i> Proceed to Payment
@@ -90,13 +91,16 @@
     <!-- Payment Modal -->
     <PaymentModal
         :visible="paymentModalVisible"
-        :amount="totalPrice"
+        :amount="totalAmount"
+        :paper-ids="paperIds"
+        :cart-items="cartItems"
         @close="paymentModalVisible = false"
     />
 </template>
 
 <script>
 import PaymentModal from '@/components/papers/PaymentModal.vue';
+import { mapGetters, mapMutations } from 'vuex';
 export default {
     name: 'CheckoutModal',
     components: { PaymentModal },
@@ -104,10 +108,6 @@ export default {
         visible: {
             type: Boolean,
             required: true,
-        },
-        papers: {
-            type: Array,
-            default: () => [],
         },
     },
     data() {
@@ -117,27 +117,23 @@ export default {
     },
 
     computed: {
-        totalPrice() {
-            if (!this.papers || !Array.isArray(this.papers)) return 0;
-            return this.papers.reduce((sum, paper) => sum + (Number(paper.price) || 0), 0);
-        },
+        ...mapGetters('payment', ['cartItems', 'cartCount', 'totalAmount', 'paperIds']),
     },
     methods: {
+        ...mapMutations('payment', ['REMOVE_FROM_CART']),
         handleClose() {
             this.$emit('close');
         },
-        removePaper(paperId) {
-            this.$emit(
-                'update:papers',
-                this.papers.filter((p) => p.id !== paperId),
-            );
+        removeFromCart(id) {
+            this.REMOVE_FROM_CART(id);
         },
         openPaymentModal() {
-            if (this.$store.getters['authuntication/isAuthenticated']) {
-                this.$router.push('/login');
-            } else {
-                this.paymentModalVisible = true;
-            }
+            this.paymentModalVisible = true;
+            // if (this.$store.getters['authentication/isAuthenticated']) {
+            //     this.$router.push('/login');
+            // } else {
+            //     this.paymentModalVisible = true;
+            // }
         },
     },
 };

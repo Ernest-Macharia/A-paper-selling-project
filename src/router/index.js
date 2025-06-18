@@ -25,6 +25,7 @@ import CoursesPage from '@/components/papers/CoursesPage.vue';
 import CategoriesPage from '@/components/papers/CategoriesPage.vue';
 import CategoryPapersPage from '@/components/papers/CategoryPapersPage.vue';
 import CoursePapersPage from '@/components/papers/CoursePapersPage.vue';
+import PaperDownloadView from '@/components/papers/PaperDownloadView.vue';
 
 const routes = [
     {
@@ -51,6 +52,12 @@ const routes = [
                 path: '/courses/:courseId/papers',
                 name: 'CoursePapersPage',
                 component: CoursePapersPage,
+            },
+
+            {
+                path: '/papers/:id/download',
+                name: 'PaperDownloadView',
+                component: PaperDownloadView,
             },
         ],
     },

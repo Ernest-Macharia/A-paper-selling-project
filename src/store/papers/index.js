@@ -193,43 +193,13 @@ const actions = {
         }
     },
 
-    async initiateMpesaPayment({ rootState }, { phoneNumber, amount }) {
-        // you might pull the JWT token automatically via your api instance
-        const payload = {
-            phone_number: phoneNumber,
-            amount: amount,
-        };
-        const response = await api.post('/mpesa_api/lipa-online/', payload);
-        return response.data;
-    },
-
-    async createPaypalOrder({ rootState }, { amount }) {
+    async downloadPaperById(_, paperId) {
         try {
-            const response = await api.post('/paypal_api/create/', { amount });
-            return response.data; // { orderID: '...' }
+            const { data } = await api.get(`/exampapers/papers/${paperId}/download/`);
+            return data.file_url;
         } catch (error) {
-            console.error('Error creating PayPal order:', error);
+            console.error('Error downloading paper:', error.response?.data || error.message);
             throw error;
-        }
-    },
-
-    async capturePaypalOrder({ rootState }, { orderID, payerID }) {
-        try {
-            const response = await api.post('/paypal_api/capture/', { orderID, payerID });
-            return response.data; // { status: 'COMPLETED', ... }
-        } catch (error) {
-            console.error('Error capturing PayPal order:', error);
-            throw error;
-        }
-    },
-
-    async createStripeSession({ rootState }, { amount, title }) {
-        try {
-            const { data } = await api.post('/stripe_api/create/', { amount, title });
-            return data.id; // sessionId
-        } catch (err) {
-            console.error('Stripe session creation failed:', err);
-            throw err;
         }
     },
 

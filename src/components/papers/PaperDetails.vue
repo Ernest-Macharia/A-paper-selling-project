@@ -20,24 +20,12 @@
                         <h4 class="section-title d-flex align-items-center gap-2 text-primary">
                             <i class="fas fa-file-pdf"></i> Paper Preview
                         </h4>
-                        <div
-                            v-if="showPreview"
-                            class="preview-container mb-3 rounded"
-                            style="border: 1px solid #ddd; overflow: hidden"
-                        >
-                            <VPdfViewer
-                                :src="paperDetails.document_url"
-                                style="width: 100%; height: 600px"
-                            />
-                        </div>
                         <button
                             class="btn btn-outline-primary w-100 d-flex justify-content-center align-items-center gap-2"
-                            @click="showPreview = !showPreview"
-                            :aria-expanded="showPreview"
-                            aria-controls="pdfPreview"
+                            @click="paperDetails.preview_url && (showPreviewModal = true)"
+                            :disabled="!paperDetails.preview_url"
                         >
-                            <i :class="showPreview ? 'fas fa-eye-slash' : 'fas fa-eye'"></i>
-                            {{ showPreview ? 'Hide Preview' : 'View First 5 Pages' }}
+                            <i class="fas fa-eye"></i> View Preview
                         </button>
                     </section>
 
@@ -132,10 +120,10 @@
                 <button
                     class="btn btn-success btn-lg d-flex justify-content-center align-items-center gap-2"
                     @click="openCheckoutModal"
-                    :disabled="checkoutPapers.length === 0"
+                    :disabled="cartCount.length === 0"
                 >
                     <i class="fas fa-shopping-cart"></i>
-                    View Cart ({{ checkoutPapers.length }})
+                    View Cart ({{ cartCount }})
                 </button>
             </section>
         </div>
@@ -144,12 +132,44 @@
         <CheckoutModal
             :visible="checkoutModalVisible"
             :payment-modal-visible="paymentModalVisible"
-            :papers="checkoutPapers"
+            :papers="cartItems"
             @close="checkoutModalVisible = false"
             @proceed="openPaymentModal"
-            @update:papers="checkoutPapers = $event"
+            @update:papers="cartItems = $event"
             @continue-shopping="handleContinueShopping"
         />
+
+        <div
+            class="modal fade show d-block"
+            v-if="showPreviewModal"
+            style="background-color: rgba(0, 0, 0, 0.5)"
+            tabindex="-1"
+            role="dialog"
+        >
+            <div class="modal-dialog modal-xl modal-dialog-centered" role="document">
+                <div class="modal-content border-0 rounded-4 overflow-hidden">
+                    <div class="modal-header bg-primary text-white">
+                        <h5 class="modal-title"><i class="fas fa-file-pdf"></i> Paper Preview</h5>
+                        <button
+                            type="button"
+                            class="btn-close"
+                            @click="showPreviewModal = false"
+                        ></button>
+                    </div>
+                    <div class="modal-body p-0" style="height: 80vh">
+                        <VPdfViewer
+                            :src="paperDetails.preview_url"
+                            style="width: 100%; height: 100%"
+                            :options="{ disableDownload: true, disablePrint: true }"
+                        />
+                        <!-- <PDFPreview
+                            :src="paperDetails.preview_url"
+                            :visible="showPreviewModal"
+                        /> -->
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </template>
 
@@ -157,29 +177,34 @@
 import Navbar from '@/components/home/Navbar.vue';
 import { VPdfViewer } from '@vue-pdf-viewer/viewer';
 import CheckoutModal from '@/components/papers/CheckoutModal.vue';
-import { mapActions } from 'vuex';
+import { mapActions, mapGetters } from 'vuex';
 import { toast } from 'vue3-toastify';
+import PDFPreview from '@/components/papers/PDFPreview.vue';
 
 export default {
     components: {
         Navbar,
         VPdfViewer,
         CheckoutModal,
+        PDFPreview,
     },
     data() {
         return {
             paperDetails: null,
             showPreview: false,
+            showPreviewModal: false,
             isLoading: true,
             checkoutModalVisible: false,
             paymentModalVisible: false,
-            checkoutPapers: [],
         };
     },
 
     created() {
         this.fetchPaperDetails();
-        this.loadCheckoutPapers();
+    },
+
+    computed: {
+        ...mapGetters('payment', ['cartItems', 'cartCount']),
     },
 
     methods: {
@@ -202,14 +227,10 @@ export default {
         addToCheckout() {
             if (!this.paperDetails?.id) return;
 
-            const exists = this.checkoutPapers.some((p) => p.id === this.paperDetails.id);
+            const exists = this.cartItems.some((p) => p.id === this.paperDetails.id);
+
             if (!exists) {
-                // Create a new array to trigger reactivity
-                this.checkoutPapers = [...this.checkoutPapers, this.paperDetails];
-
-                // Save to localStorage
-                this.saveCheckoutPapers();
-
+                this.$store.commit('payment/ADD_TO_CART', this.paperDetails);
                 toast.success(`✅ "${this.paperDetails.title}" has been added to your cart!`);
             } else {
                 toast.info(`"${this.paperDetails.title}" is already in your cart.`);
@@ -217,23 +238,13 @@ export default {
         },
 
         openCheckoutModal() {
-            if (this.checkoutPapers.length === 0) return;
+            if (this.cartCount === 0) return;
             this.checkoutModalVisible = true;
         },
 
         handleContinueShopping() {
             this.checkoutModalVisible = false;
             this.$router.push('/papers');
-        },
-
-        loadCheckoutPapers() {
-            const savedPapers = localStorage.getItem('checkoutPapers');
-            if (savedPapers) {
-                this.checkoutPapers = JSON.parse(savedPapers);
-            }
-        },
-        saveCheckoutPapers() {
-            localStorage.setItem('checkoutPapers', JSON.stringify(this.checkoutPapers));
         },
     },
 };
@@ -283,5 +294,20 @@ button[disabled] {
     border-radius: 0.5rem;
     box-shadow: 0 0 15px rgb(0 0 0 / 0.1);
     background: white;
+}
+
+.modal.fade {
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
 }
 </style>
