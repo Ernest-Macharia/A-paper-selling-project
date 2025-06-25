@@ -53,6 +53,16 @@ const actions = {
         return Promise.resolve();
     },
 
+    async requestPasswordReset(_, email) {
+        const res = await api.post('/users/request-password-reset/', { email });
+        return res.data;
+    },
+
+    async resetPassword(_, payload) {
+        const res = await api.post('/users/reset-password-confirm/', payload);
+        return res.data;
+    },
+
     async fetchCurrentUserDetails({ commit }) {
         const res = await api.get('/users/current-user/');
         commit('SET_USER', res.data);

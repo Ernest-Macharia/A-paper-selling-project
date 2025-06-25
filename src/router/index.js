@@ -5,6 +5,8 @@ import Layout from '@/components/home/Layout.vue';
 import HomePage from '@/components/home/HomePage.vue';
 import Login from '@/components/registration/Login.vue';
 import Register from '@/components/registration/Register.vue';
+import ForgotPassword from '@/components/registration/ForgotPassword.vue';
+import ResetPassword from '@/components/registration/ResetPassword.vue';
 import Papers from '@/components/papers/Papers.vue';
 import PaperDetails from '@/components/papers/PaperDetails.vue';
 import Dashboard from '@/components/dashboard/Dashboard.vue';
@@ -35,6 +37,12 @@ const routes = [
             { path: '', component: HomePage },
             { path: 'login', component: Login },
             { path: 'register', component: Register },
+            { path: '/forgot-password', name: 'ForgotPassword', component: ForgotPassword },
+            {
+                path: '/reset-password-confirm/:uid/:token',
+                name: 'ResetPassword',
+                component: ResetPassword,
+            },
             { path: 'papers', component: Papers },
             { path: '/papers/:id', name: 'paper-details', component: PaperDetails },
             { path: '/payment/success', component: PaymentSuccess },

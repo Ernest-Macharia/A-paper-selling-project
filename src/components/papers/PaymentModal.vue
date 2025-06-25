@@ -68,12 +68,12 @@
 
 <script>
 import { mapActions } from 'vuex';
-import MpesaPhoneModal from '@/components/papers/MpesaPhoneModal.vue';
+// import MpesaPhoneModal from '@/components/papers/MpesaPhoneModal.vue';
 import { toast } from 'vue3-toastify';
 
 export default {
     name: 'PaymentModal',
-    components: { MpesaPhoneModal },
+    // components: { MpesaPhoneModal },
     props: {
         visible: Boolean,
         amount: Number,

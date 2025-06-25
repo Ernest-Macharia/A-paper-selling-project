@@ -166,7 +166,7 @@ export default {
     position: sticky;
     top: 0;
     z-index: 1030;
-    background: linear-gradient(90deg, #6ea8fe, #b28dff); /* Light blue to soft purple */
+    background: linear-gradient(90deg, #6ea8fe, #b28dff);
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 .navbar-brand {
