@@ -1,39 +1,30 @@
 import api from '@/api';
 
 const state = {
-    user: (() => {
-        try {
-            const storedUser = localStorage.getItem('user');
-            return storedUser ? JSON.parse(storedUser) : null;
-        } catch (error) {
-            console.error('Error parsing user from localStorage', error);
-            return null;
-        }
-    })(),
-    token: localStorage.getItem('access') || '',
+    user: null,
+    token: '',
     users: [],
 };
 
 const getters = {
-    isAuthenticated: (state) => !!state.user,
+    isAuthenticated: (state) => !!state.token && typeof state.token === 'string',
     allUsers: (state) => state.users,
 };
 
 const mutations = {
     SET_USER(state, user) {
         state.user = user;
-        localStorage.setItem('user', JSON.stringify(user));
     },
     SET_TOKEN(state, token) {
         state.token = token;
-        localStorage.setItem('access', token);
+        api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
     },
     LOGOUT(state) {
         state.user = null;
         state.token = '';
-        localStorage.removeItem('user');
         localStorage.removeItem('access');
         localStorage.removeItem('refresh');
+        delete api.defaults.headers.common['Authorization'];
     },
     SET_USERS(state, users) {
         state.users = users;
@@ -42,63 +33,56 @@ const mutations = {
 
 const actions = {
     async register({ commit }, userData) {
-        try {
-            const response = await api.post('/users/register/', userData);
-            localStorage.setItem('access', response.data.access);
-            localStorage.setItem('refresh', response.data.refresh);
-            commit('SET_USER', response.data.user);
-            commit('SET_TOKEN', response.data.access);
-            return response;
-        } catch (error) {
-            return Promise.reject(error.response);
-        }
+        const res = await api.post('/users/register/', userData);
+        commit('SET_TOKEN', res.data.access);
+        commit('SET_USER', res.data.user);
+        localStorage.setItem('refresh', res.data.refresh);
+        return res;
     },
 
     async login({ commit }, userData) {
-        try {
-            const response = await api.post('/users/login/', userData);
-            localStorage.setItem('access', response.data.access);
-            localStorage.setItem('refresh', response.data.refresh);
-            commit('SET_USER', response.data.user);
-            commit('SET_TOKEN', response.data.access);
-            return response;
-        } catch (error) {
-            return Promise.reject(error.response);
-        }
+        const res = await api.post('/users/login/', userData);
+        commit('SET_TOKEN', res.data.access);
+        commit('SET_USER', res.data.user);
+        localStorage.setItem('refresh', res.data.refresh);
+        return res;
     },
 
     logout({ commit }) {
         commit('LOGOUT');
-    },
-
-    async fetchUsers({ commit }) {
-        try {
-            const response = await api.get('/users/all_users/');
-            commit('SET_USERS', response.data);
-            return response.data;
-        } catch (error) {
-            return Promise.reject(error.response);
-        }
+        return Promise.resolve();
     },
 
     async fetchCurrentUserDetails({ commit }) {
+        const res = await api.get('/users/current-user/');
+        commit('SET_USER', res.data);
+        return res.data;
+    },
+
+    async refreshToken({ commit }) {
+        const refresh = localStorage.getItem('refresh');
+        if (!refresh) throw new Error('No refresh token found');
+
         try {
-            const response = await api.get('/users/current-user/');
-            commit('SET_USER', response.data);
-            return response.data;
-        } catch (error) {
-            return Promise.reject(error.response);
+            const res = await api.post('/users/token/refresh/', { refresh });
+            commit('SET_TOKEN', res.data.access);
+            return res.data.access;
+        } catch (err) {
+            commit('LOGOUT');
+            throw new Error('Session expired. Please log in again.');
         }
     },
 
     async updateCurrentUserDetails({ commit }, updatedData) {
-        try {
-            const response = await api.put('/users/current-user/update/', updatedData);
-            commit('SET_USER', response.data);
-            return response.data;
-        } catch (error) {
-            return Promise.reject(error.response);
-        }
+        const res = await api.put('/users/current-user/update/', updatedData);
+        commit('SET_USER', res.data);
+        return res.data;
+    },
+
+    async fetchUsers({ commit }) {
+        const res = await api.get('/users/all_users/');
+        commit('SET_USERS', res.data);
+        return res.data;
     },
 };
 

@@ -104,6 +104,30 @@ const actions = {
         }
     },
 
+    async fetchCategoryPapers({ commit }, categoryId) {
+        try {
+            const response = await api.get(`/exampapers/papers/?category=${categoryId}`);
+            const data = response.data;
+            commit('SET_ALL_PAPERS', data.results);
+            return response.data.results;
+        } catch (error) {
+            console.error('Failed to fetch category papers:', error);
+            throw error;
+        }
+    },
+
+    async fetchCoursePapers({ commit }, courseId) {
+        try {
+            const response = await api.get(`/exampapers/papers/?course=${courseId}`);
+            const data = response.data;
+            commit('SET_ALL_PAPERS', data.results);
+            return response.data.results;
+        } catch (error) {
+            console.error('Failed to fetch course papers:', error);
+            throw error;
+        }
+    },
+
     async fetchSchools({ commit, rootState }) {
         try {
             const response = await api.get('/exampapers/schools/');

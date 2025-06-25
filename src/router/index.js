@@ -17,7 +17,7 @@ import Reviews from '@/components/dashboard/Reviews.vue';
 import Statistics from '@/components/dashboard/Statistics.vue';
 import DashboardLayout from '@/components/dashboard/DashboardLayout.vue';
 import Checkout from '@/components/dashboard/checkout.vue';
-import PaypalSuccess from '@/components/papers/PaypalSuccess.vue';
+import PaymentSuccess from '@/components/papers/PaymentSuccess.vue';
 import PaypalFailure from '@/components/papers/PaypalFailure.vue';
 import StripePaymentSuccess from '@/components/papers/StripePaymentSuccess.vue';
 import StripePaymentFailure from '@/components/papers/StripePaymentFailure.vue';
@@ -37,25 +37,25 @@ const routes = [
             { path: 'register', component: Register },
             { path: 'papers', component: Papers },
             { path: '/papers/:id', name: 'paper-details', component: PaperDetails },
-            { path: '/payment-success', component: PaypalSuccess },
+            { path: '/payment/success', component: PaymentSuccess },
             { path: '/payment-failure', component: PaypalFailure },
             { path: '/stripe-payment-success', component: StripePaymentSuccess },
             { path: '/stripe-payment-cancelled', component: StripePaymentFailure },
             { path: '/courses', name: 'Courses', component: CoursesPage },
             { path: '/categories', name: 'Categories', component: CategoriesPage },
             {
-                path: '/categories/:categoryId/papers',
+                path: '/categories/:categoryId',
                 name: 'CategoryPapersPage',
                 component: CategoryPapersPage,
             },
             {
-                path: '/courses/:courseId/papers',
+                path: '/courses/:courseId',
                 name: 'CoursePapersPage',
                 component: CoursePapersPage,
             },
 
             {
-                path: '/papers/:id/download',
+                path: '/papers/download',
                 name: 'PaperDownloadView',
                 component: PaperDownloadView,
             },
@@ -85,7 +85,10 @@ const router = createRouter({
 });
 
 router.beforeEach((to, from, next) => {
-    if (to.meta.requiresAuth && !store.state.authentication.token) {
+    const requiresAuth = to.matched.some((record) => record.meta.requiresAuth);
+    const isAuth = store.getters['authentication/isAuthenticated'];
+
+    if (requiresAuth && !isAuth) {
         next({
             path: '/login',
             query: { redirect: to.fullPath },

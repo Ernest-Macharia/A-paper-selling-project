@@ -1,7 +1,14 @@
 <template>
     <nav class="navbar navbar-expand-lg custom-navbar">
         <div class="container">
-            <router-link class="navbar-brand" to="/">GradesWorld</router-link>
+            <router-link class="navbar-brand d-flex align-items-center" to="/">
+                <img
+                    src="@/assets/images/gradesworld.png"
+                    alt="GradesWorld Logo"
+                    height="40"
+                    class="me-2"
+                />
+            </router-link>
 
             <!-- 📱 Toggler button for mobile -->
             <button
@@ -75,7 +82,7 @@
                 </div>
 
                 <!-- 👤 Auth buttons -->
-                <div class="d-flex ms-auto mt-2 mt-lg-0">
+                <div class="d-flex ms-auto mt-2 mt-lg-0" v-if="!isAuthenticated">
                     <router-link class="btn btn-outline-primary mx-2" to="/login">
                         Login
                     </router-link>
@@ -83,13 +90,23 @@
                         <i class="fas fa-upload fa-lg"></i>Sell
                     </router-link>
                 </div>
+
+                <div class="d-flex ms-auto mt-2 mt-lg-0" v-else>
+                    <span class="nav-link text-white mx-2 d-flex align-items-center">
+                        👋 {{ user?.first_name || 'User' }}
+                    </span>
+                    <router-link class="btn btn-outline-secondary mx-2" to="/dashboard">
+                        Dashboard
+                    </router-link>
+                    <button class="btn btn-sm btn-outline-danger" @click="logout">Logout</button>
+                </div>
             </div>
         </div>
     </nav>
 </template>
 
 <script>
-import { mapActions } from 'vuex';
+import { mapActions, mapGetters, mapState } from 'vuex';
 
 export default {
     name: 'Navbar',
@@ -103,12 +120,18 @@ export default {
         };
     },
 
+    computed: {
+        ...mapGetters('authentication', ['isAuthenticated']),
+        ...mapState('authentication', ['user']),
+    },
+
     created() {
         this.loadPapers();
     },
 
     methods: {
         ...mapActions('papers', ['fetchAllPapers']),
+        ...mapActions('authentication', ['logout']),
 
         async loadPapers() {
             this.isLoading = true;
@@ -147,10 +170,8 @@ export default {
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
-.navbar-brand {
-    font-weight: bold;
-    font-size: 1.4rem;
-    color: #fff !important;
+.navbar-brand img {
+    max-height: 40px;
 }
 
 .navbar-toggler {

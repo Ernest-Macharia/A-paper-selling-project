@@ -1,6 +1,18 @@
 <template>
     <Navbar />
+
     <div class="home">
+        <!-- Hero / Banner -->
+        <section class="hero-section text-white d-flex align-items-center" data-aos="zoom-out">
+            <div class="overlay"></div>
+            <div class="hero-content text-center">
+                <h1 class="display-4 fw-bold">Access Quality Academic Papers</h1>
+                <router-link to="/register" class="btn btn-primary btn-lg mt-3"
+                    >Start Selling</router-link
+                >
+            </div>
+        </section>
+
         <!-- How It Works Section -->
         <section
             class="how-it-works-section py-5 bg-light"
@@ -336,7 +348,7 @@
         <section class="cta-section text-center py-5" data-aos="slide-up">
             <div class="container">
                 <h2 class="fw-bold text-primary-emphasis mb-3">
-                    Start Your Journey with GradesHub
+                    Start Your Journey with GradesWorld
                 </h2>
                 <p class="text-muted mb-4">
                     Join a thriving academic community of contributors and learners.
@@ -515,6 +527,31 @@ export default {
 </script>
 
 <style scoped>
+.hero-section {
+    position: relative;
+    background-image: url('/public/images/background.jpg');
+    background-size: cover;
+    background-position: center;
+    height: 60vh;
+    min-height: 400px;
+}
+.hero-section .overlay {
+    position: absolute;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+}
+.hero-content {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: 700px;
+    margin: 0 auto;
+}
+.hero-content h1,
+.hero-content p {
+    color: #fff;
+}
+
 /* How it works section*/
 .step-card {
     transition:
@@ -536,24 +573,48 @@ export default {
     justify-content: center;
 }
 
-/* Featured Paper Links */
+/* Featured Papers Section */
 .featured-papers {
-    background: linear-gradient(to right, #ffffff, #f0f4ff);
+    background: linear-gradient(135deg, #e3f2fd, #ede7f6); /* light blue to lavender */
+    padding-top: 3rem;
+    padding-bottom: 3rem;
 }
 
+/* Paper Card Styling */
 .paper-card {
     border: none;
     border-radius: 16px;
-    background: #ffffff;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+    background: linear-gradient(to bottom right, #ffffff, #f8f9ff);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
     transition:
         transform 0.25s ease-in-out,
         box-shadow 0.25s ease-in-out;
 }
 
 .paper-card:hover {
-    transform: translateY(-8px);
-    box-shadow: 0 12px 24px rgba(33, 37, 41, 0.1);
+    transform: translateY(-6px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+}
+
+/* Card Title */
+.paper-card .card-title {
+    color: #3f51b5; /* Indigo */
+}
+
+/* Meta Info */
+.paper-card .text-muted i {
+    color: #6c63ff;
+}
+
+/* Browse All Papers Button */
+.featured-papers .btn-outline-primary {
+    border-color: #6c63ff;
+    color: #6c63ff;
+}
+
+.featured-papers .btn-outline-primary:hover {
+    background-color: #6c63ff;
+    color: #fff;
 }
 
 /* Badges */

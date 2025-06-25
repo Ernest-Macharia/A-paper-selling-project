@@ -68,14 +68,6 @@
                             </li>
                         </ul>
                     </li>
-
-                    <!-- Cart (Optional) -->
-                    <li class="nav-item">
-                        <router-link class="nav-link position-relative" to="/dashboard/checkout">
-                            🛒 Checkout
-                            <!-- <span v-if="cartCount > 0" class="cart-badge">{{ cartCount }}</span> -->
-                        </router-link>
-                    </li>
                 </ul>
             </div>
         </div>

@@ -2,6 +2,7 @@ import api from '@/api';
 
 const state = {
     items: [],
+    showPaymentModal: false,
 };
 
 const mutations = {
@@ -19,6 +20,10 @@ const mutations = {
     CLEAR_CART(state) {
         state.items = [];
         localStorage.removeItem('cartItems');
+    },
+
+    SET_SHOW_PAYMENT_MODAL(state, value) {
+        state.showPaymentModal = value;
     },
 };
 
@@ -47,6 +52,16 @@ const actions = {
         });
         return response.data.checkout_info.checkout_url;
     },
+
+    async verifyPayment(_, { sessionId, orderId }) {
+        const response = await api.get('/payments/verify/', {
+            params: {
+                session_id: sessionId,
+                order_id: orderId,
+            },
+        });
+        return response.data;
+    },
 };
 
 const getters = {
@@ -54,6 +69,7 @@ const getters = {
     cartCount: (state) => state.items.length,
     totalAmount: (state) => state.items.reduce((sum, paper) => sum + parseFloat(paper.price), 0),
     paperIds: (state) => state.items.map((item) => item.id),
+    showPaymentModal: (state) => state.showPaymentModal,
 };
 
 export default {

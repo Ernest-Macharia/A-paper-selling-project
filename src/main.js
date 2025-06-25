@@ -10,6 +10,7 @@ import AOS from 'aos';
 import App from '@/App.vue';
 import router from '@/router';
 import store from '@/store';
+import api from '@/api';
 
 // Initialize AOS
 AOS.init({ duration: 800, once: false });
@@ -30,6 +31,30 @@ app.use(
         },
     }),
 );
+
+const accessToken = localStorage.getItem('access');
+if (accessToken) {
+    app.config.globalProperties.$axios = api; // optional
+    api.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`;
+}
+
+store.dispatch('authentication/fetchCurrentUserDetails').catch(() => {
+    store.commit('authentication/LOGOUT');
+});
+
+function isTokenExpired(token) {
+    try {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        return Date.now() >= payload.exp * 1000;
+    } catch {
+        return true;
+    }
+}
+
+const token = localStorage.getItem('access');
+if (token && isTokenExpired(token)) {
+    store.commit('authentication/LOGOUT');
+}
 
 // Register plugins
 app.use(router);

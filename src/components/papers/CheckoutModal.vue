@@ -101,6 +101,7 @@
 <script>
 import PaymentModal from '@/components/papers/PaymentModal.vue';
 import { mapGetters, mapMutations } from 'vuex';
+
 export default {
     name: 'CheckoutModal',
     components: { PaymentModal },
@@ -118,7 +119,18 @@ export default {
 
     computed: {
         ...mapGetters('payment', ['cartItems', 'cartCount', 'totalAmount', 'paperIds']),
+        ...mapGetters('ui', ['showPaymentModal']),
     },
+
+    watch: {
+        showPaymentModal(val) {
+            if (val) {
+                this.paymentModalVisible = true;
+                this.$store.commit('payment/SET_SHOW_PAYMENT_MODAL', false); // Reset
+            }
+        },
+    },
+
     methods: {
         ...mapMutations('payment', ['REMOVE_FROM_CART']),
         handleClose() {
@@ -128,12 +140,17 @@ export default {
             this.REMOVE_FROM_CART(id);
         },
         openPaymentModal() {
-            this.paymentModalVisible = true;
-            // if (this.$store.getters['authentication/isAuthenticated']) {
-            //     this.$router.push('/login');
-            // } else {
-            //     this.paymentModalVisible = true;
-            // }
+            if (!this.$store.getters['authentication/isAuthenticated']) {
+                this.$router.push({
+                    path: '/login',
+                    query: {
+                        redirect: this.$route.fullPath,
+                        openPayment: true,
+                    },
+                });
+            } else {
+                this.paymentModalVisible = true;
+            }
         },
     },
 };

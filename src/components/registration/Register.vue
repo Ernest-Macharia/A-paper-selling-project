@@ -1,7 +1,14 @@
 <template>
     <nav class="navbar navbar-expand-lg custom-navbar">
         <div class="container">
-            <router-link class="navbar-brand me-auto" to="/">GradesWorld</router-link>
+            <router-link class="navbar-brand d-flex align-items-center" to="/">
+                <img
+                    src="@/assets/images/gradesworld.png"
+                    alt="GradesWorld Logo"
+                    height="40"
+                    class="me-2"
+                />
+            </router-link>
         </div>
     </nav>
     <div class="vh-100 d-flex justify-content-center align-items-center">

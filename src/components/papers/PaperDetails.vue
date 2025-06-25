@@ -1,7 +1,14 @@
 <template>
     <Navbar />
-
     <div class="container py-5">
+        <nav class="container mt-3" aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item">
+                    <router-link to="/papers">All Papers</router-link>
+                </li>
+                <li class="breadcrumb-item active" aria-current="page">paper details</li>
+            </ol>
+        </nav>
         <div v-if="isLoading" class="text-center my-5">
             <span class="spinner-border text-primary" role="status"></span>
         </div>
@@ -64,8 +71,17 @@
                             <div>
                                 <i class="fas fa-align-left text-primary"></i>
                                 <strong>Description:</strong>
-                                {{ paperDetails.description }}
+                                <div class="text-muted mt-1">
+                                    {{ trimmedDescription }}
+                                    <button
+                                        class="btn btn-link p-0 ps-1"
+                                        @click="showDescriptionModal = true"
+                                    >
+                                        Read More
+                                    </button>
+                                </div>
                             </div>
+
                             <div>
                                 <i class="fas fa-dollar-sign text-success"></i>
                                 <strong>Price:</strong> ${{ paperDetails?.price }}
@@ -170,6 +186,45 @@
                 </div>
             </div>
         </div>
+        <!-- Full Description Modal -->
+        <!-- Full Description Modal -->
+        <div
+            class="modal fade show d-block"
+            v-if="showDescriptionModal"
+            style="background-color: rgba(0, 0, 0, 0.5)"
+            tabindex="-1"
+            role="dialog"
+        >
+            <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+                <div class="modal-content border-0 rounded-4 overflow-hidden">
+                    <!-- Header -->
+                    <div class="modal-header bg-primary text-white">
+                        <h5 class="modal-title">
+                            <i class="fas fa-align-left me-2"></i> Full Description
+                        </h5>
+                        <button
+                            type="button"
+                            class="btn-close"
+                            @click="showDescriptionModal = false"
+                        ></button>
+                    </div>
+
+                    <!-- Body with scroll -->
+                    <div class="modal-body" style="max-height: 60vh; overflow-y: auto">
+                        <p class="text-muted" style="white-space: pre-line">
+                            {{ paperDetails.description }}
+                        </p>
+                    </div>
+
+                    <!-- Footer -->
+                    <div class="modal-footer bg-light">
+                        <button class="btn btn-secondary" @click="showDescriptionModal = false">
+                            Close
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </template>
 
@@ -196,6 +251,7 @@ export default {
             isLoading: true,
             checkoutModalVisible: false,
             paymentModalVisible: false,
+            showDescriptionModal: false,
         };
     },
 
@@ -205,6 +261,10 @@ export default {
 
     computed: {
         ...mapGetters('payment', ['cartItems', 'cartCount']),
+        trimmedDescription() {
+            const desc = this.paperDetails?.description || '';
+            return desc.length > 300 ? desc.slice(0, 300) + '…' : desc;
+        },
     },
 
     methods: {

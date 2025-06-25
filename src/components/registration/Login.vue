@@ -1,7 +1,14 @@
 <template>
     <nav class="navbar navbar-expand-lg custom-navbar">
         <div class="container">
-            <router-link class="navbar-brand me-auto" to="/">GradesWorld</router-link>
+            <router-link class="navbar-brand d-flex align-items-center" to="/">
+                <img
+                    src="@/assets/images/gradesworld.png"
+                    alt="GradesWorld Logo"
+                    height="40"
+                    class="me-2"
+                />
+            </router-link>
         </div>
     </nav>
     <div class="vh-100 d-flex justify-content-center align-items-center">
@@ -132,12 +139,16 @@ export default {
             if (this.emailError || this.passwordError) return;
 
             try {
-                await this.login({
-                    email: this.email,
-                    password: this.password,
-                });
+                await this.login({ email: this.email, password: this.password });
+
                 const redirectTo = this.$route.query.redirect || '/dashboard';
-                this.$router.push(redirectTo);
+                const openPayment = this.$route.query.openPayment;
+
+                this.$router.push(redirectTo).then(() => {
+                    if (openPayment) {
+                        this.$store.commit('payment/SET_SHOW_PAYMENT_MODAL', true);
+                    }
+                });
             } catch (error) {
                 this.serverError = error.response?.data?.detail || 'Invalid email or password.';
             }
