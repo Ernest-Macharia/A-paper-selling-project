@@ -321,24 +321,29 @@
             </div>
         </section>
 
-        <!-- Newsletter CTA -->
+        <!-- Newsletter CTA Section -->
         <section class="newsletter text-center py-5" data-aos="zoom-in">
             <div class="container">
                 <h2 class="fw-bold text-primary-emphasis mb-3">Stay in the Loop</h2>
                 <p class="lead text-muted">
                     Subscribe for updates on new papers, features, and academic opportunities.
                 </p>
-                <form class="row justify-content-center mt-4">
+                <form class="row justify-content-center mt-4" @submit.prevent="submitSubscription">
                     <div class="col-md-6 mb-2 mb-md-0">
                         <input
+                            v-model="subscribeEmail"
                             type="email"
                             class="form-control form-control-lg newsletter-input"
                             placeholder="Enter your email"
+                            @input="clearSubscribeError"
                             required
                         />
+                        <div v-if="subscribeError" class="text-danger mt-1 text-start">
+                            {{ subscribeError }}
+                        </div>
                     </div>
                     <div class="col-md-2">
-                        <button class="btn btn-outline-primary">Subscribe</button>
+                        <button type="submit" class="btn btn-outline-primary">Subscribe</button>
                     </div>
                 </form>
             </div>
@@ -359,7 +364,7 @@
             </div>
         </section>
 
-        <!-- Get in Touch -->
+        <!-- Contact Form Section -->
         <section
             class="contact-form-section d-flex align-items-center justify-content-center py-5"
             data-aos="fade-up"
@@ -371,16 +376,20 @@
                             <h2 class="text-center text-primary-emphasis mb-4 fw-bold">
                                 We would Love to Hear from You
                             </h2>
-                            <form @submit.prevent="submitForm">
+                            <form @submit.prevent="submitContactForm">
                                 <div class="mb-3">
                                     <label for="name" class="form-label">Full Name</label>
                                     <input
                                         v-model="form.name"
                                         type="text"
                                         class="form-control"
+                                        @input="clearFormErrors('name')"
                                         id="name"
                                         required
                                     />
+                                    <div v-if="formErrors.name" class="text-danger mt-1">
+                                        {{ formErrors.name }}
+                                    </div>
                                 </div>
                                 <div class="mb-3">
                                     <label for="email" class="form-label">Email Address</label>
@@ -388,9 +397,13 @@
                                         v-model="form.email"
                                         type="email"
                                         class="form-control"
+                                        @input="clearFormErrors('email')"
                                         id="email"
                                         required
                                     />
+                                    <div v-if="formErrors.email" class="text-danger mt-1">
+                                        {{ formErrors.email }}
+                                    </div>
                                 </div>
                                 <div class="mb-3">
                                     <label for="message" class="form-label">Message</label>
@@ -400,7 +413,11 @@
                                         id="message"
                                         rows="5"
                                         required
-                                    ></textarea>
+                                    >
+                                    </textarea>
+                                    <div v-if="formErrors.message" class="text-danger mt-1">
+                                        {{ formErrors.message }}
+                                    </div>
                                 </div>
                                 <div class="text-center">
                                     <button type="submit" class="btn btn-outline-primary px-5">
@@ -423,6 +440,7 @@ import Navbar from './Navbar.vue';
 import { mapActions } from 'vuex';
 import { Swiper, SwiperSlide } from 'swiper/vue';
 import 'swiper/swiper-bundle.css';
+import { toast } from 'vue3-toastify';
 
 export default {
     name: 'HomePage',
@@ -437,6 +455,16 @@ export default {
             latestPapers: [],
             popularCourses: [],
             popularCategories: [],
+            form: {
+                name: '',
+                email: '',
+                message: '',
+            },
+            subscribeEmail: '',
+            formErrors: {
+                email: '',
+            },
+            subscribeError: '',
             testimonials: [
                 { name: 'Alice', message: 'This platform helped me earn while sharing knowledge!' },
                 { name: 'Bob', message: 'A must-have for students and researchers.' },
@@ -465,11 +493,6 @@ export default {
                     downloads: 790,
                 },
             ],
-            form: {
-                name: '',
-                email: '',
-                message: '',
-            },
         };
     },
 
@@ -485,6 +508,8 @@ export default {
             'fetchPopularCourses',
             'fetchPopularCategories',
         ]),
+        ...mapActions('communications', ['sendContactMessage', 'subscribeToNewsletter']),
+
         async loadLatestPapers() {
             try {
                 const data = await this.fetchAllPapers();
@@ -513,6 +538,88 @@ export default {
             } catch (error) {
                 console.error('Error fetching popular courses:', error);
             }
+        },
+
+        validateContactForm() {
+            this.formErrors = { name: '', email: '', message: '' };
+
+            let valid = true;
+
+            if (!this.form.name.trim()) {
+                this.formErrors.name = 'Full name is required.';
+                valid = false;
+            }
+
+            if (!this.form.email.trim()) {
+                this.formErrors.email = 'Email is required.';
+                valid = false;
+            } else if (!/\S+@\S+\.\S+/.test(this.form.email)) {
+                this.formErrors.email = 'Enter a valid email address.';
+                valid = false;
+            }
+
+            if (!this.form.message.trim()) {
+                this.formErrors.message = 'Message cannot be empty.';
+                valid = false;
+            }
+
+            return valid;
+        },
+
+        validateSubscriptionEmail() {
+            this.subscribeError = '';
+
+            if (!this.subscribeEmail.trim()) {
+                this.subscribeError = 'Email is required.';
+                return false;
+            } else if (!/\S+@\S+\.\S+/.test(this.subscribeEmail)) {
+                this.subscribeError = 'Enter a valid email address.';
+                return false;
+            }
+
+            return true;
+        },
+
+        async submitContactForm() {
+            if (!this.validateContactForm()) return;
+
+            try {
+                await this.sendContactMessage(this.form);
+                toast.success('Message sent successfully!');
+                this.form = { name: '', email: '', message: '' };
+            } catch (err) {
+                const errors = err.response?.data;
+                if (errors?.email) {
+                    this.formErrors.email = errors.email[0];
+                } else {
+                    toast.error(errors?.detail || 'Failed to send message.');
+                }
+            }
+        },
+
+        async submitSubscription() {
+            if (!this.validateSubscriptionEmail()) return;
+
+            try {
+                await this.subscribeToNewsletter({ email: this.subscribeEmail });
+                toast.success('Subscribed successfully!');
+                this.subscribeEmail = '';
+            } catch (err) {
+                const errors = err.response?.data;
+                if (errors?.email) {
+                    this.subscribeError = errors.email[0];
+                } else {
+                    toast.error(errors?.detail || 'Failed to subscribe.');
+                }
+            }
+        },
+
+        clearSubscriptionError() {
+            this.subscribeError = '';
+        },
+
+        clearContactFormErrors() {
+            this.formErrors = { name: '', email: '', message: '' };
         },
 
         formatDate(date) {
