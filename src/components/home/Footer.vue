@@ -49,22 +49,13 @@
                         <li>
                             <router-link to="/help" class="footer-link"> Help Center </router-link>
                         </li>
-                        <li>
-                            <router-link to="/live-chat" class="footer-link">
-                                Live Chat
-                            </router-link>
-                        </li>
-                        <li>
-                            <router-link to="/report-issue" class="footer-link">
-                                Report an Issue
-                            </router-link>
-                        </li>
                     </ul>
                 </div>
 
                 <!-- Social & Payments -->
                 <div class="col-lg-3 col-md-6">
                     <h5 class="footer-title">📲 Connect With Us</h5>
+                    <h5 class="footer-subtitle">scholar@gradesworld.com</h5>
                     <div class="social-icons mb-3">
                         <a href="https://x.com" target="_blank" class="social x" aria-label="X">
                             <i class="fa-brands fa-x-twitter"></i>

@@ -93,15 +93,20 @@
             </ul>
         </div>
     </div>
+    <Footer />
 </template>
 
 <script>
 import { mapActions } from 'vuex';
 import Navbar from '@/components/home/Navbar.vue';
+import Footer from '@/components/home/Footer.vue';
 
 export default {
     name: 'CoursesPage',
-    components: { Navbar },
+    components: {
+        Navbar,
+        Footer,
+    },
 
     data() {
         return {

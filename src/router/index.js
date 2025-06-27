@@ -28,6 +28,13 @@ import CategoriesPage from '@/components/papers/CategoriesPage.vue';
 import CategoryPapersPage from '@/components/papers/CategoryPapersPage.vue';
 import CoursePapersPage from '@/components/papers/CoursePapersPage.vue';
 import PaperDownloadView from '@/components/papers/PaperDownloadView.vue';
+import AboutUs from '@/components/views/AboutUs.vue';
+import TermsAndConditions from '@/components/views/TermsAndConditions.vue';
+import PrivacyPolicy from '@/components/views/PrivacyPolicy.vue';
+import ContactUs from '@/components/views/ContactUs.vue';
+import Blog from '@/components/views/Blog.vue';
+import HelpCenter from '@/components/views/HelpCenter.vue';
+import Faq from '@/components/views/Faq.vue';
 
 const routes = [
     {
@@ -51,6 +58,13 @@ const routes = [
             { path: '/stripe-payment-cancelled', component: StripePaymentFailure },
             { path: '/courses', name: 'Courses', component: CoursesPage },
             { path: '/categories', name: 'Categories', component: CategoriesPage },
+            { path: '/about', component: AboutUs },
+            { path: '/terms', component: TermsAndConditions },
+            { path: '/privacy', component: PrivacyPolicy },
+            { path: '/contact', component: ContactUs },
+            { path: '/blog', component: Blog },
+            { path: '/faq', component: Faq },
+            { path: '/help', component: HelpCenter },
             {
                 path: '/categories/:categoryId',
                 name: 'CategoryPapersPage',

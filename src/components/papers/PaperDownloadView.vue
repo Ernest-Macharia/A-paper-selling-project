@@ -81,16 +81,21 @@
             </router-link>
         </div>
     </div>
+    <Footer />
 </template>
 
 <script>
 import { mapActions } from 'vuex';
 import Navbar from '@/components/home/Navbar.vue';
+import Footer from '@/components/home/Footer.vue';
 
 export default {
     name: 'PaperDownloadView',
 
-    components: { Navbar },
+    components: {
+        Navbar,
+        Footer,
+    },
     data() {
         return {
             isLoading: true,
