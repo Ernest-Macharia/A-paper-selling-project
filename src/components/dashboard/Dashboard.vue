@@ -114,15 +114,14 @@ export default {
                     tooltip: 'You have not uploaded any papers yet.',
                 },
                 {
-                    title: 'Downloads',
+                    title: 'Papers Downloaded',
                     value: stats.user_total_downloads,
                     display:
                         stats.user_total_downloads > 0
-                            ? stats.user_total_downloads
-                            : 'No downloads',
-                    icon: '📥',
+                            ? `${stats.user_total_downloads}`
+                            : 'No downloads yet',
                     isEmpty: stats.user_total_downloads === 0,
-                    tooltip: 'No downloads yet.',
+                    tooltip: 'You have not downloaded any papers yet.',
                 },
                 {
                     title: 'Earnings',

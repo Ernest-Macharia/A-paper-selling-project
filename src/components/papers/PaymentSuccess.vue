@@ -33,7 +33,10 @@ export default {
     methods: {
         ...mapActions('payment', ['verifyPayment']),
         async handleVerification() {
-            const sessionId = this.$route.query.session_id || this.$route.query.paymentId;
+            const sessionId =
+                this.$route.query.session_id ||
+                this.$route.query.paymentId ||
+                this.$route.query.token;
             const orderId = this.$route.query.order_id;
 
             if (!orderId) {

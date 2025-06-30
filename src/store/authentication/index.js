@@ -16,8 +16,11 @@ const mutations = {
         state.user = user;
     },
     SET_TOKEN(state, token) {
-        state.token = token;
-        api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+        if (token) {
+            state.token = token;
+            api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+            localStorage.setItem('access', token);
+        }
     },
     LOGOUT(state) {
         state.user = null;

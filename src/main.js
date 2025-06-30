@@ -18,30 +18,16 @@ router.afterEach(() => setTimeout(() => AOS.refresh(), 500));
 
 const app = createApp(App);
 
-// Auth0 setup
-const redirectUri = window.location.origin;
-
-app.use(
-    createAuth0({
-        domain: import.meta.env.VITE_AUTH0_DOMAIN,
-        clientId: import.meta.env.VITE_AUTH0_CLIENT_ID,
-        authorizationParams: {
-            redirect_uri: redirectUri, // dynamically use current origin
-            audience: import.meta.env.VITE_AUTH0_AUDIENCE,
-        },
-    }),
-);
-
-const accessToken = localStorage.getItem('access');
-if (accessToken) {
-    app.config.globalProperties.$axios = api; // optional
-    api.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`;
+// Load access token before anything
+const access = localStorage.getItem('access');
+if (access) {
+    store.commit('authentication/SET_TOKEN', access);
+    store.dispatch('authentication/fetchCurrentUserDetails').catch(() => {
+        store.commit('authentication/LOGOUT');
+    });
 }
 
-store.dispatch('authentication/fetchCurrentUserDetails').catch(() => {
-    store.commit('authentication/LOGOUT');
-});
-
+// Restore user session if token exists and is valid
 function isTokenExpired(token) {
     try {
         const payload = JSON.parse(atob(token.split('.')[1]));
@@ -52,11 +38,27 @@ function isTokenExpired(token) {
 }
 
 const token = localStorage.getItem('access');
-if (token && isTokenExpired(token)) {
+if (token && !isTokenExpired(token)) {
+    store.dispatch('authentication/fetchCurrentUserDetails').catch(() => {
+        store.commit('authentication/LOGOUT');
+    });
+} else {
     store.commit('authentication/LOGOUT');
 }
 
-// Register plugins
+// Auth0 Setup (if needed)
+app.use(
+    createAuth0({
+        domain: import.meta.env.VITE_AUTH0_DOMAIN,
+        clientId: import.meta.env.VITE_AUTH0_CLIENT_ID,
+        authorizationParams: {
+            redirect_uri: window.location.origin,
+            audience: import.meta.env.VITE_AUTH0_AUDIENCE,
+        },
+    }),
+);
+
+// Use plugins
 app.use(router);
 app.use(store);
 app.use(Toastify, { autoClose: 3000 });

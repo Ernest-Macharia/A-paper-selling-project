@@ -12,11 +12,7 @@ const store = createStore({
         payment: paymentStore,
         communications: communicationStore,
     },
-    plugins: [
-        createPersistedState({
-            paths: ['authentication.token', 'authentication.user'], // persist these only
-        }),
-    ],
+    plugins: [createPersistedState()],
 });
 
 export default store;

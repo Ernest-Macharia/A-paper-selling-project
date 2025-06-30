@@ -150,7 +150,6 @@
             :payment-modal-visible="paymentModalVisible"
             :papers="cartItems"
             @close="checkoutModalVisible = false"
-            @proceed="openPaymentModal"
             @update:papers="cartItems = $event"
             @continue-shopping="handleContinueShopping"
         />
