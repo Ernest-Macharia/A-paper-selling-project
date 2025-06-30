@@ -52,7 +52,7 @@
                 </thead>
                 <tbody>
                     <tr v-for="review in filteredReviews" :key="review.id">
-                        <td class="fw-semibold text-primary">{{ review.paper }}</td>
+                        <td class="fw-semibold text-primary">{{ review.paper_title }}</td>
                         <td>
                             <span class="text-warning" style="font-size: 1.2rem">
                                 <template v-for="star in 5" :key="star">
@@ -63,7 +63,7 @@
                                 </template>
                             </span>
                         </td>
-                        <td>{{ activeTab === 'given' ? review.user : review.reviewer }}</td>
+                        <td>{{ activeTab === 'given' ? review.user_name : review.reviewer }}</td>
                         <td class="fst-italic text-muted" style="max-width: 400px">
                             {{ review.comment || 'No comment' }}
                         </td>
