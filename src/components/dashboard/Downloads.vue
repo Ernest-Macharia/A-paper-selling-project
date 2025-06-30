@@ -2,7 +2,11 @@
     <div class="downloads-container">
         <h2 class="mb-4 text-primary-emphasis">My Downloaded Papers</h2>
 
-        <template v-if="downloadedPapersList.length">
+        <div v-if="isLoading" class="text-center my-5">
+            <div class="spinner-border text-primary" role="status"></div>
+        </div>
+
+        <template v-else-if="downloadedPapersList.length">
             <table class="papers-table">
                 <thead>
                     <tr>
@@ -26,7 +30,7 @@
                                 View File
                             </a>
                         </td>
-                        <td>
+                        <td class="fw-bold text-success">
                             {{ paper.price != null ? '$' + Number(paper.price).toFixed(2) : '—' }}
                         </td>
                         <td>{{ formatDate(paper.download_date) }}</td>
@@ -69,6 +73,7 @@ export default {
             downloadedPapersList: [],
             currentPage: 1,
             perPage: 4,
+            isLoading: false,
         };
     },
     computed: {
@@ -80,9 +85,13 @@ export default {
             return this.downloadedPapersList.slice(start, start + this.perPage);
         },
     },
+    async created() {
+        await this.fetchDownloadedPapersHandler();
+    },
     methods: {
         ...mapActions('papers', ['fetchDownloadedPapers']),
-        async fetchPapers() {
+        async fetchDownloadedPapersHandler() {
+            this.isLoading = true;
             try {
                 const response = await this.fetchDownloadedPapers();
                 this.downloadedPapersList = Array.isArray(response) ? response : [];
@@ -90,6 +99,7 @@ export default {
             } catch (error) {
                 console.error('❌ Failed to fetch downloaded papers:', error);
             }
+            this.isLoading = false;
         },
         formatDate(date) {
             if (!date) return '—';
@@ -99,9 +109,6 @@ export default {
                 day: 'numeric',
             });
         },
-    },
-    created() {
-        this.fetchPapers();
     },
 };
 </script>

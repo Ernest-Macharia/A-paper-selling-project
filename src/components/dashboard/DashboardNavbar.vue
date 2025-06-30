@@ -75,12 +75,15 @@
 </template>
 
 <script>
+import { mapActions } from 'vuex';
 export default {
     name: 'DashboardNavbar',
     methods: {
-        logout() {
-            this.$store.dispatch('logout');
-            this.$router.push('/login');
+        ...mapActions('authentication', ['logout']),
+
+        handleLogout() {
+            this.$router.push('/');
+            this.logout();
         },
     },
 };

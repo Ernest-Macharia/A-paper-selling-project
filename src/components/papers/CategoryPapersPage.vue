@@ -31,7 +31,11 @@
             </div>
         </div>
 
-        <div v-if="filteredPapers.length" class="table-responsive rounded-4 shadow-sm">
+        <div v-if="isLoading" class="text-center my-5">
+            <div class="spinner-border text-primary" role="status"></div>
+        </div>
+
+        <div v-else-if="filteredPapers.length" class="table-responsive rounded-4 shadow-sm">
             <table class="table table-bordered table-hover align-middle mb-0">
                 <thead class="table-light">
                     <tr>
@@ -115,6 +119,7 @@ export default {
             sortAsc: true,
             currentPage: 1,
             perPage: 5,
+            isLoading: false,
         };
     },
     computed: {
@@ -130,6 +135,7 @@ export default {
         ...mapActions('papers', ['fetchCategoryPapers']),
 
         async loadCategoryPapers() {
+            this.isLoading = true;
             const categoryId = this.$route.params.categoryId;
             try {
                 const papers = await this.fetchCategoryPapers(categoryId);
@@ -137,22 +143,10 @@ export default {
                     this.categoryName = papers[0].category?.name || 'Unknown';
                 }
                 this.applyFilters();
-            } catch (err) {
-                console.error('Error loading category papers:', err);
+            } catch {
+                this.categoryName = '';
             }
-        },
-
-        async loadCoursePapers() {
-            const courseId = this.$route.params.courseId;
-            try {
-                const papers = await this.fetchCoursePapers(courseId);
-                if (papers.length) {
-                    this.courseName = papers[0].course?.name || 'Unknown';
-                }
-                this.applyFilters();
-            } catch (err) {
-                console.error('Error loading course papers:', err);
-            }
+            this.isLoading = false;
         },
 
         formatDate(date) {

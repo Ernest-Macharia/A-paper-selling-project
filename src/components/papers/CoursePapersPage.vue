@@ -31,7 +31,11 @@
             </div>
         </div>
 
-        <div v-if="filteredPapers.length" class="table-responsive rounded-4 shadow-sm">
+        <div v-if="isLoading" class="text-center my-5">
+            <div class="spinner-border text-primary" role="status"></div>
+        </div>
+
+        <div v-else-if="filteredPapers.length" class="table-responsive rounded-4 shadow-sm">
             <table class="table table-bordered table-hover align-middle mb-0">
                 <thead class="table-light">
                     <tr>
@@ -113,6 +117,7 @@ export default {
             sortAsc: true,
             currentPage: 1,
             perPage: 5,
+            isLoading: false,
         };
     },
     computed: {
@@ -128,6 +133,7 @@ export default {
         ...mapActions('papers', ['fetchCoursePapers']),
 
         async loadCoursePapers() {
+            this.isLoading = true;
             const courseId = this.$route.params.courseId;
             try {
                 const papers = await this.fetchCoursePapers(courseId);
@@ -135,9 +141,10 @@ export default {
                     this.courseName = papers[0].course?.name || 'Unknown';
                 }
                 this.applyFilters();
-            } catch (err) {
-                console.error('Error loading course papers:', err);
+            } catch {
+                this.courseName = '';
             }
+            this.isLoading = false;
         },
         formatDate(date) {
             if (!date) return '—';

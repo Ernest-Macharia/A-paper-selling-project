@@ -107,11 +107,11 @@
                             <div>
                                 <i class="fas fa-download text-info"></i>
                                 <strong>Downloads:</strong>
-                                {{ paperDetails.downloads }}
+                                {{ paperDetails.download_count || 'N/A' }}
                             </div>
                             <div>
                                 <i class="fas fa-star text-warning"></i> <strong>Reviews:</strong>
-                                {{ paperDetails.reviews || 'N/A' }} / 5
+                                {{ paperDetails.average_rating.toFixed(1) || 'N/A' }} / 5
                             </div>
                             <div>
                                 <i class="fas fa-clock text-secondary"></i>
@@ -172,20 +172,16 @@
                         ></button>
                     </div>
                     <div class="modal-body p-0" style="height: 80vh">
-                        <VPdfViewer
+                        <!-- <VPdfViewer
                             :src="paperDetails.preview_url"
                             style="width: 100%; height: 100%"
                             :options="{ disableDownload: true, disablePrint: true }"
-                        />
-                        <!-- <PDFPreview
-                            :src="paperDetails.preview_url"
-                            :visible="showPreviewModal"
                         /> -->
+                        <PDFPreview :src="paperDetails.preview_url" :visible="showPreviewModal" />
                     </div>
                 </div>
             </div>
         </div>
-        <!-- Full Description Modal -->
         <!-- Full Description Modal -->
         <div
             class="modal fade show d-block"
@@ -196,7 +192,6 @@
         >
             <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
                 <div class="modal-content border-0 rounded-4 overflow-hidden">
-                    <!-- Header -->
                     <div class="modal-header bg-primary text-white">
                         <h5 class="modal-title">
                             <i class="fas fa-align-left me-2"></i> Full Description
@@ -229,7 +224,7 @@
 
 <script>
 import Navbar from '@/components/home/Navbar.vue';
-import { VPdfViewer } from '@vue-pdf-viewer/viewer';
+// import { VPdfViewer } from '@vue-pdf-viewer/viewer';
 import CheckoutModal from '@/components/papers/CheckoutModal.vue';
 import { mapActions, mapGetters } from 'vuex';
 import { toast } from 'vue3-toastify';
@@ -238,7 +233,7 @@ import PDFPreview from '@/components/papers/PDFPreview.vue';
 export default {
     components: {
         Navbar,
-        VPdfViewer,
+        // VPdfViewer,
         CheckoutModal,
         PDFPreview,
     },

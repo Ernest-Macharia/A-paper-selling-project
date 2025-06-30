@@ -14,8 +14,12 @@
             />
         </div>
 
+        <div v-if="isLoading" class="text-center my-5">
+            <div class="spinner-border text-primary" role="status"></div>
+        </div>
+
         <!-- Empty State -->
-        <div v-if="categories.length === 0" class="text-center text-muted mt-5">
+        <div v-else-if="categories.length === 0" class="text-center text-muted mt-5">
             <p>No categories found matching your search.</p>
         </div>
 
@@ -110,6 +114,7 @@ export default {
             totalPages: 1,
             sortKey: 'name',
             sortAsc: true,
+            isLoading: false,
         };
     },
 
@@ -135,6 +140,7 @@ export default {
         ...mapActions('papers', ['fetchCategories']),
 
         async loadCategories() {
+            this.isLoading = true;
             try {
                 const response = await this.fetchCategories({
                     search: this.searchQuery,
@@ -143,9 +149,10 @@ export default {
 
                 this.categories = response.results;
                 this.totalPages = Math.ceil(response.count / 10);
-            } catch (err) {
-                console.error('Error loading categories:', err);
+            } catch {
+                this.categories = [];
             }
+            this.isLoading = false;
         },
 
         onSearch() {

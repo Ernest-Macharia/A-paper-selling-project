@@ -16,8 +16,12 @@
             </div>
         </div>
 
+        <div v-if="isLoading" class="text-center my-5">
+            <div class="spinner-border text-primary" role="status"></div>
+        </div>
+
         <!-- Empty state -->
-        <div v-if="courses.length === 0 && !isLoading" class="text-center text-muted my-5">
+        <div v-else-if="courses.length === 0" class="text-center text-muted my-5">
             <p>No courses found matching your search.</p>
         </div>
 
@@ -151,8 +155,8 @@ export default {
                 this.courses = response.results;
                 const pageSize = 10;
                 this.totalPages = Math.ceil(response.count / pageSize);
-            } catch (err) {
-                console.error('Error loading courses:', err);
+            } catch {
+                this.courses = [];
             } finally {
                 this.isLoading = false;
             }

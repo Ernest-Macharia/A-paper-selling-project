@@ -1,4 +1,5 @@
 import api from '@/api';
+import { toast } from 'vue3-toastify';
 
 const state = {
     user: null,
@@ -27,6 +28,7 @@ const mutations = {
         state.token = '';
         localStorage.removeItem('access');
         localStorage.removeItem('refresh');
+        toast.success('Logged out successfully');
         delete api.defaults.headers.common['Authorization'];
     },
     SET_USERS(state, users) {
@@ -73,11 +75,14 @@ const actions = {
     },
 
     async refreshToken({ commit }) {
+        const refreshClient = axios.create({
+            baseURL: api.defaults.baseURL,
+        });
         const refresh = localStorage.getItem('refresh');
         if (!refresh) throw new Error('No refresh token found');
 
         try {
-            const res = await api.post('/users/token/refresh/', { refresh });
+            const res = await refreshClient.post('/users/token/refresh/', { refresh });
             commit('SET_TOKEN', res.data.access);
             return res.data.access;
         } catch (err) {

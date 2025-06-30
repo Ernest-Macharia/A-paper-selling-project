@@ -31,7 +31,7 @@
         </ul>
 
         <!-- Loading State -->
-        <div v-if="loading" class="text-center text-secondary py-5">
+        <div v-if="isloading" class="text-center text-secondary py-5">
             <div class="spinner-border text-primary" role="status">
                 <span class="visually-hidden">Loading...</span>
             </div>
@@ -52,7 +52,7 @@
                 </thead>
                 <tbody>
                     <tr v-for="review in filteredReviews" :key="review.id">
-                        <td class="fw-semibold text-primary">{{ review.paperName }}</td>
+                        <td class="fw-semibold text-primary">{{ review.paper }}</td>
                         <td>
                             <span class="text-warning" style="font-size: 1.2rem">
                                 <template v-for="star in 5" :key="star">
@@ -63,7 +63,7 @@
                                 </template>
                             </span>
                         </td>
-                        <td>{{ activeTab === 'given' ? review.reviewedBy : review.reviewer }}</td>
+                        <td>{{ activeTab === 'given' ? review.user : review.reviewer }}</td>
                         <td class="fst-italic text-muted" style="max-width: 400px">
                             {{ review.comment || 'No comment' }}
                         </td>
@@ -79,56 +79,46 @@
 </template>
 
 <script>
+import { mapGetters, mapActions } from 'vuex';
+
 export default {
     name: 'Reviews',
     data() {
         return {
             activeTab: 'given',
-            loading: false,
-            reviewsGiven: [
-                {
-                    id: 1,
-                    paperName: 'Deep Learning Basics',
-                    rating: 4,
-                    reviewedBy: 'Prof. Smith',
-                    comment: 'Great insights, well explained.',
-                },
-                {
-                    id: 2,
-                    paperName: 'Quantum Computing Intro',
-                    rating: 3,
-                    reviewedBy: 'Dr. Jones',
-                    comment: '',
-                },
-            ],
-            reviewsReceived: [
-                {
-                    id: 11,
-                    paperName: 'Data Structures Deep Dive',
-                    rating: 5,
-                    reviewer: 'Alice Johnson',
-                    comment: 'Excellent research and presentation.',
-                },
-                {
-                    id: 12,
-                    paperName: 'AI in Education',
-                    rating: 2,
-                    reviewer: 'Bob Lee',
-                    comment: 'Needs more examples and clarity.',
-                },
-            ],
+            isloading: false,
         };
     },
     computed: {
+        ...mapGetters('papers', ['reviewsGiven', 'reviewsReceived']),
         filteredReviews() {
             return this.activeTab === 'given' ? this.reviewsGiven : this.reviewsReceived;
+        },
+    },
+    created() {
+        this.fetchActiveTabReviews();
+    },
+    watch: {
+        activeTab() {
+            this.fetchActiveTabReviews();
+        },
+    },
+    methods: {
+        ...mapActions('papers', ['fetchReviewsGiven', 'fetchReviewsReceived']),
+        fetchActiveTabReviews() {
+            this.isloading = true;
+            if (this.activeTab === 'given') {
+                this.fetchReviewsGiven();
+            } else {
+                this.fetchReviewsReceived();
+            }
+            this.isloading = false;
         },
     },
 };
 </script>
 
 <style scoped>
-/* Optional: tweak star size or spacing */
 .bi-star-fill,
 .bi-star {
     margin-right: 2px;

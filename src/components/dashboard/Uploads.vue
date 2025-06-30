@@ -13,8 +13,12 @@
             />
         </div>
 
+        <div v-if="isLoading" class="text-center my-5">
+            <div class="spinner-border text-primary" role="status"></div>
+        </div>
+
         <!-- Empty State -->
-        <div v-if="filteredPapers.length === 0" class="text-center text-muted mt-5">
+        <div v-else-if="filteredPapers.length === 0" class="text-center text-muted mt-5">
             <p>No uploaded papers found.</p>
         </div>
 
@@ -58,7 +62,7 @@
                                 View File
                             </a>
                         </td>
-                        <td>
+                        <td class="fw-bold text-success">
                             {{ paper.price != null ? '$' + Number(paper.price).toFixed(2) : '—' }}
                         </td>
                         <td>{{ formatDate(paper.upload_date) }}</td>
@@ -106,6 +110,7 @@ export default {
             searchQuery: '',
             sortKey: 'upload_date',
             sortAsc: false,
+            isLoading: false,
         };
     },
     computed: {
@@ -135,9 +140,14 @@ export default {
             return Math.ceil(this.filteredPapers.length / this.perPage);
         },
     },
+
+    async created() {
+        await this.fetchUploadedPapersHandler();
+    },
     methods: {
         ...mapActions('papers', ['fetchUploadedPapers']),
-        async fetchPapers() {
+        async fetchUploadedPapersHandler() {
+            this.isLoading = true;
             try {
                 const response = await this.fetchUploadedPapers();
                 this.uploadedPapersList = response.results;
@@ -145,6 +155,7 @@ export default {
             } catch {
                 this.uploadedPapersList = [];
             }
+            this.isLoading = false;
         },
         onSearch() {
             this.currentPage = 1;
@@ -183,9 +194,6 @@ export default {
             };
             return map[status] || '❓ Unknown';
         },
-    },
-    async created() {
-        await this.fetchPapers();
     },
 };
 </script>

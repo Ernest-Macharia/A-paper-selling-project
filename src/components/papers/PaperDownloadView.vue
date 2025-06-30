@@ -1,91 +1,118 @@
 <template>
     <Navbar />
     <div class="container py-5">
-        <!-- Heading -->
-        <div class="text-center mb-5">
-            <h2 :class="downloadUrls.length ? 'text-success' : 'text-danger'" class="fw-bold">
-                {{ downloadUrls.length ? 'Download Your Papers' : 'No Papers Found' }}
-            </h2>
-            <p class="text-muted" v-if="downloadUrls.length">
-                Thank you for your purchase! Your papers are ready below.
-            </p>
-        </div>
+        <h2 class="mb-4 text-center text-primary fw-bold">📄 Your Exam Papers</h2>
 
-        <!-- Loading Spinner -->
+        <!-- Loading -->
         <div v-if="isLoading" class="text-center my-5">
-            <p class="text-primary">Loading your papers...</p>
-            <span class="spinner-border text-primary" role="status" />
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
         </div>
 
-        <!-- Error Message -->
-        <div v-else-if="errorMessage" class="text-center my-5">
-            <p class="text-danger fs-5">{{ errorMessage }}</p>
-            <router-link to="/" class="btn btn-outline-danger mt-3">
-                <i class="bi bi-house-door me-2"></i>Go Back Home
-            </router-link>
+        <!-- Error -->
+        <div v-if="errorMessage" class="alert alert-danger text-center">
+            {{ errorMessage }}
         </div>
 
-        <!-- Downloadable Papers -->
-        <div v-else-if="downloadUrls.length" class="row row-cols-1 row-cols-md-2 g-4">
-            <div v-for="(url, index) in downloadUrls" :key="index" class="col" data-aos="fade-up">
-                <div class="card h-100 border-0 shadow-sm rounded-3">
+        <!-- Papers -->
+        <div v-else class="row row-cols-1 row-cols-md-2 g-4">
+            <div v-for="(paper, index) in paperDetailsList" :key="paper.id" class="col">
+                <div class="card h-100 shadow border-0">
                     <div class="card-body">
-                        <h5 class="card-title text-primary mb-3">
-                            <i class="bi bi-file-earmark-text me-2"></i>
-                            {{ paperDetailsList[index]?.title || 'Untitled Paper' }}
+                        <h5 class="card-title text-primary">
+                            <i class="bi bi-journal-text me-2"></i>{{ paper.title }}
                         </h5>
-                        <ul class="list-unstyled text-muted small mb-0">
+                        <p class="text-muted">
+                            {{ paper.description || 'No description available.' }}
+                        </p>
+                        <ul class="list-unstyled small mb-3">
+                            <li><strong>Category:</strong> {{ paper.category?.name || '—' }}</li>
+                            <li><strong>Pages:</strong> {{ paper.pages || '—' }}</li>
+                            <li><strong>Uploaded:</strong> {{ formatDate(paper.upload_date) }}</li>
                             <li>
                                 <strong>Price:</strong>
-                                <span class="text-success"
-                                    >${{ paperDetailsList[index]?.price ?? '—' }}</span
-                                >
-                            </li>
-                            <li>
-                                <strong>Uploaded:</strong>
-                                {{ formatDate(paperDetailsList[index]?.upload_date) }}
-                            </li>
-                            <li>
-                                <strong>Pages:</strong>
-                                {{ paperDetailsList[index]?.pages || '—' }}
-                            </li>
-                            <li>
-                                <strong>Category:</strong>
-                                {{ paperDetailsList[index]?.category?.name || '—' }}
+                                <span class="text-success">${{ paper.price ?? 'Free' }}</span>
                             </li>
                         </ul>
-                    </div>
-                    <div class="card-footer bg-transparent border-0">
-                        <a
-                            :href="url"
-                            target="_blank"
-                            download
-                            class="btn btn-success w-100 d-flex justify-content-center align-items-center gap-2"
-                        >
-                            <i class="bi bi-download"></i> Download Paper
-                        </a>
+                        <button class="btn btn-success me-2" @click="downloadSinglePaper(paper.id)">
+                            <i class="bi bi-download me-1"></i>Download
+                        </button>
+                        <button class="btn btn-outline-primary" @click="openReviewModal(paper)">
+                            <i class="bi bi-star-half me-1"></i>Leave Review
+                        </button>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- No Downloadable Papers -->
-        <div v-else class="text-center text-muted mt-5">
-            <p class="fs-5">No downloadable papers were found for this order.</p>
+        <!-- Review Modal -->
+        <div class="modal fade show" tabindex="-1" style="display: block" v-if="showModal">
+            <div class="modal-dialog">
+                <div class="modal-content border-0 shadow">
+                    <div class="modal-header bg-primary text-white">
+                        <h5 class="modal-title">Review: {{ selectedPaper?.title }}</h5>
+                        <button type="button" class="btn-close" @click="closeReviewModal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form @submit.prevent="submitReview">
+                            <div class="mb-3">
+                                <label class="form-label">Your Rating</label>
+                                <div>
+                                    <i
+                                        v-for="n in 5"
+                                        :key="n"
+                                        class="bi me-1 fs-4"
+                                        :class="{
+                                            'bi-star-fill text-warning': reviewForm.rating >= n,
+                                            'bi-star text-secondary': reviewForm.rating < n,
+                                        }"
+                                        style="cursor: pointer"
+                                        @click="reviewForm.rating = n"
+                                    ></i>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Your Comment</label>
+                                <textarea
+                                    v-model="reviewForm.comment"
+                                    class="form-control"
+                                    rows="3"
+                                    placeholder="Share your thoughts..."
+                                ></textarea>
+                            </div>
+
+                            <div class="d-flex justify-content-between">
+                                <button type="submit" class="btn btn-primary" @click="submitReview">
+                                    Submit Review
+                                </button>
+                                <button
+                                    type="button"
+                                    class="btn btn-secondary"
+                                    @click="closeReviewModal"
+                                >
+                                    Cancel
+                                </button>
+                            </div>
+
+                            <div v-if="submissionError" class="alert alert-danger mt-3">
+                                {{ submissionError }}
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
         </div>
 
-        <!-- Continue Shopping Button -->
-        <div class="text-center mt-5" v-if="downloadUrls.length">
-            <router-link to="/papers" class="btn btn-outline-primary">
-                <i class="bi bi-arrow-left-circle me-2"></i>Continue Shopping
-            </router-link>
-        </div>
+        <!-- Modal Backdrop -->
+        <div v-if="showModal" class="modal-backdrop fade show"></div>
     </div>
     <Footer />
 </template>
 
 <script>
 import { mapActions } from 'vuex';
+import { toast } from 'vue3-toastify';
 import Navbar from '@/components/home/Navbar.vue';
 import Footer from '@/components/home/Footer.vue';
 
@@ -98,69 +125,136 @@ export default {
     },
     data() {
         return {
+            paperDetailsList: [],
             isLoading: true,
             errorMessage: null,
-            downloadUrls: [],
-            paperDetailsList: [],
+            showModal: false,
+            selectedPaper: null,
+            reviewForm: {
+                rating: 0,
+                comment: '',
+            },
+            reviewSuccess: false,
+            submissionError: null,
         };
     },
-    async created() {
-        const idsQuery = this.$route.query.ids;
-
-        if (!idsQuery) {
-            this.errorMessage = 'No papers specified for download.';
-            this.isLoading = false;
-            return;
-        }
-
-        const paperIds = idsQuery
-            .split(',')
-            .map((id) => parseInt(id.trim(), 10))
-            .filter(Boolean);
-
-        try {
-            const results = await Promise.all(
-                paperIds.map(async (id) => {
-                    const [url, details] = await Promise.all([
-                        this.downloadPaperById(id),
-                        this.fetchPaperById(id),
-                    ]);
-                    return { url, details };
-                }),
-            );
-
-            this.downloadUrls = results.map((r) => r.url);
-            this.paperDetailsList = results.map((r) => r.details);
-        } catch (error) {
-            console.error('Download failed:', error);
-            this.errorMessage = 'There was a problem fetching your downloads.';
-        } finally {
-            this.isLoading = false;
-        }
-    },
     methods: {
-        ...mapActions('papers', ['fetchPaperById', 'downloadPaperById']),
-        formatDate(date) {
-            if (!date) return '—';
-            return new Date(date).toLocaleDateString(undefined, {
+        ...mapActions('papers', ['fetchPaperById', 'submitPaperReview', 'downloadPaperById']),
+
+        async handleDownloadFlow() {
+            const idsQuery = this.$route.query.ids;
+            if (!idsQuery) {
+                this.errorMessage = 'No papers specified for download.';
+                this.isLoading = false;
+                return;
+            }
+
+            const paperIds = idsQuery
+                .split(',')
+                .map((id) => parseInt(id.trim(), 10))
+                .filter(Boolean);
+
+            try {
+                const results = await Promise.all(
+                    paperIds.map(async (id) => {
+                        try {
+                            const paper = await this.fetchPaperById(id);
+                            return paper;
+                        } catch {
+                            return null;
+                        }
+                    }),
+                );
+                this.paperDetailsList = results.filter(Boolean);
+                if (this.paperDetailsList.length === 0) {
+                    this.errorMessage = 'No valid papers found.';
+                } else {
+                    toast.success('Papers loaded successfully!');
+                }
+            } catch {
+                this.paperDetailsList = [];
+                toast.error('Failed to load papers.');
+                this.errorMessage = 'There was a problem fetching your downloads.';
+            } finally {
+                this.isLoading = false;
+            }
+        },
+
+        async downloadSinglePaper(paperId) {
+            try {
+                const fileUrl = await this.downloadPaperById(paperId);
+                if (fileUrl) {
+                    window.open(fileUrl, '_blank');
+                    toast.success('Paper downloaded successfully!');
+                } else {
+                    throw new Error('No download URL found.');
+                }
+            } catch {
+                toast.error('Failed to download paper.');
+            }
+        },
+
+        openReviewModal(paper) {
+            this.selectedPaper = paper;
+            this.reviewForm = { rating: 0, comment: '' };
+            this.submissionError = null;
+            this.reviewSuccess = false;
+            this.showModal = true;
+        },
+
+        closeReviewModal() {
+            this.showModal = false;
+            this.selectedPaper = null;
+        },
+
+        async submitReview() {
+            if (!this.selectedPaper || !this.selectedPaper.id) {
+                this.submissionError = 'Paper not selected.';
+                return;
+            }
+
+            const reviewPayload = {
+                rating: this.reviewForm.rating,
+                comment: this.reviewForm.comment,
+            };
+
+            try {
+                await this.submitPaperReview({
+                    paper: this.selectedPaper.id,
+                    reviewData: reviewPayload,
+                });
+                this.reviewSuccess = true;
+                this.submissionError = null;
+                toast.success('Review submitted successfully!');
+                this.closeReviewModal();
+            } catch {
+                this.submissionError = 'Failed to submit review. Please try again.';
+            }
+        },
+
+        formatDate(dateStr) {
+            if (!dateStr) return '—';
+            return new Date(dateStr).toLocaleDateString(undefined, {
                 year: 'numeric',
                 month: 'short',
                 day: 'numeric',
             });
         },
     },
+    created() {
+        this.handleDownloadFlow();
+    },
 };
 </script>
 
 <style scoped>
 .card-title {
-    font-size: 1.2rem;
     font-weight: 600;
 }
-.card-body ul li {
-    margin-bottom: 0.25rem;
+.modal-backdrop {
+    z-index: 1040;
 }
-.card-footer .btn {
-    font-weight: 500;
+.modal {
+    z-index: 1050;
 }
 </style>

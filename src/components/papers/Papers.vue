@@ -101,7 +101,7 @@
                             </td>
                             <td>{{ paper.category?.name || 'No Category' }}</td>
                             <td>{{ paper.downloads || 'No Downloads' }}</td>
-                            <td>{{ paper.reviews || 'No Reviews' }}</td>
+                            <td>{{ paper.review_count || 'No Reviews' }}</td>
                             <td class="fw-bold text-success">
                                 {{ paper.is_free ? 'Free' : `$${paper.price}` }}
                             </td>
@@ -198,8 +198,8 @@ export default {
                 const data = await this.fetchAllPapers();
                 this.papers = data.results;
                 this.filteredPapers = data.results;
-            } catch (error) {
-                console.error('Error fetching papers:', error);
+            } catch {
+                this.papers = [];
             } finally {
                 this.isLoading = false;
             }

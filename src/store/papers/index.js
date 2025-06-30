@@ -10,6 +10,19 @@ const state = {
     paperDetails: null,
     uploadedPapers: [],
     downloadedPapers: [],
+    reviewsGiven: {
+        results: [],
+        count: 0,
+        next: null,
+        previous: null,
+    },
+    reviewsReceived: {
+        results: [],
+        count: 0,
+        next: null,
+        previous: null,
+    },
+    loading: false,
     orders: [],
     orderDetails: null,
 };
@@ -41,6 +54,15 @@ const mutations = {
     },
     SET_DOWNLOADED_PAPERS(state, papers) {
         state.downloadedPapers = papers;
+    },
+    SET_REVIEWS_GIVEN(state, reviews) {
+        state.reviewsGiven = reviews;
+    },
+    SET_REVIEWS_RECEIVED(state, reviews) {
+        state.reviewsReceived = reviews;
+    },
+    SET_LOADING(state, value) {
+        state.loading = value;
     },
     SET_ORDERS(state, orders) {
         state.orders = orders;
@@ -227,6 +249,34 @@ const actions = {
         }
     },
 
+    async submitPaperReview(_, { paper, reviewData }) {
+        await api.post(`/exampapers/papers/${paper}/download/reviews/`, reviewData);
+    },
+
+    async fetchReviewsGiven({ commit }) {
+        commit('SET_LOADING', true);
+        try {
+            const response = await api.get('/exampapers/reviews/given/');
+            commit('SET_REVIEWS_GIVEN', response.data);
+        } catch (error) {
+            console.error('Error fetching given reviews:', error);
+        } finally {
+            commit('SET_LOADING', false);
+        }
+    },
+
+    async fetchReviewsReceived({ commit }) {
+        commit('SET_LOADING', true);
+        try {
+            const response = await api.get('/exampapers/reviews/received/');
+            commit('SET_REVIEWS_RECEIVED', response.data);
+        } catch (error) {
+            console.error('Error fetching received reviews:', error);
+        } finally {
+            commit('SET_LOADING', false);
+        }
+    },
+
     async fetchOrders({ commit }) {
         const { data } = await api.get('/exampapers/orders/');
         commit('SET_ORDERS', data);
@@ -256,6 +306,9 @@ const getters = {
     paperDetails: (state) => state.paperDetails,
     allOrders: (state) => state.orders,
     orderDetails: (state) => state.orderDetails,
+    reviewsGiven: (state) => state.reviewsGiven.results || [],
+    reviewsReceived: (state) => state.reviewsReceived.results || [],
+    isLoading: (state) => state.isLoading,
 };
 
 export default {
