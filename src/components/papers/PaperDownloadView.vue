@@ -1,7 +1,7 @@
 <template>
     <Navbar />
     <div class="container py-5">
-        <h2 class="mb-4 text-center text-primary fw-bold">📄 Your Exam Papers</h2>
+        <h2 class="mb-4 text-center text-primary-emphasis fw-bold">📄 Your Exam Papers</h2>
 
         <!-- Loading -->
         <div v-if="isLoading" class="text-center my-5">

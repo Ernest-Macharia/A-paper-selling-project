@@ -2,26 +2,35 @@
     <Navbar />
     <section class="py-5 bg-light">
         <div class="container">
-            <h1 class="text-center mb-4">About Us</h1>
+            <h1 class="text-center text-primary-emphasis mb-4">About Us</h1>
             <p class="lead text-center text-muted">
-                Learn more about our mission, values, and the team behind our platform.
+                Welcome to the platform where knowledge meets opportunity!
             </p>
             <hr />
-            <div class="row mt-5">
-                <div class="col-md-6">
-                    <h4>Our Mission</h4>
+            <div class="row justify-content-center mt-6">
+                <div class="col-md-6 text-center">
                     <p>
-                        We are dedicated to providing students with easy access to academic papers,
-                        study materials, and educational resources to help them succeed.
+                        We are an innovative Ed-Tech platform dedicated to supporting students,
+                        streamlining exam preparation, and easing academic orientation. Whether
+                        you're a learner searching for reliable resources or a knowledge-holder
+                        ready to share your expertise, we've created the space where both can
+                        thrive.
                     </p>
-                </div>
-                <div class="col-md-6">
-                    <h4>Why Choose Us?</h4>
-                    <ul class="list-unstyled">
-                        <li>✅ Trusted academic resources</li>
-                        <li>✅ Easy access and affordable pricing</li>
-                        <li>✅ Community and expert support</li>
-                    </ul>
+
+                    <p>
+                        At the heart of what we do is a simple belief: your know-how has value.
+                        That’s why we empower educators, students, and subject matter experts to
+                        turn their knowledge into income by sharing quality study materials, notes,
+                        guides, and more.
+                    </p>
+
+                    <p>
+                        Our platform isn’t just about resources—it's about community, connection and
+                        unlocking potential. We’re here to bridge the gap between learning and
+                        earning by making educational content more accessible and rewarding for
+                        everyone involved. Join us in redefining education. Turn your know-how into
+                        income, and make an impact while doing it.
+                    </p>
                 </div>
             </div>
         </div>

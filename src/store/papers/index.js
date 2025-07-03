@@ -22,6 +22,8 @@ const state = {
         next: null,
         previous: null,
     },
+    earnings: null,
+    withdrawals: [],
     loading: false,
     orders: [],
     orderDetails: null,
@@ -60,6 +62,15 @@ const mutations = {
     },
     SET_REVIEWS_RECEIVED(state, reviews) {
         state.reviewsReceived = reviews;
+    },
+    SET_EARNINGS(state, earnings) {
+        state.earnings = earnings;
+    },
+    SET_WITHDRAWALS(state, withdrawals) {
+        state.withdrawals = withdrawals;
+    },
+    ADD_WITHDRAWAL(state, newWithdrawal) {
+        state.withdrawals.unshift(newWithdrawal);
     },
     SET_LOADING(state, value) {
         state.loading = value;
@@ -274,6 +285,41 @@ const actions = {
             console.error('Error fetching received reviews:', error);
         } finally {
             commit('SET_LOADING', false);
+        }
+    },
+
+    async fetchEarnings({ commit }) {
+        try {
+            const { data } = await api.get('/payments/wallet/summary/');
+            commit('SET_EARNINGS', data);
+            return data;
+        } catch (error) {
+            console.error('Error fetching wallet summary:', error);
+            throw error;
+        }
+    },
+
+    // Fetch user's withdrawal requests
+    async fetchWithdrawals({ commit }) {
+        try {
+            const { data } = await api.get('/payments/withdrawals/');
+            commit('SET_WITHDRAWALS', data.results || []);
+            return data;
+        } catch (error) {
+            console.error('Error fetching withdrawals:', error);
+            throw error;
+        }
+    },
+
+    // Submit a new withdrawal request
+    async submitWithdrawal({ commit }, payload) {
+        try {
+            const { data } = await api.post('/payments/withdrawals/', payload);
+            commit('ADD_WITHDRAWAL', data);
+            return data;
+        } catch (error) {
+            console.error('Error submitting withdrawal:', error.response?.data || error);
+            throw error;
         }
     },
 
