@@ -6,7 +6,7 @@
         <section class="hero-section text-white d-flex align-items-center" data-aos="zoom-out">
             <div class="overlay"></div>
             <div class="hero-content text-center">
-                <h1 class="display-4 fw-bold">Access Quality Academic Papers</h1>
+                <h1 class="display-4 fw-bold">Access Quality Academic</h1>
                 <router-link to="/register" class="btn btn-primary btn-lg mt-3"
                     >Start Selling</router-link
                 >
