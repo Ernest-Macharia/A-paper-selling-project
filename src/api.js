@@ -1,8 +1,14 @@
 import axios from 'axios';
 import store from '@/store';
 
+// Determine the base URL
+const isLocalhost =
+    window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+
 const api = axios.create({
-    baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api',
+    baseURL: isLocalhost
+        ? 'http://localhost:8000/api'
+        : import.meta.env.VITE_API_BASE_URL || 'https://gradesworld.com/api',
 });
 
 // Attach token automatically from localStorage
@@ -17,7 +23,7 @@ api.interceptors.request.use(
     (error) => Promise.reject(error),
 );
 
-// Handle 401 and auto-refresh
+// Handle 401 errors and auto-refresh
 api.interceptors.response.use(
     (response) => response,
     async (error) => {
@@ -35,9 +41,7 @@ api.interceptors.response.use(
                 if (refresh) {
                     const response = await axios.post(
                         `${api.defaults.baseURL}/users/token/refresh/`,
-                        {
-                            refresh,
-                        },
+                        { refresh },
                     );
                     const newAccessToken = response.data.access;
 
