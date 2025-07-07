@@ -7,6 +7,7 @@ import Login from '@/components/registration/Login.vue';
 import Register from '@/components/registration/Register.vue';
 import ForgotPassword from '@/components/registration/ForgotPassword.vue';
 import ResetPassword from '@/components/registration/ResetPassword.vue';
+import ResendActivation from '@/components/registration/ResendActivation.vue';
 import Papers from '@/components/papers/Papers.vue';
 import PaperDetails from '@/components/papers/PaperDetails.vue';
 import Dashboard from '@/components/dashboard/Dashboard.vue';
@@ -49,6 +50,11 @@ const routes = [
                 path: '/reset-password-confirm/:uid/:token',
                 name: 'ResetPassword',
                 component: ResetPassword,
+            },
+            {
+                path: '/resend-activation',
+                name: 'ResendActivation',
+                component: ResendActivation,
             },
             { path: 'papers', component: Papers },
             { path: '/papers/:id', name: 'paper-details', component: PaperDetails },

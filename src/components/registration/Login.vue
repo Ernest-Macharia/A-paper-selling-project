@@ -63,8 +63,17 @@
 
             <div class="my-3 text-center text-muted">OR</div>
 
-            <button class="btn btn-outline-primary w-100" @click="loginWithAuth0">
-                <i class="bi bi-google me-2"></i> Continue with Google
+            <button
+                class="btn bg-white border w-100 d-flex align-items-center justify-content-center gap-2 shadow-sm"
+                @click="handleSignup"
+            >
+                <img
+                    src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg"
+                    width="20"
+                    height="20"
+                    alt="Google"
+                />
+                <span class="fw-semibold text-dark">Continue with Google</span>
             </button>
 
             <p class="mt-3 text-center text-muted">

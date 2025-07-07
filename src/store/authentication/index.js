@@ -91,6 +91,11 @@ const actions = {
         }
     },
 
+    async resendActivation(_, email) {
+        const res = await api.post('/users/resend-activation/', { email });
+        return res.data;
+    },
+
     async updateCurrentUserDetails({ commit }, updatedData) {
         const res = await api.put('/users/current-user/update/', updatedData);
         commit('SET_USER', res.data);
