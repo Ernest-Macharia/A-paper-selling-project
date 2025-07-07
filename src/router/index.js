@@ -36,6 +36,7 @@ import ContactUs from '@/components/views/ContactUs.vue';
 import Blog from '@/components/views/Blog.vue';
 import HelpCenter from '@/components/views/HelpCenter.vue';
 import Faq from '@/components/views/Faq.vue';
+import ChatPopup from '@/components/chat/ChatPopup.vue';
 
 const routes = [
     {
@@ -71,6 +72,7 @@ const routes = [
             { path: '/blog', component: Blog },
             { path: '/faq', component: Faq },
             { path: '/help', component: HelpCenter },
+            { path: '/chat', component: ChatPopup },
             {
                 path: '/categories/:categoryId',
                 name: 'CategoryPapersPage',

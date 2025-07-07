@@ -6,9 +6,10 @@
                 <li class="breadcrumb-item">
                     <router-link to="/papers">All Papers</router-link>
                 </li>
-                <li class="breadcrumb-item active" aria-current="page">paper details</li>
+                <li class="breadcrumb-item active" aria-current="page">Paper Details</li>
             </ol>
         </nav>
+
         <div v-if="isLoading" class="text-center my-5">
             <span class="spinner-border text-primary" role="status"></span>
         </div>
@@ -54,6 +55,23 @@
                             <strong>Papers Sold:</strong>
                             {{ paperDetails.author_info?.papers_sold || 0 }}
                         </p>
+
+                        <!-- Show chat button only if the viewer is not the uploader -->
+                        <div
+                            v-if="
+                                userDetails &&
+                                paperDetails.author_info &&
+                                userDetails.id !== paperDetails.author_info.id
+                            "
+                        >
+                            <button
+                                class="btn btn-outline-primary btn-sm mt-2"
+                                @click="showChatModal = true"
+                            >
+                                <i class="fas fa-comments"></i> Message
+                                {{ paperDetails.author_info.name }}
+                            </button>
+                        </div>
                     </section>
                 </div>
 
@@ -101,8 +119,7 @@
                             </div>
                             <div>
                                 <i class="fas fa-file-word text-primary"></i>
-                                <strong>Pages:</strong>
-                                {{ paperDetails.pages || 'N/A' }}
+                                <strong>Pages:</strong> {{ paperDetails.pages || 'N/A' }}
                             </div>
                             <div>
                                 <i class="fas fa-download text-info"></i>
@@ -138,10 +155,39 @@
                     @click="openCheckoutModal"
                     :disabled="cartCount.length === 0"
                 >
-                    <i class="fas fa-shopping-cart"></i>
-                    View Cart ({{ cartCount }})
+                    <i class="fas fa-shopping-cart"></i> View Cart ({{ cartCount }})
                 </button>
             </section>
+        </div>
+
+        <!-- Chat Modal -->
+        <div
+            class="modal fade show"
+            v-if="showChatModal"
+            tabindex="-1"
+            role="dialog"
+            style="display: block; background-color: rgba(0, 0, 0, 0.5)"
+        >
+            <div class="modal-dialog modal-dialog-scrollable modal-md" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Chat with {{ paperDetails.author_info.name }}</h5>
+                        <button
+                            type="button"
+                            class="btn-close"
+                            @click="showChatModal = false"
+                        ></button>
+                    </div>
+                    <div class="modal-body">
+                        <UserChatBox
+                            :recipient-id="paperDetails.author_info.id"
+                            :recipient-name="paperDetails.author_info.name"
+                            :current-user-id="userDetails.id"
+                            :current-user-name="userDetails.name"
+                        />
+                    </div>
+                </div>
+            </div>
         </div>
 
         <!-- Checkout Modal -->
@@ -154,6 +200,7 @@
             @continue-shopping="handleContinueShopping"
         />
 
+        <!-- PDF Preview Modal -->
         <div
             class="modal fade show d-block"
             v-if="showPreviewModal"
@@ -172,20 +219,16 @@
                         ></button>
                     </div>
                     <div class="modal-body p-0" style="height: 80vh">
-                        <!-- <VPdfViewer
-                            :src="paperDetails.preview_url"
-                            style="width: 100%; height: 100%"
-                            :options="{ disableDownload: true, disablePrint: true }"
-                        /> -->
                         <PDFPreview :src="paperDetails.preview_url" :visible="showPreviewModal" />
                     </div>
                 </div>
             </div>
         </div>
+
         <!-- Full Description Modal -->
         <div
-            class="modal fade show d-block"
             v-if="showDescriptionModal"
+            class="modal fade show d-block"
             style="background-color: rgba(0, 0, 0, 0.5)"
             tabindex="-1"
             role="dialog"
@@ -202,15 +245,11 @@
                             @click="showDescriptionModal = false"
                         ></button>
                     </div>
-
-                    <!-- Body with scroll -->
                     <div class="modal-body" style="max-height: 60vh; overflow-y: auto">
                         <p class="text-muted" style="white-space: pre-line">
                             {{ paperDetails.description }}
                         </p>
                     </div>
-
-                    <!-- Footer -->
                     <div class="modal-footer bg-light">
                         <button class="btn btn-secondary" @click="showDescriptionModal = false">
                             Close
@@ -229,6 +268,7 @@ import CheckoutModal from '@/components/papers/CheckoutModal.vue';
 import { mapActions, mapGetters } from 'vuex';
 import { toast } from 'vue3-toastify';
 import PDFPreview from '@/components/papers/PDFPreview.vue';
+import UserChatBox from '@/components/chat/UserChatBox.vue';
 
 export default {
     components: {
@@ -236,6 +276,7 @@ export default {
         // VPdfViewer,
         CheckoutModal,
         PDFPreview,
+        UserChatBox,
     },
     data() {
         return {
@@ -246,11 +287,13 @@ export default {
             checkoutModalVisible: false,
             paymentModalVisible: false,
             showDescriptionModal: false,
+            userDetails: null,
+            showChatModal: false,
         };
     },
 
-    created() {
-        this.fetchPaperDetails();
+    async created() {
+        await Promise.all([this.fetchPaperDetails(), this.loadUserDetails()]);
     },
 
     computed: {
@@ -263,6 +306,7 @@ export default {
 
     methods: {
         ...mapActions('papers', ['fetchPaperById']),
+        ...mapActions('authentication', ['fetchCurrentUserDetails']),
         async fetchPaperDetails() {
             try {
                 const paperId = this.$route.params.id;
@@ -271,6 +315,15 @@ export default {
                 console.error('Error fetching paper:', error);
             } finally {
                 this.isLoading = false;
+            }
+        },
+
+        async loadUserDetails() {
+            try {
+                const user = await this.fetchCurrentUserDetails();
+                this.userDetails = user;
+            } catch {
+                toast.error('Error fetching user details.');
             }
         },
 
@@ -352,6 +405,15 @@ button[disabled] {
 
 .modal.fade {
     animation: fadeIn 0.3s ease-in-out;
+}
+
+.modal {
+    display: block;
+    z-index: 1050;
+}
+
+.modal-backdrop {
+    display: none;
 }
 
 @keyframes fadeIn {

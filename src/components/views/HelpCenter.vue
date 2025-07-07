@@ -6,7 +6,10 @@
             <p class="lead text-muted">
                 Need help navigating our platform? Our team is here for you 24/7.
             </p>
-            <p class="lead text-muted">You can contact us via email at scholar@gradesworld.com</p>
+            <p class="lead text-muted">
+                You can contact us via email at scholar@gradesworld.com or contact us through our
+                live chat.
+            </p>
             <router-link to="/contact" class="btn btn-outline-primary mt-3"
                 >Contact Support</router-link
             >
