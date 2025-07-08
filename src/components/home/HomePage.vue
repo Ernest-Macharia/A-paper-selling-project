@@ -364,7 +364,7 @@
             </div>
         </section>
         <ContactForm />
-        <ChatPopup />
+        <!-- <ChatPopup /> -->
     </div>
     <Footer />
 </template>
@@ -372,7 +372,7 @@
 <script>
 import Footer from './Footer.vue';
 import Navbar from './Navbar.vue';
-import ChatPopup from '@/components/chat/ChatPopup.vue';
+// import ChatPopup from '@/components/chat/ChatPopup.vue';
 import ContactForm from '@/components/views/ContactForm.vue';
 import { mapActions } from 'vuex';
 import { Swiper, SwiperSlide } from 'swiper/vue';
@@ -386,7 +386,7 @@ export default {
         Navbar,
         Swiper,
         SwiperSlide,
-        ChatPopup,
+        // ChatPopup,
         ContactForm,
     },
     data() {
