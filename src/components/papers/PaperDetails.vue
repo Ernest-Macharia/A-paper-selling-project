@@ -426,4 +426,35 @@ button[disabled] {
         transform: scale(1);
     }
 }
+
+@media (max-width: 768px) {
+    .grid-sections {
+        grid-template-columns: 1fr;
+    }
+
+    .info-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .btn-lg {
+        font-size: 1rem;
+        padding: 0.75rem 1rem;
+    }
+
+    .modal-dialog {
+        margin: 1rem;
+    }
+
+    .paper-details-card {
+        padding: 1.25rem !important;
+    }
+
+    .section-title {
+        font-size: 1.3rem;
+    }
+
+    .breadcrumb {
+        flex-wrap: wrap;
+    }
+}
 </style>
