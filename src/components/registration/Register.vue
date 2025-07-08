@@ -204,7 +204,7 @@ export default {
                     email: this.email,
                     password: this.password,
                 });
-                this.$router.push('/resend-activation');
+                this.$router.push('/login');
             } catch (error) {
                 if (error.response?.data?.email) {
                     this.serverError = error.response?.data?.detail || 'Email already exists.';
