@@ -28,7 +28,6 @@ const mutations = {
         state.token = '';
         localStorage.removeItem('access');
         localStorage.removeItem('refresh');
-        toast.success('Logged out successfully');
         delete api.defaults.headers.common['Authorization'];
     },
     SET_USERS(state, users) {

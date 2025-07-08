@@ -323,7 +323,7 @@ export default {
                 const user = await this.fetchCurrentUserDetails();
                 this.userDetails = user;
             } catch {
-                toast.error('Error fetching user details.');
+                this.userDetails = null;
             }
         },
 
