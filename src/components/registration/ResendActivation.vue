@@ -1,12 +1,25 @@
 <template>
-    <div class="container d-flex vh-100 align-items-center justify-content-center">
-        <div class="card p-4 shadow-sm" style="width: 22rem">
-            <h4 class="text-center text-primary mb-3">Resend Activation Email</h4>
+    <nav class="navbar navbar-expand-lg custom-navbar">
+        <div class="container">
+            <router-link class="navbar-brand d-flex align-items-center" to="/">
+                <img
+                    src="@/assets/images/gradesworld.png"
+                    alt="GradesWorld Logo"
+                    height="40"
+                    class="me-2"
+                />
+            </router-link>
+        </div>
+    </nav>
+    <div class="container d-flex align-items-center justify-content-center min-vh-100">
+        <div class="card shadow p-4 w-100" style="max-width: 400px">
+            <h4 class="text-center text-primary mb-4">Resend Activation Email</h4>
 
             <form @submit.prevent="handleResend">
                 <div class="mb-3">
-                    <label for="email" class="form-label">Email address</label>
+                    <label for="email" class="form-label">Email Address</label>
                     <input
+                        id="email"
                         type="email"
                         v-model="email"
                         class="form-control"
@@ -57,7 +70,9 @@ export default {
         async handleResend() {
             this.emailError = '';
             this.serverError = '';
-            if (!/\S+@\S+\.\S+/.test(this.email)) {
+
+            const validEmail = /\S+@\S+\.\S+/;
+            if (!validEmail.test(this.email)) {
                 this.emailError = 'Please enter a valid email.';
                 return;
             }
@@ -80,3 +95,21 @@ export default {
     },
 };
 </script>
+
+<style scoped>
+.card {
+    border-radius: 0.75rem;
+}
+.custom-navbar {
+    position: sticky;
+    top: 0;
+    z-index: 1030;
+    background: linear-gradient(90deg, #6ea8fe, #b28dff);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+.navbar-brand {
+    font-weight: bold;
+    font-size: 1.4rem;
+    color: #fff !important;
+}
+</style>

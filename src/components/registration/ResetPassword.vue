@@ -1,4 +1,16 @@
 <template>
+    <nav class="navbar navbar-expand-lg custom-navbar">
+        <div class="container">
+            <router-link class="navbar-brand d-flex align-items-center" to="/">
+                <img
+                    src="@/assets/images/gradesworld.png"
+                    alt="GradesWorld Logo"
+                    height="40"
+                    class="me-2"
+                />
+            </router-link>
+        </div>
+    </nav>
     <div class="vh-100 d-flex justify-content-center align-items-center">
         <div class="card p-4 shadow-lg" style="width: 24rem">
             <h3 class="text-center text-primary mb-3">Reset Password</h3>
@@ -115,3 +127,18 @@ export default {
     },
 };
 </script>
+
+<style scoped>
+.custom-navbar {
+    position: sticky;
+    top: 0;
+    z-index: 1030;
+    background: linear-gradient(90deg, #6ea8fe, #b28dff);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+.navbar-brand {
+    font-weight: bold;
+    font-size: 1.4rem;
+    color: #fff !important;
+}
+</style>

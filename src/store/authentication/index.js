@@ -38,9 +38,6 @@ const mutations = {
 const actions = {
     async register({ commit }, userData) {
         const res = await api.post('/users/register/', userData);
-        commit('SET_TOKEN', res.data.access);
-        commit('SET_USER', res.data.user);
-        localStorage.setItem('refresh', res.data.refresh);
         return res;
     },
 
@@ -65,6 +62,16 @@ const actions = {
     async resetPassword(_, payload) {
         const res = await api.post('/users/reset-password-confirm/', payload);
         return res.data;
+    },
+
+    async activateAccount(_, { uid, token }) {
+        try {
+            await api.get(`/users/activate/${uid}/${token}/`);
+            return true;
+        } catch (err) {
+            console.error('Activation error:', err?.response?.data || err.message);
+            return false;
+        }
     },
 
     async fetchCurrentUserDetails({ commit }) {

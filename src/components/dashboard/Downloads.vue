@@ -1,6 +1,6 @@
 <template>
     <div class="downloads-container">
-        <h2 class="mb-4 text-primary-emphasis">My Downloaded Papers</h2>
+        <h2 class="mb-4 text-primary-emphasis text-center">My Downloaded Papers</h2>
 
         <div v-if="isLoading" class="text-center my-5">
             <div class="spinner-border text-primary" role="status"></div>

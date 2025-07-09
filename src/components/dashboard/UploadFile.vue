@@ -1,6 +1,6 @@
 <template>
     <div class="container py-5">
-        <h2 class="mb-4 text-primary-emphasis">Upload a New Paper</h2>
+        <h2 class="mb-4 text-primary-emphasis text-center">Upload a New Paper</h2>
 
         <form @submit.prevent="handleUpload" class="p-4 shadow-sm bg-white rounded">
             <!-- Title Input -->

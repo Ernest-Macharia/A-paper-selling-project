@@ -150,7 +150,7 @@ export default {
             try {
                 await this.login({ email: this.email, password: this.password });
 
-                const redirectTo = this.$route.query.redirect || '/dashboard';
+                const redirectTo = this.$route.query.redirect || '/';
                 const openPayment = this.$route.query.openPayment;
 
                 this.$router.push(redirectTo).then(() => {

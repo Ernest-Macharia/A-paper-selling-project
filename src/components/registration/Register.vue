@@ -102,6 +102,7 @@
 <script>
 import { mapActions } from 'vuex';
 import { useAuth0 } from '@auth0/auth0-vue';
+import { toast } from 'vue3-toastify';
 
 export default {
     name: 'Register',
@@ -204,11 +205,13 @@ export default {
                     email: this.email,
                     password: this.password,
                 });
-                this.$router.push('/login');
+                this.$router.push('/activation-sent');
+                toast.success('Account created! Please check your email to activate.');
             } catch (error) {
                 if (error.response?.data?.email) {
                     this.serverError = error.response?.data?.detail || 'Email already exists.';
                 }
+                toast.error(this.serverError);
             }
         },
 

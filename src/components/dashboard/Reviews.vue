@@ -1,6 +1,6 @@
 <template>
     <div class="container py-4">
-        <h2 class="mb-4 text-primary-emphasis fw-bold">Reviews</h2>
+        <h2 class="mb-4 text-primary-emphasis fw-bold text-center">Reviews</h2>
 
         <!-- Tabs for Reviews Given / Received -->
         <ul class="nav nav-tabs mb-4" role="tablist">

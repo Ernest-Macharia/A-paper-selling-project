@@ -1,6 +1,6 @@
 <template>
     <div class="container py-5">
-        <h2 class="mb-4 text-primary-emphasis">My Uploaded Papers</h2>
+        <h2 class="mb-4 text-primary-emphasis text-center">My Uploaded Papers</h2>
 
         <!-- Search -->
         <div class="mb-4 search-bar">

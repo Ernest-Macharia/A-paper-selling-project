@@ -120,6 +120,7 @@ export default {
                         stats.user_total_downloads > 0
                             ? `${stats.user_total_downloads}`
                             : 'No downloads yet',
+                    icon: '📥',
                     isEmpty: stats.user_total_downloads === 0,
                     tooltip: 'You have not downloaded any papers yet.',
                 },

@@ -520,7 +520,7 @@ export default {
 <style scoped>
 .hero-section {
     position: relative;
-    background-image: url('/public/images/background.jpg');
+    background-image: url('/images/background.jpg');
     background-size: cover;
     background-position: center;
     height: 60vh;

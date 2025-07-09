@@ -8,6 +8,8 @@ import Register from '@/components/registration/Register.vue';
 import ForgotPassword from '@/components/registration/ForgotPassword.vue';
 import ResetPassword from '@/components/registration/ResetPassword.vue';
 import ResendActivation from '@/components/registration/ResendActivation.vue';
+import ActivateAccountPage from '@/components/registration/ActivateAccountPage.vue';
+import ActivationSent from '@/components/registration/ActivationSent.vue';
 import Papers from '@/components/papers/Papers.vue';
 import PaperDetails from '@/components/papers/PaperDetails.vue';
 import Dashboard from '@/components/dashboard/Dashboard.vue';
@@ -47,6 +49,7 @@ const routes = [
             { path: 'login', component: Login },
             { path: 'register', component: Register },
             { path: '/forgot-password', name: 'ForgotPassword', component: ForgotPassword },
+            { path: '/activation-sent', component: ActivationSent },
             {
                 path: '/reset-password-confirm/:uid/:token',
                 name: 'ResetPassword',
@@ -56,6 +59,12 @@ const routes = [
                 path: '/resend-activation',
                 name: 'ResendActivation',
                 component: ResendActivation,
+            },
+            {
+                path: '/activate/:uid/:token',
+                name: 'ActivateAccount',
+                component: ActivateAccountPage,
+                props: true,
             },
             { path: 'papers', component: Papers },
             { path: '/papers/:id', name: 'paper-details', component: PaperDetails },
