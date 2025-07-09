@@ -1,7 +1,28 @@
 <template>
     <Navbar />
     <div class="container py-5">
-        <h2 class="mb-4 text-center text-primary-emphasis fw-bold">📄 Your Exam Papers</h2>
+        <!-- Congratulations Message -->
+        <div class="text-center mb-5">
+            <div class="success-icon text-success mb-3">
+                <i class="fas fa-check-circle fa-3x"></i>
+            </div>
+            <h2 class="fw-bold text-success">Congratulations!</h2>
+            <p class="lead text-muted">
+                You’ve successfully purchased your exam paper{{
+                    paperDetailsList.length > 1 ? 's' : ''
+                }}.
+            </p>
+            <p class="text-secondary">
+                You can now download and review your paper{{
+                    paperDetailsList.length > 1 ? 's' : ''
+                }}
+                below.
+            </p>
+        </div>
+
+        <h4 class="mb-4 text-center text-primary-emphasis fw-semibold">
+            📄 Your Exam Paper{{ paperDetailsList.length > 1 ? 's' : '' }}
+        </h4>
 
         <!-- Loading -->
         <div v-if="isLoading" class="text-center my-5">
@@ -83,9 +104,7 @@
                             </div>
 
                             <div class="d-flex justify-content-between">
-                                <button type="submit" class="btn btn-primary" @click="submitReview">
-                                    Submit Review
-                                </button>
+                                <button type="submit" class="btn btn-primary">Submit Review</button>
                                 <button
                                     type="button"
                                     class="btn btn-secondary"
@@ -256,5 +275,8 @@ export default {
 }
 .modal {
     z-index: 1050;
+}
+.success-icon {
+    font-size: 3rem;
 }
 </style>
