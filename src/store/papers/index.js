@@ -10,6 +10,8 @@ const state = {
     paperDetails: null,
     uploadedPapers: [],
     downloadedPapers: [],
+    mostViewedPapers: [],
+    latestUserPapers: [],
     reviewsGiven: {
         results: [],
         count: 0,
@@ -56,6 +58,12 @@ const mutations = {
     },
     SET_DOWNLOADED_PAPERS(state, papers) {
         state.downloadedPapers = papers;
+    },
+    SET_MOST_VIEWED_PAPERS(state, papers) {
+        state.mostViewedPapers = papers;
+    },
+    SET_LATEST_USER_PAPERS(state, papers) {
+        state.latestUserPapers = papers;
     },
     SET_REVIEWS_GIVEN(state, reviews) {
         state.reviewsGiven = reviews;
@@ -228,6 +236,26 @@ const actions = {
         }
     },
 
+    async fetchMostViewedPapers({ commit }) {
+        try {
+            const response = await api.get('/exampapers/papers/most-viewed/');
+            return response.data;
+        } catch (error) {
+            console.error('Failed to fetch most viewed papers:', error);
+            throw error;
+        }
+    },
+
+    async fetchLatestUserPapers({ commit }) {
+        try {
+            const response = await api.get('/exampapers/dashboard/latest-papers/');
+            return response.data;
+        } catch (error) {
+            console.error('Failed to fetch latest user papers:', error);
+            throw error;
+        }
+    },
+
     async fetchDashboardStatistics({ commit }) {
         try {
             const response = await api.get('/exampapers/dashboard-stats/');
@@ -299,7 +327,6 @@ const actions = {
         }
     },
 
-    // Fetch user's withdrawal requests
     async fetchWithdrawals({ commit }) {
         try {
             const { data } = await api.get('/payments/withdrawals/');
@@ -350,6 +377,8 @@ const getters = {
     courses: (state) => state.courses,
     schools: (state) => state.schools,
     paperDetails: (state) => state.paperDetails,
+    mostViewedPapers: (state) => state.mostViewedPapers,
+    latestUserPapers: (state) => state.latestUserPapers,
     allOrders: (state) => state.orders,
     orderDetails: (state) => state.orderDetails,
     reviewsGiven: (state) => state.reviewsGiven.results || [],

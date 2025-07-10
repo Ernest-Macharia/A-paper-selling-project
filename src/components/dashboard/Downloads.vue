@@ -18,7 +18,14 @@
                 </thead>
                 <tbody>
                     <tr v-for="paper in paginatedDownloads" :key="paper.id">
-                        <td>{{ paper.title }}</td>
+                        <td class="text-start">
+                            <router-link
+                                :to="{ name: 'paper-details', params: { id: paper.id } }"
+                                class="text-decoration-none text-primary fw-semibold"
+                            >
+                                {{ paper.title }}
+                            </router-link>
+                        </td>
                         <td>
                             <a
                                 :href="paper.file"

@@ -7,9 +7,16 @@
             <div class="overlay"></div>
             <div class="hero-content text-center">
                 <h1 class="display-4 fw-bold">Access Quality Academic Papers</h1>
-                <router-link to="/register" class="btn btn-primary btn-lg mt-3"
-                    >Start Selling</router-link
+                <router-link
+                    v-if="!isAuthenticated"
+                    to="/register"
+                    class="btn btn-primary btn-lg mt-3"
                 >
+                    Start Selling
+                </router-link>
+                <router-link v-else to="/dashboard/upload-file" class="btn btn-success btn-lg mt-3">
+                    Upload Paper
+                </router-link>
             </div>
         </section>
 
@@ -358,9 +365,20 @@
                 <p class="text-muted mb-4">
                     Join a thriving academic community of contributors and learners.
                 </p>
-                <router-link to="/register" class="btn btn-outline-primary btn-lg px-4"
-                    >Get Started</router-link
+                <router-link
+                    v-if="!isAuthenticated"
+                    to="/register"
+                    class="btn btn-outline-primary btn-lg px-4"
                 >
+                    Get Started
+                </router-link>
+                <router-link
+                    v-else
+                    to="/dashboard/upload-file"
+                    class="btn btn-outline-success btn-lg px-4"
+                >
+                    Upload Paper
+                </router-link>
             </div>
         </section>
         <ContactForm />
@@ -370,12 +388,12 @@
 </template>
 
 <script>
-import Footer from './Footer.vue';
-import Navbar from './Navbar.vue';
+import { mapActions, mapGetters } from 'vuex';
+import { Swiper, SwiperSlide } from 'swiper/vue';
 // import ChatPopup from '@/components/chat/ChatPopup.vue';
 import ContactForm from '@/components/views/ContactForm.vue';
-import { mapActions } from 'vuex';
-import { Swiper, SwiperSlide } from 'swiper/vue';
+import Footer from './Footer.vue';
+import Navbar from './Navbar.vue';
 import 'swiper/swiper-bundle.css';
 import { toast } from 'vue3-toastify';
 
@@ -425,6 +443,10 @@ export default {
                 },
             ],
         };
+    },
+
+    computed: {
+        ...mapGetters('authentication', ['isAuthenticated']),
     },
 
     async created() {

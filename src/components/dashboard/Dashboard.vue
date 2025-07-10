@@ -1,100 +1,155 @@
 <template>
-    <div class="container-fluid p-4">
-        <!-- Dashboard Overview -->
-        <div v-if="$route.path === '/dashboard'">
-            <div class="mb-4">
-                <h2 class="fw-bold">Welcome, {{ statistics.user_name }} 👋</h2>
-                <p class="text-muted">Here's an overview of your activity</p>
+    <section class="page-section py-5">
+        <div class="container">
+            <h1 class="fw-bold text-primary-emphasis mb-4 text-center">📊 Dashboard</h1>
+
+            <div v-if="isLoading" class="text-center">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <p class="mt-2">Loading your dashboard...</p>
             </div>
 
-            <!-- Metric Grid -->
-            <div class="row g-4 mb-5">
-                <div class="col-sm-6 col-lg-3" v-for="metric in metrics" :key="metric.title">
-                    <div
-                        class="p-4 bg-white rounded-3 shadow-sm h-100 d-flex flex-column justify-content-between"
-                    >
-                        <div class="d-flex justify-content-between align-items-center mb-2">
-                            <div
-                                class="text-3xl"
-                                :class="{ 'opacity-30': metric.isEmpty }"
-                                :title="metric.isEmpty ? metric.tooltip : ''"
-                            >
-                                {{ metric.icon }}
-                            </div>
-                            <div class="text-gray-500 text-sm font-semibold tracking-wide">
-                                {{ metric.title }}
+            <div v-else>
+                <!-- Statistics Cards -->
+                <div class="row g-4 mb-5">
+                    <div class="col-md-3" v-for="(stat, index) in metrics" :key="index">
+                        <div class="card border-0 shadow-sm rounded text-center p-3">
+                            <div class="card-body">
+                                <div class="text-primary fs-2 mb-2">
+                                    <span>{{ stat.icon }}</span>
+                                </div>
+                                <h5 class="card-title">{{ stat.title }}</h5>
+                                <p class="card-text fs-4 fw-bold mb-0">{{ stat.display }}</p>
                             </div>
                         </div>
-                        <div
-                            class="text-xl font-bold"
-                            :class="{
-                                'text-muted': metric.isEmpty,
-                                'text-gray-800': !metric.isEmpty,
-                            }"
-                            :title="metric.isEmpty ? metric.tooltip : ''"
-                        >
-                            {{ metric.display }}
+                    </div>
+                </div>
+
+                <!-- Most Viewed + Latest Uploads -->
+                <div class="row g-4 mb-5">
+                    <!-- Most Viewed Papers -->
+                    <div class="col-md-6">
+                        <div class="bg-white rounded shadow-sm p-4 h-100">
+                            <h5 class="mb-3 text-primary-emphasis">🔥 Most Viewed Papers</h5>
+                            <div v-if="mostViewedPapers.length">
+                                <div class="mb-3" v-for="paper in mostViewedPapers" :key="paper.id">
+                                    <router-link
+                                        :to="{ name: 'paper-details', params: { id: paper.id } }"
+                                        class="paper-card card h-100 text-decoration-none"
+                                    >
+                                        <h6 class="mb-1">{{ paper.title }}</h6>
+                                        <p class="text-muted small mb-1">
+                                            {{ paper.course.name }} · {{ paper.category.name }}
+                                        </p>
+                                        <div
+                                            class="d-flex justify-content-between small text-muted"
+                                        >
+                                            <span
+                                                ><i class="bi bi-eye me-1"></i
+                                                >{{ paper.views }} views</span
+                                            >
+                                        </div>
+                                        <hr />
+                                    </router-link>
+                                </div>
+                                <div class="d-flex justify-content-between mt-3">
+                                    <button
+                                        class="btn btn-sm btn-outline-primary"
+                                        :disabled="viewedPage === 1"
+                                        @click="changeViewedPage(viewedPage - 1)"
+                                    >
+                                        Previous
+                                    </button>
+                                    <button
+                                        class="btn btn-sm btn-outline-primary"
+                                        :disabled="!mostViewedHasNext"
+                                        @click="changeViewedPage(viewedPage + 1)"
+                                    >
+                                        Next
+                                    </button>
+                                </div>
+                            </div>
+                            <div v-else class="alert alert-light text-center">
+                                No viewed papers yet.
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Latest Uploaded Papers -->
+                    <div class="col-md-6">
+                        <div class="bg-white rounded shadow-sm p-4 h-100">
+                            <h5 class="mb-3 text-primary-emphasis">📤 Your Latest Uploads</h5>
+                            <div v-if="latestUserPapers.length">
+                                <div class="mb-3" v-for="paper in latestUserPapers" :key="paper.id">
+                                    <router-link
+                                        :to="{ name: 'paper-details', params: { id: paper.id } }"
+                                        class="paper-card card h-100 text-decoration-none"
+                                    >
+                                        <h6 class="mb-1">{{ paper.title }}</h6>
+                                        <p class="text-muted small mb-1">
+                                            {{ paper.course.name }} · {{ paper.category.name }}
+                                        </p>
+                                        <div
+                                            class="d-flex justify-content-between small text-muted"
+                                        >
+                                            <span
+                                                ><i class="bi bi-calendar me-1"></i
+                                                >{{
+                                                    new Date(paper.upload_date).toLocaleDateString()
+                                                }}</span
+                                            >
+                                            <span
+                                                ><i class="bi bi-eye me-1"></i
+                                                >{{ paper.views }} views</span
+                                            >
+                                        </div>
+                                        <hr />
+                                    </router-link>
+                                </div>
+                                <div class="d-flex justify-content-between mt-3">
+                                    <button
+                                        class="btn btn-sm btn-outline-primary"
+                                        :disabled="uploadPage === 1"
+                                        @click="changeUploadPage(uploadPage - 1)"
+                                    >
+                                        Previous
+                                    </button>
+                                    <button
+                                        class="btn btn-sm btn-outline-primary"
+                                        :disabled="!latestHasNext"
+                                        @click="changeUploadPage(uploadPage + 1)"
+                                    >
+                                        Next
+                                    </button>
+                                </div>
+                            </div>
+                            <div v-else class="alert alert-light text-center">
+                                You haven’t uploaded any papers yet.
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-
-            <!-- Charts Section -->
-            <div class="row g-4 mb-5">
-                <div class="col-md-6">
-                    <div class="bg-white rounded-3 shadow-sm p-4 h-100">
-                        <h5 class="mb-3">📈 Downloads Over Time</h5>
-                        <canvas id="downloadsChart" />
-                    </div>
-                </div>
-                <div class="col-md-6">
-                    <div class="bg-white rounded-3 shadow-sm p-4 h-100">
-                        <h5 class="mb-3">💸 Earnings Over Time</h5>
-                        <canvas id="earningsChart" />
-                    </div>
-                </div>
-            </div>
-
-            <!-- Recent Activities
-      <div>
-        <h5 class="mb-3">📝 Recent Activities</h5>
-        <div v-if="recentActivities.length">
-          <ul class="list-group">
-            <li
-              v-for="(activity, index) in recentActivities"
-              :key="index"
-              class="list-group-item list-group-item-light"
-            >
-              {{ activity }}
-            </li>
-          </ul>
         </div>
-        <div v-else class="text-center text-muted py-4 border rounded bg-light">
-          No recent activity yet. Start uploading papers to see your progress!
-        </div>
-      </div> -->
-        </div>
-
-        <!-- Nested Views -->
-        <router-view v-else />
-    </div>
+    </section>
 </template>
 
 <script>
 import { mapActions } from 'vuex';
-import Chart from 'chart.js/auto';
 
 export default {
     name: 'Dashboard',
     data() {
         return {
             statistics: [],
-            // recentActivities: [
-            //   "📄 Uploaded a new research paper on AI",
-            //   "📥 Downloaded 'Machine Learning Basics'",
-            //   "💰 Earned $5 from a recent download",
-            //   "⭐ Received a new review on 'Blockchain Technology'",
-            // ],
+            mostViewedPapers: [],
+            latestUserPapers: [],
+            viewedPage: 1,
+            uploadPage: 1,
+            mostViewedHasNext: false,
+            latestHasNext: false,
+            isLoading: true,
         };
     },
     computed: {
@@ -110,8 +165,6 @@ export default {
                             ? `${stats.user_papers_uploaded} ${stats.user_papers_uploaded === 1 ? 'paper' : 'papers'}`
                             : 'No uploads',
                     icon: '📄',
-                    isEmpty: stats.user_papers_uploaded === 0,
-                    tooltip: 'You have not uploaded any papers yet.',
                 },
                 {
                     title: 'Papers Downloaded',
@@ -121,8 +174,6 @@ export default {
                             ? `${stats.user_total_downloads}`
                             : 'No downloads yet',
                     icon: '📥',
-                    isEmpty: stats.user_total_downloads === 0,
-                    tooltip: 'You have not downloaded any papers yet.',
                 },
                 {
                     title: 'Earnings',
@@ -132,32 +183,24 @@ export default {
                             ? `$${stats.user_total_earnings.toFixed(2)}`
                             : 'No earnings',
                     icon: '💰',
-                    isEmpty: stats.user_total_earnings === 0,
-                    tooltip: 'No earnings yet.',
                 },
                 {
                     title: 'Reviews',
                     value: stats.user_review_count,
                     display: stats.user_review_count > 0 ? stats.user_review_count : 'No reviews',
                     icon: '⭐',
-                    isEmpty: stats.user_review_count === 0,
-                    tooltip: 'No reviews received.',
                 },
                 {
                     title: 'Views',
                     value: stats.user_total_views,
                     display: stats.user_total_views > 0 ? stats.user_total_views : 'No views',
                     icon: '👁️',
-                    isEmpty: stats.user_total_views === 0,
-                    tooltip: 'No views on your uploads yet.',
                 },
                 {
                     title: 'Orders',
                     value: stats.user_orders,
                     display: stats.user_orders > 0 ? stats.user_orders : 'No orders',
                     icon: '🛒',
-                    isEmpty: stats.user_orders === 0,
-                    tooltip: 'No orders placed yet.',
                 },
                 {
                     title: 'Completed Orders',
@@ -167,8 +210,6 @@ export default {
                             ? stats.user_completed_orders
                             : 'No completed orders',
                     icon: '✅',
-                    isEmpty: stats.user_completed_orders === 0,
-                    tooltip: 'No completed orders yet.',
                 },
                 {
                     title: 'Wishlist',
@@ -178,68 +219,65 @@ export default {
                             ? stats.user_wishlist_count
                             : 'Empty wishlist',
                     icon: '📝',
-                    isEmpty: stats.user_wishlist_count === 0,
-                    tooltip: 'You haven’t added anything to your wishlist.',
                 },
             ];
         },
     },
-
-    created() {
-        this.fetchDashboardStatisticsHandler();
+    async created() {
+        await Promise.all([
+            this.fetchDashboardStatisticsHandler(),
+            this.fetchMostViewedPapersHandler(),
+            this.fetchLatestUserPapersHandler(),
+        ]);
+        this.isLoading = false;
     },
     methods: {
-        ...mapActions('papers', ['fetchDashboardStatistics']),
-        renderCharts() {
-            const downloadsCtx = document.getElementById('downloadsChart');
-
-            // Replace with real chart data fetch later
-            // const downloadData = [10, 25, 30, this.statistics.user_total_downloads || 0];
-            // const earningsData = [20, 35, 40, this.statistics.user_total_earnings || 0];
-            new Chart(downloadsCtx, {
-                type: 'line',
-                data: {
-                    labels: ['Jan', 'Feb', 'Mar', 'Apr'],
-                    datasets: [
-                        {
-                            label: 'Downloads',
-                            data: [5, 10, 12, 25],
-                            borderColor: '#0d6efd',
-                            backgroundColor: 'rgba(13, 110, 253, 0.1)',
-                            fill: true,
-                            tension: 0.3,
-                        },
-                    ],
-                },
-            });
-
-            const earningsCtx = document.getElementById('earningsChart');
-            new Chart(earningsCtx, {
-                type: 'bar',
-                data: {
-                    labels: ['Jan', 'Feb', 'Mar', 'Apr'],
-                    datasets: [
-                        {
-                            label: 'Earnings ($)',
-                            data: [20, 35, 50, 75],
-                            backgroundColor: '#ffc107',
-                        },
-                    ],
-                },
-            });
-        },
+        ...mapActions('papers', [
+            'fetchDashboardStatistics',
+            'fetchMostViewedPapers',
+            'fetchLatestUserPapers',
+        ]),
 
         async fetchDashboardStatisticsHandler() {
             try {
                 const response = await this.fetchDashboardStatistics();
                 this.statistics = response;
-            } catch (error) {
-                console.error('Error fetching dashboard statistics:', error);
+            } catch {
+                this.statistics = {};
             }
         },
-    },
-    mounted() {
-        this.renderCharts();
+
+        async fetchMostViewedPapersHandler(page = this.viewedPage) {
+            try {
+                const response = await this.fetchMostViewedPapers({ page });
+                this.mostViewedPapers = response.results;
+                this.mostViewedHasNext = !!response.next;
+            } catch {
+                this.mostViewedPapers = [];
+                this.mostViewedHasNext = false;
+            }
+        },
+
+        async fetchLatestUserPapersHandler(page = this.uploadPage) {
+            try {
+                const response = await this.fetchLatestUserPapers({ page });
+                this.latestUserPapers = response.results;
+                this.latestHasNext = !!response.next;
+            } catch {
+                this.latestUserPapers = [];
+                this.latestHasNext = false;
+            }
+        },
+
+        async changeViewedPage(newPage) {
+            this.viewedPage = newPage;
+            await this.fetchMostViewedPapersHandler(newPage);
+        },
+
+        async changeUploadPage(newPage) {
+            this.uploadPage = newPage;
+            await this.fetchLatestUserPapersHandler(newPage);
+        },
     },
 };
 </script>
@@ -248,5 +286,31 @@ export default {
 canvas {
     width: 100% !important;
     height: auto !important;
+}
+
+/* Paper Card Styling */
+.paper-card {
+    border: none;
+    border-radius: 16px;
+    background: linear-gradient(to bottom right, #ffffff, #f8f9ff);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+    transition:
+        transform 0.25s ease-in-out,
+        box-shadow 0.25s ease-in-out;
+}
+
+.paper-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+}
+
+/* Card Title */
+.paper-card .card-title {
+    color: #3f51b5; /* Indigo */
+}
+
+/* Meta Info */
+.paper-card .text-muted i {
+    color: #6c63ff;
 }
 </style>
