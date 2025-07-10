@@ -32,27 +32,49 @@
                     <div class="col-md-6">
                         <div class="bg-white rounded shadow-sm p-4 h-100">
                             <h5 class="mb-3 text-primary-emphasis">🔥 Most Viewed Papers</h5>
+
                             <div v-if="mostViewedPapers.length">
                                 <div class="mb-3" v-for="paper in mostViewedPapers" :key="paper.id">
                                     <router-link
                                         :to="{ name: 'paper-details', params: { id: paper.id } }"
-                                        class="paper-card card h-100 text-decoration-none"
+                                        class="paper-card card h-100 text-decoration-none p-3 border"
                                     >
                                         <h6 class="mb-1">{{ paper.title }}</h6>
                                         <p class="text-muted small mb-1">
                                             {{ paper.course.name }} · {{ paper.category.name }}
                                         </p>
+
                                         <div
-                                            class="d-flex justify-content-between small text-muted"
+                                            class="d-flex justify-content-between small text-muted mb-1"
                                         >
                                             <span
                                                 ><i class="bi bi-eye me-1"></i
                                                 >{{ paper.views }} views</span
                                             >
+                                            <span
+                                                ><i class="bi bi-download me-1"></i
+                                                >{{ paper.download_count }} downloads</span
+                                            >
                                         </div>
-                                        <hr />
+
+                                        <div
+                                            class="d-flex justify-content-between small text-muted"
+                                        >
+                                            <span>
+                                                <i class="bi bi-currency-dollar me-1"></i>
+                                                {{ paper.price > 0 ? paper.price : 'Free' }}
+                                            </span>
+                                            <span>
+                                                <i class="bi bi-star me-1"></i>
+                                                {{ paper.reviews?.length || 0 }} reviews
+                                            </span>
+                                        </div>
+
+                                        <hr class="my-2" />
                                     </router-link>
                                 </div>
+
+                                <!-- Pagination Controls -->
                                 <div class="d-flex justify-content-between mt-3">
                                     <button
                                         class="btn btn-sm btn-outline-primary"
@@ -70,6 +92,7 @@
                                     </button>
                                 </div>
                             </div>
+
                             <div v-else class="alert alert-light text-center">
                                 No viewed papers yet.
                             </div>
