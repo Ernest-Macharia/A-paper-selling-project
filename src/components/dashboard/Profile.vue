@@ -35,6 +35,10 @@
                             <p class="form-control-plaintext">{{ userDetails.school }}</p>
                         </div>
                         <div class="col-md-6">
+                            <label class="form-label fw-bold">Country</label>
+                            <p class="form-control-plaintext">{{ userDetails.country }}</p>
+                        </div>
+                        <div class="col-md-6">
                             <label class="form-label fw-bold">Course</label>
                             <p class="form-control-plaintext">{{ userDetails.course }}</p>
                         </div>
@@ -111,6 +115,10 @@
                             <div class="col-md-6">
                                 <label class="form-label">School</label>
                                 <input v-model="form.school" type="text" class="form-control" />
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Country</label>
+                                <input v-model="form.country" type="text" class="form-control" />
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label">Course</label>
@@ -204,13 +212,14 @@ export default {
             loading: false,
             avatarFile: null,
             avatarPreview: null,
-            defaultAvatar: '/default-avatar.png',
+            defaultAvatar: '/images/avatar.png',
             userDetails: {},
             form: {
                 first_name: '',
                 last_name: '',
                 email: '',
                 school: '',
+                country: '',
                 course: '',
                 gender: '',
                 birth_year: '',
@@ -272,6 +281,7 @@ export default {
                 last_name: this.userDetails.last_name || '',
                 email: this.userDetails.email || '',
                 school: this.userDetails.school || '',
+                country: this.userDetails.country || '',
                 course: this.userDetails.course || '',
                 gender: this.userDetails.gender || '',
                 birth_year: this.userDetails.birth_year || '',
