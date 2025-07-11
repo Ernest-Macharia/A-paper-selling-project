@@ -2,7 +2,7 @@
     <Navbar />
     <section class="page-section py-5">
         <div class="container text-center">
-            <h1 class="fw-bold text-primary mb-4">Help Center</h1>
+            <h1 class="fw-bold text-primary-emphasis mb-4">Help Center</h1>
             <p class="lead text-muted">
                 Need help navigating our platform? Our team is here for you 24/7.
             </p>

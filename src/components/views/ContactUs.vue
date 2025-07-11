@@ -2,7 +2,7 @@
     <Navbar />
     <section class="page-section py-5">
         <div class="container">
-            <h1 class="fw-bold text-primary text-center mb-4">Contact Us</h1>
+            <h1 class="fw-bold text-primary-emphasis text-center mb-4">Contact Us</h1>
             <p class="lead text-center text-muted">
                 Reach out with questions, feedback, or partnership opportunities.
             </p>

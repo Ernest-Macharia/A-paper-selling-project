@@ -156,13 +156,18 @@
             </div>
         </div>
     </section>
+    <Footer />
 </template>
 
 <script>
 import { mapActions } from 'vuex';
+import Footer from '@/components/home/Footer.vue';
 
 export default {
     name: 'Dashboard',
+    components: {
+        Footer,
+    },
     data() {
         return {
             statistics: [],
