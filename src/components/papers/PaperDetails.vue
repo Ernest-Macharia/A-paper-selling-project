@@ -47,14 +47,6 @@
                         <p class="mb-1">
                             <strong>Name:</strong> {{ paperDetails.author_info?.name || 'Unknown' }}
                         </p>
-                        <p class="mb-1">
-                            <strong>Email:</strong>
-                            {{ paperDetails.author_info?.email || 'Not provided' }}
-                        </p>
-                        <p>
-                            <strong>Papers Sold:</strong>
-                            {{ paperDetails.author_info?.papers_sold || 0 }}
-                        </p>
 
                         <!-- Show chat button only if the viewer is not the uploader -->
                         <div
