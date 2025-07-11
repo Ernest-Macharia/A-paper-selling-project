@@ -62,6 +62,25 @@ const actions = {
         });
         return response.data;
     },
+
+    async requestWithdrawal(_, { amount, method }) {
+        const payload = {
+            amount,
+            method,
+        };
+        const response = await api.post('/payments/withdrawals/', payload);
+        return response.data;
+    },
+
+    async fetchWalletSummary() {
+        const response = await api.get('/payments/wallet/summary/');
+        return response.data;
+    },
+
+    async fetchWithdrawalRequests() {
+        const response = await api.get('/payments/withdrawals/');
+        return response.data;
+    },
 };
 
 const getters = {

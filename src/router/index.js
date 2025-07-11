@@ -34,6 +34,7 @@ import PaperDownloadView from '@/components/papers/PaperDownloadView.vue';
 import AboutUs from '@/components/views/AboutUs.vue';
 import TermsAndConditions from '@/components/views/TermsAndConditions.vue';
 import PrivacyPolicy from '@/components/views/PrivacyPolicy.vue';
+import RefundPolicy from '@/components/views/RefundPolicy.vue';
 import ContactUs from '@/components/views/ContactUs.vue';
 import Blog from '@/components/views/Blog.vue';
 import HelpCenter from '@/components/views/HelpCenter.vue';
@@ -78,6 +79,7 @@ const routes = [
             { path: '/terms', component: TermsAndConditions },
             { path: '/privacy', component: PrivacyPolicy },
             { path: '/contact', component: ContactUs },
+            { path: '/refund-policy', component: RefundPolicy },
             { path: '/blog', component: Blog },
             { path: '/faq', component: Faq },
             { path: '/help', component: HelpCenter },

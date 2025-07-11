@@ -29,6 +29,11 @@
                             </router-link>
                         </li>
                         <li>
+                            <router-link to="/refund-policy" class="footer-link">
+                                Refund Policy
+                            </router-link>
+                        </li>
+                        <li>
                             <router-link to="/contact" class="footer-link">
                                 Contact Us
                             </router-link>
