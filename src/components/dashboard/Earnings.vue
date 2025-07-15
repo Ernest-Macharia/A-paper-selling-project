@@ -16,6 +16,10 @@
             <button class="btn btn-success" @click="showModal = true">Request Withdrawal</button>
         </div>
 
+        <div class="alert alert-info">
+            Wallet Balance: <strong>${{ walletSummary.balance?.toFixed(2) || '0.00' }}</strong>
+        </div>
+
         <!-- Earnings Table -->
         <div class="table-responsive bg-white p-3 rounded shadow">
             <table class="table table-striped table-hover">
@@ -33,8 +37,8 @@
                     <tr v-for="earning in filteredEarnings" :key="earning.id">
                         <td>${{ earning.amount }}</td>
                         <td>{{ earning.method }}</td>
-                        <td>{{ earning.account }}</td>
-                        <td>{{ earning.currency }}</td>
+                        <td>{{ earning.destination || '-' }}</td>
+                        <td>{{ earning.currency || 'USD' }}</td>
                         <td>
                             <span
                                 class="badge"
@@ -83,6 +87,7 @@
                                 v-model="withdrawalForm.account"
                                 :placeholder="getAccountPlaceholder"
                                 class="form-control"
+                                disabled
                             />
                         </div>
                         <div class="mb-3">
@@ -107,7 +112,21 @@
                         <button type="button" class="btn btn-secondary" @click="showModal = false">
                             Cancel
                         </button>
-                        <button type="button" class="btn btn-primary" @click="submitWithdrawal">
+                        <button
+                            type="button"
+                            class="btn btn-primary"
+                            :disabled="
+                                isSubmitting ||
+                                !withdrawalForm.amount ||
+                                !withdrawalForm.method ||
+                                withdrawalForm.amount <= 0
+                            "
+                            @click="submitWithdrawal"
+                        >
+                            <span
+                                v-if="isSubmitting"
+                                class="spinner-border spinner-border-sm me-2"
+                            />
                             Submit
                         </button>
                     </div>
@@ -119,6 +138,7 @@
 
 <script>
 import { mapActions, mapState } from 'vuex';
+import { toast } from 'vue3-toastify';
 
 export default {
     name: 'Earnings',
@@ -131,24 +151,27 @@ export default {
                 method: '',
                 account: '',
                 amount: null,
-                currency: '',
+                currency: 'USD',
             },
+            isSubmitting: false,
         };
     },
     computed: {
         ...mapState({
             earnings: (state) => state.papers?.earnings || [],
             withdrawals: (state) => state.papers?.withdrawals || [],
+            payoutInfo: (state) => state.papers?.payoutInfo || {},
+            walletSummary: (state) => state.papers?.walletSummary || {},
         }),
         filteredEarnings() {
-            const source = this.withdrawals || [];
-
             if (this.activeTab === 'Withdrawals') {
-                return source.filter((e) => e.status === 'withdrawn');
+                return this.withdrawals.filter(
+                    (e) => e.status === 'paid' || e.status === 'approved',
+                );
             } else if (this.activeTab === 'Unpaid') {
-                return source.filter((e) => e.status === 'unpaid');
+                return this.withdrawals.filter((e) => e.status !== 'paid');
             } else {
-                return source;
+                return this.withdrawals;
             }
         },
         getAccountPlaceholder() {
@@ -164,30 +187,70 @@ export default {
             }
         },
     },
+    watch: {
+        'withdrawalForm.method'(val) {
+            // Auto-fill account from payoutInfo
+            if (val && this.payoutInfo) {
+                if (val === 'paypal') {
+                    this.withdrawalForm.account = this.payoutInfo.paypal_email || '';
+                } else if (val === 'stripe') {
+                    this.withdrawalForm.account = this.payoutInfo.stripe_account_id || '';
+                } else if (val === 'mpesa') {
+                    this.withdrawalForm.account = this.payoutInfo.mpesa_phone || '';
+                } else {
+                    this.withdrawalForm.account = '';
+                }
+            }
+        },
+    },
     methods: {
-        ...mapActions('papers', ['fetchEarnings', 'fetchWithdrawals', 'submitWithdrawal']),
+        ...mapActions('papers', [
+            'fetchEarnings',
+            'fetchWithdrawalRequests',
+            'requestWithdrawal',
+            'fetchPayoutInfo',
+            'fetchWalletSummary',
+        ]),
         async loadDashboardData() {
             try {
-                await Promise.all([this.fetchEarnings(), this.fetchWithdrawals()]);
+                await Promise.all([
+                    this.fetchEarnings(),
+                    this.fetchWithdrawalRequests(),
+                    this.fetchPayoutInfo(),
+                    this.fetchWalletSummary(),
+                ]);
             } catch (error) {
                 console.error('Dashboard load error:', error);
             }
         },
         async submitWithdrawal() {
+            this.isSubmitting = true;
             try {
-                const payload = { ...this.withdrawalForm };
-                await this.submitWithdrawal(payload);
+                const { amount, method } = this.withdrawalForm;
+                if (!amount || amount < 10) {
+                    toast.warning('Minimum withdrawal is $10');
+                    return;
+                }
+                if (amount > (this.walletSummary?.balance || 0)) {
+                    toast.error('Insufficient wallet balance');
+                    return;
+                }
+
+                await this.requestWithdrawal({ amount, method });
+
                 this.showModal = false;
                 this.withdrawalForm = {
                     method: '',
                     account: '',
                     amount: null,
-                    currency: '',
+                    currency: 'USD',
                 };
+                toast.success('Withdrawal request submitted successfully');
                 await this.loadDashboardData();
-            } catch (error) {
-                console.error('Withdrawal failed:', error);
-                alert(error?.response?.data?.detail || 'Withdrawal request failed');
+            } catch {
+                toast.error('Withdrawal failed');
+            } finally {
+                this.isSubmitting = false;
             }
         },
     },

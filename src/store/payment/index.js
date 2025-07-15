@@ -1,6 +1,9 @@
 import api from '@/api';
 
 const state = {
+    withdrawals: [],
+    walletSummary: null,
+    payoutInfo: null,
     items: [],
     showPaymentModal: false,
 };
@@ -24,6 +27,16 @@ const mutations = {
 
     SET_SHOW_PAYMENT_MODAL(state, value) {
         state.showPaymentModal = value;
+    },
+
+    SET_WITHDRAWALS(state, data) {
+        state.withdrawals = data;
+    },
+    SET_WALLET_SUMMARY(state, data) {
+        state.walletSummary = data;
+    },
+    SET_PAYOUT_INFO(state, data) {
+        state.payoutInfo = data;
     },
 };
 
@@ -64,21 +77,25 @@ const actions = {
     },
 
     async requestWithdrawal(_, { amount, method }) {
-        const payload = {
-            amount,
-            method,
-        };
+        const payload = { amount, method };
         const response = await api.post('/payments/withdrawals/', payload);
         return response.data;
     },
 
-    async fetchWalletSummary() {
-        const response = await api.get('/payments/wallet/summary/');
+    async fetchWithdrawalRequests({ commit }) {
+        const response = await api.get('/payments/withdrawals/');
+        commit('SET_WITHDRAWALS', response.data);
         return response.data;
     },
 
-    async fetchWithdrawalRequests() {
-        const response = await api.get('/payments/withdrawals/');
+    async fetchPayoutInfo() {
+        const response = await api.get('/payments/payout-info/');
+        return response.data;
+    },
+
+    async fetchWalletSummary({ commit }) {
+        const response = await api.get('/payments/wallet/summary/');
+        commit('SET_WALLET_SUMMARY', response.data);
         return response.data;
     },
 };
