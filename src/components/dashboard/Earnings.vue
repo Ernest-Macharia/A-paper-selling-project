@@ -17,7 +17,10 @@
         </div>
 
         <div class="alert alert-info">
-            Wallet Balance: <strong>${{ walletSummary.balance?.toFixed(2) || '0.00' }}</strong>
+            Wallet Balance:
+            <strong>
+                {{ formatCurrency(walletSummary.available_balance, walletSummary.currency) }}
+            </strong>
         </div>
 
         <!-- Earnings Table -->
@@ -35,7 +38,14 @@
                 </thead>
                 <tbody>
                     <tr v-for="earning in filteredEarnings" :key="earning.id">
-                        <td>${{ earning.amount }}</td>
+                        <td>
+                            {{
+                                formatCurrency(
+                                    earning.amount,
+                                    earning.currency || walletSummary.currency,
+                                )
+                            }}
+                        </td>
                         <td>{{ earning.method }}</td>
                         <td>{{ earning.destination || '-' }}</td>
                         <td>{{ earning.currency || 'USD' }}</td>
@@ -231,7 +241,7 @@ export default {
                     toast.warning('Minimum withdrawal is $10');
                     return;
                 }
-                if (amount > (this.walletSummary?.balance || 0)) {
+                if (amount > (this.walletSummary?.available_balance || 0)) {
                     toast.error('Insufficient wallet balance');
                     return;
                 }
@@ -251,6 +261,19 @@ export default {
                 toast.error('Withdrawal failed');
             } finally {
                 this.isSubmitting = false;
+            }
+        },
+
+        formatCurrency(amount, currency = 'USD') {
+            if (!amount) return `${currency} 0.00`;
+            try {
+                return new Intl.NumberFormat('en-US', {
+                    style: 'currency',
+                    currency,
+                    minimumFractionDigits: 2,
+                }).format(amount);
+            } catch {
+                return `${currency} ${parseFloat(amount).toFixed(2)}`;
             }
         },
     },
