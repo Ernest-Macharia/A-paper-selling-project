@@ -158,10 +158,10 @@ export default {
     },
     computed: {
         ...mapState({
-            earnings: (state) => state.papers?.earnings || [],
-            withdrawals: (state) => state.papers?.withdrawals || [],
-            payoutInfo: (state) => state.papers?.payoutInfo || {},
-            walletSummary: (state) => state.papers?.walletSummary || {},
+            earnings: (state) => state.payment?.earnings || [],
+            withdrawals: (state) => state.payment?.withdrawals || [],
+            payoutInfo: (state) => state.payment?.payoutInfo || {},
+            walletSummary: (state) => state.payment?.walletSummary || {},
         }),
         filteredEarnings() {
             if (this.activeTab === 'Withdrawals') {
@@ -204,7 +204,7 @@ export default {
         },
     },
     methods: {
-        ...mapActions('papers', [
+        ...mapActions('payment', [
             'fetchEarnings',
             'fetchWithdrawalRequests',
             'requestWithdrawal',
