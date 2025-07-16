@@ -84,6 +84,7 @@ const actions = {
 
     async fetchWithdrawalRequests({ commit }) {
         const response = await api.get('/payments/withdrawals/');
+        console.log('withdrawals response:', response.data);
         commit('SET_WITHDRAWALS', response.data);
         return response.data;
     },

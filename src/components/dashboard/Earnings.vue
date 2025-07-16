@@ -1,70 +1,52 @@
 <template>
-    <div class="container my-4">
-        <!-- Tabs and Withdrawal Button -->
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <div class="btn-group">
-                <button
-                    v-for="tab in tabs"
-                    :key="tab"
-                    class="btn"
-                    :class="activeTab === tab ? 'btn-primary' : 'btn-outline-secondary'"
-                    @click="activeTab = tab"
-                >
-                    {{ tab }}
-                </button>
+    <div class="container my-5">
+        <h3 class="text-center mb-4">Earnings Summary</h3>
+
+        <div class="row text-center">
+            <div class="col-md-4 mb-3">
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <h5>Total Earned</h5>
+                        <p class="fs-4 text-primary">
+                            {{ formatCurrency(walletSummary.total_earned, walletSummary.currency) }}
+                        </p>
+                    </div>
+                </div>
             </div>
-            <button class="btn btn-success" @click="showModal = true">Request Withdrawal</button>
-        </div>
-
-        <div class="alert alert-info">
-            Wallet Balance:
-            <strong>
-                {{ formatCurrency(walletSummary.available_balance, walletSummary.currency) }}
-            </strong>
-        </div>
-
-        <!-- Earnings Table -->
-        <div class="table-responsive bg-white p-3 rounded shadow">
-            <table class="table table-striped table-hover">
-                <thead class="table-light">
-                    <tr>
-                        <th>Amount</th>
-                        <th>Method</th>
-                        <th>Account</th>
-                        <th>Currency</th>
-                        <th>Status</th>
-                        <th>Created At</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr v-for="earning in filteredEarnings" :key="earning.id">
-                        <td>
+            <div class="col-md-4 mb-3">
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <h5>Total Withdrawn</h5>
+                        <p class="fs-4 text-danger">
                             {{
                                 formatCurrency(
-                                    earning.amount,
-                                    earning.currency || walletSummary.currency,
+                                    walletSummary.total_withdrawn,
+                                    walletSummary.currency,
                                 )
                             }}
-                        </td>
-                        <td>{{ earning.method }}</td>
-                        <td>{{ earning.destination || '-' }}</td>
-                        <td>{{ earning.currency || 'USD' }}</td>
-                        <td>
-                            <span
-                                class="badge"
-                                :class="
-                                    earning.status === 'withdrawn'
-                                        ? 'bg-success'
-                                        : 'bg-warning text-dark'
-                                "
-                            >
-                                {{ earning.status }}
-                            </span>
-                        </td>
-                        <td>{{ new Date(earning.created_at).toLocaleString() }}</td>
-                    </tr>
-                </tbody>
-            </table>
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-3">
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <h5>Available Balance</h5>
+                        <p class="fs-4 text-success">
+                            {{
+                                formatCurrency(
+                                    walletSummary.available_balance,
+                                    walletSummary.currency,
+                                )
+                            }}
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="text-center mt-4">
+            <button class="btn btn-success" @click="showModal = true">Request Withdrawal</button>
         </div>
 
         <!-- Withdrawal Modal -->
@@ -87,7 +69,7 @@
                                 <option value="" disabled>Select method</option>
                                 <option value="mpesa">M-PESA</option>
                                 <option value="paypal">PayPal</option>
-                                <option value="visa">Visa</option>
+                                <option value="stripe">Stripe</option>
                             </select>
                         </div>
                         <div class="mb-3">
@@ -97,7 +79,6 @@
                                 v-model="withdrawalForm.account"
                                 :placeholder="getAccountPlaceholder"
                                 class="form-control"
-                                disabled
                             />
                         </div>
                         <div class="mb-3">
@@ -114,29 +95,26 @@
                                 type="text"
                                 v-model="withdrawalForm.currency"
                                 class="form-control"
-                                placeholder="e.g., USD"
                             />
                         </div>
                     </div>
+                    <div class="mb-3" v-if="!payoutInfo.stripe_account_id">
+                        <p>You haven't connected your Stripe account yet.</p>
+                        <a class="btn btn-outline-primary" :href="stripeConnectUrl">
+                            Connect Stripe
+                        </a>
+                    </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" @click="showModal = false">
-                            Cancel
-                        </button>
+                        <button class="btn btn-secondary" @click="showModal = false">Cancel</button>
                         <button
-                            type="button"
                             class="btn btn-primary"
-                            :disabled="
-                                isSubmitting ||
-                                !withdrawalForm.amount ||
-                                !withdrawalForm.method ||
-                                withdrawalForm.amount <= 0
-                            "
+                            :disabled="isSubmitting || !canSubmit"
                             @click="submitWithdrawal"
                         >
                             <span
                                 v-if="isSubmitting"
                                 class="spinner-border spinner-border-sm me-2"
-                            />
+                            ></span>
                             Submit
                         </button>
                     </div>
@@ -151,12 +129,10 @@ import { mapActions, mapState } from 'vuex';
 import { toast } from 'vue3-toastify';
 
 export default {
-    name: 'Earnings',
+    name: 'EarningsSummary',
     data() {
         return {
-            activeTab: 'Withdrawals',
             showModal: false,
-            tabs: ['Withdrawals', 'Unpaid', 'All Earnings'],
             withdrawalForm: {
                 method: '',
                 account: '',
@@ -168,38 +144,34 @@ export default {
     },
     computed: {
         ...mapState({
-            earnings: (state) => state.payment?.earnings || [],
-            withdrawals: (state) => state.payment?.withdrawals || [],
             payoutInfo: (state) => state.payment?.payoutInfo || {},
             walletSummary: (state) => state.payment?.walletSummary || {},
         }),
-        filteredEarnings() {
-            if (this.activeTab === 'Withdrawals') {
-                return this.withdrawals.filter(
-                    (e) => e.status === 'paid' || e.status === 'approved',
-                );
-            } else if (this.activeTab === 'Unpaid') {
-                return this.withdrawals.filter((e) => e.status !== 'paid');
-            } else {
-                return this.withdrawals;
-            }
-        },
         getAccountPlaceholder() {
             switch (this.withdrawalForm.method) {
                 case 'mpesa':
                     return 'e.g., +254712345678';
                 case 'paypal':
                     return 'e.g., user@example.com';
-                case 'visa':
-                    return 'e.g., 4111 1111 1111 1111';
+                case 'stripe':
+                    return 'e.g., acct_1234ABCDEF';
                 default:
                     return '';
             }
         },
+        canSubmit() {
+            const { amount, method, account } = this.withdrawalForm;
+            return amount && method && amount > 0 && account;
+        },
+
+        stripeConnectUrl() {
+            const clientId = import.meta.env.VITE_STRIPE_CLIENT_ID;
+            const redirectUri = encodeURIComponent(import.meta.env.VITE_STRIPE_REDIRECT_URI);
+            return `https://connect.stripe.com/oauth/authorize?response_type=code&client_id=${clientId}&scope=read_write&redirect_uri=${redirectUri}`;
+        },
     },
     watch: {
         'withdrawalForm.method'(val) {
-            // Auto-fill account from payoutInfo
             if (val && this.payoutInfo) {
                 if (val === 'paypal') {
                     this.withdrawalForm.account = this.payoutInfo.paypal_email || '';
@@ -214,56 +186,48 @@ export default {
         },
     },
     methods: {
-        ...mapActions('payment', [
-            'fetchEarnings',
-            'fetchWithdrawalRequests',
-            'requestWithdrawal',
-            'fetchPayoutInfo',
-            'fetchWalletSummary',
-        ]),
-        async loadDashboardData() {
+        ...mapActions('payment', ['fetchWalletSummary', 'fetchPayoutInfo', 'requestWithdrawal']),
+        async loadSummary() {
             try {
-                await Promise.all([
-                    this.fetchEarnings(),
-                    this.fetchWithdrawalRequests(),
-                    this.fetchPayoutInfo(),
-                    this.fetchWalletSummary(),
-                ]);
-            } catch (error) {
-                console.error('Dashboard load error:', error);
+                await Promise.all([this.fetchWalletSummary(), this.fetchPayoutInfo()]);
+            } catch (err) {
+                console.error('Error loading summary:', err);
             }
         },
         async submitWithdrawal() {
             this.isSubmitting = true;
             try {
-                const { amount, method } = this.withdrawalForm;
+                const { amount, method, account: destination, currency } = this.withdrawalForm;
+
                 if (!amount || amount < 10) {
                     toast.warning('Minimum withdrawal is $10');
                     return;
                 }
+
                 if (amount > (this.walletSummary?.available_balance || 0)) {
                     toast.error('Insufficient wallet balance');
                     return;
                 }
 
-                await this.requestWithdrawal({ amount, method });
+                await this.requestWithdrawal({ amount, method, destination, currency });
 
-                this.showModal = false;
+                toast.success('Withdrawal request submitted successfully');
+
                 this.withdrawalForm = {
                     method: '',
                     account: '',
                     amount: null,
                     currency: 'USD',
                 };
-                toast.success('Withdrawal request submitted successfully');
-                await this.loadDashboardData();
-            } catch {
+                this.showModal = false;
+                await this.loadSummary();
+            } catch (error) {
                 toast.error('Withdrawal failed');
+                console.error('Withdrawal error:', error);
             } finally {
                 this.isSubmitting = false;
             }
         },
-
         formatCurrency(amount, currency = 'USD') {
             if (!amount) return `${currency} 0.00`;
             try {
@@ -278,7 +242,7 @@ export default {
         },
     },
     mounted() {
-        this.loadDashboardData();
+        this.loadSummary();
     },
 };
 </script>
