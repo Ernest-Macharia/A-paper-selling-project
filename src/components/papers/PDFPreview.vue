@@ -19,10 +19,17 @@
 
 <script setup>
 import { ref, onMounted, watch, nextTick } from 'vue';
-import * as pdfjsLib from 'pdfjs-dist/build/pdf.mjs';
-import workerSrc from 'pdfjs-dist/build/pdf.worker.mjs?url';
+import * as pdfjsLib from 'pdfjs-dist/build/pdf';
 
-pdfjsLib.GlobalWorkerOptions.workerSrc = workerSrc;
+// Setup correct PDF worker path
+import devWorker from 'pdfjs-dist/build/pdf.worker.mjs?url';
+
+if (import.meta.env.MODE === 'development') {
+    pdfjsLib.GlobalWorkerOptions.workerSrc = devWorker;
+} else {
+    pdfjsLib.GlobalWorkerOptions.workerSrc =
+        'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
+}
 
 const props = defineProps({
     src: { type: String, required: true },
