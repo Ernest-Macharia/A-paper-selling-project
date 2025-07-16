@@ -204,13 +204,31 @@ export default {
                     icon: '📥',
                 },
                 {
-                    title: 'Earnings',
-                    value: stats.user_total_earnings,
+                    title: 'Total Earned',
+                    value: stats.wallet_total_earned,
                     display:
-                        stats.user_total_earnings > 0
-                            ? `$${stats.user_total_earnings.toFixed(2)}`
+                        stats.wallet_total_earned > 0
+                            ? `$${stats.wallet_total_earned.toFixed(2)}`
                             : 'No earnings',
                     icon: '💰',
+                },
+                {
+                    title: 'Withdrawn',
+                    value: stats.wallet_total_withdrawn,
+                    display:
+                        stats.wallet_total_withdrawn > 0
+                            ? `$${stats.wallet_total_withdrawn.toFixed(2)}`
+                            : 'No withdrawals',
+                    icon: '🏦',
+                },
+                {
+                    title: 'Available Balance',
+                    value: stats.wallet_available_balance,
+                    display:
+                        stats.wallet_available_balance > 0
+                            ? `$${stats.wallet_available_balance.toFixed(2)}`
+                            : 'No balance',
+                    icon: '💳',
                 },
                 {
                     title: 'Reviews',
