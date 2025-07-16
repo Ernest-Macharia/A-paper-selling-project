@@ -427,19 +427,19 @@ export default {
                     name: 'Dr. Emily Rose',
                     avatar: 'https://i.pravatar.cc/100?img=10',
                     papers: 23,
-                    downloads: 940,
+                    downloads: 50,
                 },
                 {
                     name: 'Prof. Alan Green',
                     avatar: 'https://i.pravatar.cc/100?img=7',
                     papers: 15,
-                    downloads: 870,
+                    downloads: 80,
                 },
                 {
                     name: 'Jane Student',
                     avatar: 'https://i.pravatar.cc/100?img=5',
                     papers: 30,
-                    downloads: 790,
+                    downloads: 70,
                 },
             ],
         };

@@ -42,17 +42,17 @@ if (token && !isTokenExpired(token)) {
 }
 
 // --- Add Tawk.to live chat widget ---
-const tawkSrc = import.meta.env.VITE_TAWKTO_SRC;
-if (tawkSrc) {
-    const s1 = document.createElement('script');
-    s1.async = true;
-    s1.src = tawkSrc;
-    s1.charset = 'UTF-8';
-    s1.setAttribute('crossorigin', '*');
+// const tawkSrc = import.meta.env.VITE_TAWKTO_SRC;
+// if (tawkSrc) {
+//     const s1 = document.createElement('script');
+//     s1.async = true;
+//     s1.src = tawkSrc;
+//     s1.charset = 'UTF-8';
+//     s1.setAttribute('crossorigin', '*');
 
-    const s0 = document.getElementsByTagName('script')[0];
-    s0.parentNode.insertBefore(s1, s0);
-}
+//     const s0 = document.getElementsByTagName('script')[0];
+//     s0.parentNode.insertBefore(s1, s0);
+// }
 
 // --- Axios base URL ---
 api.defaults.baseURL = import.meta.env.VITE_API_BASE_URL || 'https://gradesworld.com/api';

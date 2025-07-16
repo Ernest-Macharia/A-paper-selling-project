@@ -76,15 +76,14 @@ const actions = {
         return response.data;
     },
 
-    async requestWithdrawal(_, { amount, method }) {
-        const payload = { amount, method };
+    async requestWithdrawal(_, { amount, method, destination, currency }) {
+        const payload = { amount, method, destination, currency };
         const response = await api.post('/payments/withdrawals/', payload);
         return response.data;
     },
 
     async fetchWithdrawalRequests({ commit }) {
         const response = await api.get('/payments/withdrawals/');
-        console.log('withdrawals response:', response.data);
         commit('SET_WITHDRAWALS', response.data);
         return response.data;
     },
@@ -92,6 +91,11 @@ const actions = {
     async fetchPayoutInfo() {
         const response = await api.get('/payments/payout-info/');
         return response.data;
+    },
+
+    async updatePayoutInfo({ dispatch }, payload) {
+        await api.post('/payments/payments/payout-info/update/', payload);
+        await dispatch('fetchPayoutInfo');
     },
 
     async fetchWalletSummary({ commit }) {
