@@ -19,21 +19,14 @@
 
 <script setup>
 import { ref, onMounted, watch, nextTick } from 'vue';
-import * as pdfjsLib from 'pdfjs-dist/build/pdf';
+import * as pdfjsLib from 'pdfjs-dist';
+import pdfWorker from 'pdfjs-dist/build/pdf.worker.min.mjs?url';
 
-// Setup correct PDF worker path
-import devWorker from 'pdfjs-dist/build/pdf.worker.mjs?url';
-
-if (import.meta.env.MODE === 'development') {
-    pdfjsLib.GlobalWorkerOptions.workerSrc = devWorker;
-} else {
-    pdfjsLib.GlobalWorkerOptions.workerSrc =
-        'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
-}
+pdfjsLib.GlobalWorkerOptions.workerSrc = pdfWorker;
 
 const props = defineProps({
     src: { type: String, required: true },
-    visible: { type: Boolean, required: true }, // Used to delay render until visible
+    visible: { type: Boolean, required: true },
 });
 
 const canvas = ref(null);
@@ -44,7 +37,6 @@ let pdfDoc = null;
 
 const renderPage = async () => {
     if (!canvas.value || !pdfDoc) return;
-
     const page = await pdfDoc.getPage(pageNum.value);
     const viewport = page.getViewport({ scale: scale.value });
 
@@ -52,12 +44,7 @@ const renderPage = async () => {
     canvas.value.height = viewport.height;
     canvas.value.width = viewport.width;
 
-    const renderContext = {
-        canvasContext: context,
-        viewport,
-    };
-
-    await page.render(renderContext).promise;
+    await page.render({ canvasContext: context, viewport }).promise;
 };
 
 const loadPdf = async () => {
@@ -116,9 +103,7 @@ watch(
     async (val) => {
         if (val && pdfDoc) {
             await nextTick();
-            setTimeout(() => {
-                renderPage();
-            }, 100);
+            setTimeout(() => renderPage(), 100);
         }
     },
 );
