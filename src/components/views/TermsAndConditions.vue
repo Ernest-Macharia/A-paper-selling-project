@@ -1,29 +1,98 @@
 <template>
     <Navbar />
-    <section class="py-5 bg-white">
+    <section class="py-5 bg-light">
         <div class="container">
-            <h1 class="text-center text-primary-emphasis mb-4">Terms & Conditions</h1>
-            <div class="accordion mt-4" id="termsAccordion">
-                <div v-for="(item, index) in termsSections" :key="index" class="accordion-item">
-                    <h2 class="accordion-header" :id="`term-heading-${index}`">
-                        <button
-                            class="accordion-button collapsed"
-                            type="button"
-                            data-bs-toggle="collapse"
-                            :data-bs-target="`#term-collapse-${index}`"
-                            aria-expanded="false"
-                            :aria-controls="`term-collapse-${index}`"
+            <div class="row justify-content-center">
+                <div class="col-lg-10 col-xl-8">
+                    <!-- Header Section -->
+                    <div class="text-center mb-5">
+                        <h1 class="display-5 fw-bold text-primary mb-3">Terms & Conditions</h1>
+                        <div class="d-flex justify-content-center gap-3 mt-4">
+                            <button class="btn btn-outline-primary" @click="printPage">
+                                <i class="bi bi-printer-fill me-2"></i>Print
+                            </button>
+                            <button class="btn btn-outline-secondary" @click="expandAll">
+                                <i class="bi bi-arrows-expand me-2"></i>Expand All
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Search Box -->
+                    <div class="mb-4">
+                        <div class="input-group">
+                            <span class="input-group-text bg-white">
+                                <i class="bi bi-search text-muted"></i>
+                            </span>
+                            <input
+                                type="text"
+                                class="form-control"
+                                placeholder="Search terms..."
+                                v-model="searchTerm"
+                                @input="filterTerms"
+                            />
+                            <button
+                                class="btn btn-outline-secondary"
+                                type="button"
+                                @click="clearSearch"
+                                v-if="searchTerm"
+                            >
+                                Clear
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Terms Accordion -->
+                    <div class="accordion" id="termsAccordion">
+                        <div
+                            v-for="(item, index) in filteredTerms"
+                            :key="index"
+                            class="accordion-item border-0 mb-3 shadow-sm"
                         >
-                            {{ item.title }}
+                            <h2 class="accordion-header" :id="`term-heading-${index}`">
+                                <button
+                                    class="accordion-button collapsed rounded-3"
+                                    type="button"
+                                    data-bs-toggle="collapse"
+                                    :data-bs-target="`#term-collapse-${index}`"
+                                    aria-expanded="false"
+                                    :aria-controls="`term-collapse-${index}`"
+                                >
+                                    <span class="badge bg-primary me-3">{{ index + 1 }}</span>
+                                    <span class="fw-semibold">{{ item.title }}</span>
+                                </button>
+                            </h2>
+                            <div
+                                :id="`term-collapse-${index}`"
+                                class="accordion-collapse collapse"
+                                :aria-labelledby="`term-heading-${index}`"
+                                data-bs-parent="#termsAccordion"
+                            >
+                                <div class="accordion-body pt-3 pb-4">
+                                    <div
+                                        class="content"
+                                        v-html="highlightSearchTerm(item.content)"
+                                    ></div>
+                                    <div class="mt-3 pt-2 border-top d-flex justify-content-end">
+                                        <button
+                                            class="btn btn-sm btn-link text-decoration-none"
+                                            @click="copyToClipboard(item.content)"
+                                        >
+                                            <i class="bi bi-clipboard me-1"></i> Copy section
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Accept Button -->
+                    <div class="text-center mt-5 pt-3 border-top">
+                        <button class="btn btn-primary px-4 py-2" @click="acceptTerms">
+                            <i class="bi bi-check-circle-fill me-2"></i>I Accept These Terms
                         </button>
-                    </h2>
-                    <div
-                        :id="`term-collapse-${index}`"
-                        class="accordion-collapse collapse"
-                        :aria-labelledby="`term-heading-${index}`"
-                        data-bs-parent="#termsAccordion"
-                    >
-                        <div class="accordion-body" v-html="item.content"></div>
+                        <p class="small text-muted mt-2">
+                            By accepting, you agree to be bound by these terms and conditions.
+                        </p>
                     </div>
                 </div>
             </div>
@@ -35,6 +104,7 @@
 <script>
 import Footer from '@/components/home/Footer.vue';
 import Navbar from '@/components/home/Navbar.vue';
+import { toast } from 'vue3-toastify';
 
 export default {
     name: 'TermsAndConditions',
@@ -219,7 +289,107 @@ export default {
             `,
                 },
             ],
+            searchTerm: '',
+            filteredTerms: [],
         };
+    },
+    created() {
+        this.filteredTerms = [...this.termsSections];
+    },
+    methods: {
+        filterTerms() {
+            if (!this.searchTerm) {
+                this.filteredTerms = [...this.termsSections];
+                return;
+            }
+
+            const searchLower = this.searchTerm.toLowerCase();
+            this.filteredTerms = this.termsSections.filter((item) => {
+                return (
+                    item.title.toLowerCase().includes(searchLower) ||
+                    item.content.toLowerCase().includes(searchLower)
+                );
+            });
+        },
+        highlightSearchTerm(content) {
+            if (!this.searchTerm) return content;
+
+            const searchLower = this.searchTerm.toLowerCase();
+            const regex = new RegExp(this.searchTerm, 'gi');
+            return content.replace(
+                regex,
+                (match) => `<span class="bg-warning px-1 rounded">${match}</span>`,
+            );
+        },
+        clearSearch() {
+            this.searchTerm = '';
+            this.filteredTerms = [...this.termsSections];
+        },
+        expandAll() {
+            const collapses = document.querySelectorAll('.accordion-collapse');
+            collapses.forEach((collapse) => {
+                new bootstrap.Collapse(collapse, { toggle: true });
+            });
+        },
+        copyToClipboard(content) {
+            const text = content.replace(/<[^>]*>/g, '');
+            navigator.clipboard
+                .writeText(text)
+                .then(() => {
+                    alert('Section copied to clipboard!');
+                })
+                .catch((err) => {
+                    console.error('Failed to copy: ', err);
+                });
+        },
+        printPage() {
+            window.print();
+        },
+        acceptTerms() {
+            toast.success('Thank you for accepting our Terms & Conditions!');
+        },
     },
 };
 </script>
+
+<style scoped>
+.accordion-button:not(.collapsed) {
+    background-color: rgba(13, 110, 253, 0.05);
+    color: var(--bs-primary);
+}
+
+.accordion-button:focus {
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.1);
+}
+
+.content {
+    line-height: 1.7;
+}
+
+.content ul {
+    padding-left: 1.5rem;
+}
+
+.content li {
+    margin-bottom: 0.5rem;
+}
+
+@media print {
+    .d-print-none {
+        display: none !important;
+    }
+
+    .accordion-collapse {
+        display: block !important;
+    }
+
+    .accordion-button {
+        background-color: transparent !important;
+        color: inherit !important;
+    }
+
+    .accordion-button::after {
+        display: none;
+    }
+}
+</style>

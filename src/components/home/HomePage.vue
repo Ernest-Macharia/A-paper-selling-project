@@ -358,7 +358,95 @@
             </div>
         </section>
 
-        <ContactForm />
+        <!-- Contact Section -->
+        <section class="contact-section py-8 bg-white">
+            <div class="container">
+                <div class="row justify-content-center">
+                    <div class="col-lg-10">
+                        <div class="text-center mb-7">
+                            <h2 class="display-5 fw-bold mb-3">Get In Touch</h2>
+                            <p class="lead text-muted mx-auto" style="max-width: 700px">
+                                Have questions or need support? Our team is here to help you with
+                                any inquiries.
+                            </p>
+                        </div>
+
+                        <div class="row g-5 align-items-center">
+                            <div class="col-lg-5">
+                                <div class="pe-lg-5">
+                                    <h3 class="h4 mb-4">Contact Information</h3>
+                                    <ul class="list-unstyled">
+                                        <!-- <li class="mb-3">
+                                            <div class="d-flex">
+                                                <div class="me-3 text-primary">
+                                                    <i class="bi bi-geo-alt fs-4"></i>
+                                                </div>
+                                                <div>
+                                                    <h5 class="h6 mb-0">Our Location</h5>
+                                                    <p class="text-muted small">123 Academic Street, Suite 100<br>Cambridge, MA 02138</p>
+                                                </div>
+                                            </div>
+                                        </li> -->
+                                        <li class="mb-3">
+                                            <div class="d-flex">
+                                                <div class="me-3 text-primary">
+                                                    <i class="bi bi-envelope fs-4"></i>
+                                                </div>
+                                                <div>
+                                                    <h5 class="h6 mb-0">Email Us</h5>
+                                                    <p class="text-muted small">
+                                                        support@gradesworld.com<br />contact@gradesworld.com<br />scholar@gradesworld.com
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </li>
+                                        <li class="mb-3">
+                                            <div class="d-flex">
+                                                <div class="me-3 text-primary">
+                                                    <i class="bi bi-telephone fs-4"></i>
+                                                </div>
+                                                <div>
+                                                    <h5 class="h6 mb-0">Call Us</h5>
+                                                    <p class="text-muted small">
+                                                        +1 (617) 555-0123<br />Mon-Fri, 9am-5pm EST
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </li>
+                                    </ul>
+
+                                    <div class="mt-5">
+                                        <h4 class="h5 mb-3">Follow Us</h4>
+                                        <div class="d-flex gap-3">
+                                            <a href="#" class="text-primary">
+                                                <i class="bi bi-twitter fs-4"></i>
+                                            </a>
+                                            <a href="#" class="text-primary">
+                                                <i class="bi bi-facebook fs-4"></i>
+                                            </a>
+                                            <a href="#" class="text-primary">
+                                                <i class="bi bi-linkedin fs-4"></i>
+                                            </a>
+                                            <a href="#" class="text-primary">
+                                                <i class="bi bi-instagram fs-4"></i>
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-lg-7">
+                                <div class="card shadow-sm border-0 rounded-3 overflow-hidden">
+                                    <div class="card-body p-4 p-md-5">
+                                        <ContactForm />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
         <Footer />
     </div>
 </template>
