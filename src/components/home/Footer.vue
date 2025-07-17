@@ -1,102 +1,195 @@
 <template>
-    <footer class="footer text-light py-5">
+    <footer class="site-footer bg-primary text-white pt-5 pb-4">
         <div class="container">
             <div class="row g-4">
-                <!-- About Section -->
+                <!-- Brand Column -->
                 <div class="col-lg-3 col-md-6">
-                    <h5 class="footer-title">📚 GradesWorld</h5>
-                    <p class="footer-desc">
-                        Earn money by sharing your study materials! Upload your notes, help
-                        students, and get paid for your knowledge.
+                    <div class="footer-brand mb-3">
+                        <router-link to="/" class="d-flex align-items-center text-decoration-none">
+                            <img
+                                src="@/assets/images/gradesworld.png"
+                                alt="GradesWorld Logo"
+                                height="40"
+                                class="me-2"
+                            />
+                            <span class="h5 mb-0 text-white">GradesWorld</span>
+                        </router-link>
+                    </div>
+                    <p class="footer-text">
+                        Empower your learning journey. Share knowledge, earn rewards, and access
+                        premium study materials.
                     </p>
+                    <div class="payment-methods mt-3 d-flex align-items-center flex-wrap gap-2">
+                        <!-- Visa Logo -->
+                        <div class="payment-logo bg-white p-1 rounded">
+                            <img
+                                src="https://upload.wikimedia.org/wikipedia/commons/5/5e/Visa_Inc._logo.svg"
+                                height="24"
+                                alt="Visa"
+                            />
+                        </div>
+
+                        <!-- Mastercard Logo -->
+                        <div class="payment-logo bg-white p-1 rounded">
+                            <img
+                                src="https://upload.wikimedia.org/wikipedia/commons/2/2a/Mastercard-logo.svg"
+                                height="24"
+                                alt="Mastercard"
+                            />
+                        </div>
+
+                        <!-- PayPal Logo -->
+                        <div class="payment-logo bg-white p-1 rounded">
+                            <img
+                                src="https://upload.wikimedia.org/wikipedia/commons/b/b5/PayPal.svg"
+                                height="24"
+                                alt="PayPal"
+                            />
+                        </div>
+
+                        <!-- M-Pesa Logo -->
+                        <div class="payment-logo bg-white p-1 rounded">
+                            <img
+                                src="https://upload.wikimedia.org/wikipedia/commons/1/15/M-PESA_LOGO-01.svg"
+                                height="24"
+                                alt="M-Pesa"
+                            />
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Quick Links -->
-                <div class="col-lg-3 col-md-6">
-                    <h5 class="footer-title">🚀 Quick Links</h5>
-                    <ul class="list-unstyled footer-list">
-                        <li>
-                            <router-link to="/about" class="footer-link"> About Us </router-link>
+                <div class="col-lg-2 col-md-6">
+                    <h5 class="footer-heading mb-3">Quick Links</h5>
+                    <ul class="nav flex-column">
+                        <li class="nav-item mb-2">
+                            <router-link to="/about" class="nav-link p-0 text-white-50 hover-white"
+                                >About Us</router-link
+                            >
                         </li>
-                        <li>
-                            <router-link to="/terms" class="footer-link">
-                                Terms & Conditions
-                            </router-link>
+                        <li class="nav-item mb-2">
+                            <router-link to="/blog" class="nav-link p-0 text-white-50 hover-white"
+                                >Blog</router-link
+                            >
                         </li>
-                        <li>
-                            <router-link to="/privacy" class="footer-link">
-                                Privacy Policy
-                            </router-link>
+                        <li class="nav-item mb-2">
+                            <router-link
+                                to="/contact"
+                                class="nav-link p-0 text-white-50 hover-white"
+                                >Contact</router-link
+                            >
                         </li>
-                        <li>
-                            <router-link to="/refund-policy" class="footer-link">
-                                Refund Policy
-                            </router-link>
-                        </li>
-                        <li>
-                            <router-link to="/contact" class="footer-link">
-                                Contact Us
-                            </router-link>
-                        </li>
-                        <li>
-                            <router-link to="/blog" class="footer-link"> Blog </router-link>
+                        <li class="nav-item mb-2">
+                            <router-link to="/faq" class="nav-link p-0 text-white-50 hover-white"
+                                >FAQs</router-link
+                            >
                         </li>
                     </ul>
                 </div>
 
-                <!-- Support -->
-                <div class="col-lg-3 col-md-6">
-                    <h5 class="footer-title">🤝 Support</h5>
-                    <ul class="list-unstyled footer-list">
-                        <li>
-                            <router-link to="/faq" class="footer-link"> FAQs </router-link>
+                <!-- Legal -->
+                <div class="col-lg-2 col-md-6">
+                    <h5 class="footer-heading mb-3">Legal</h5>
+                    <ul class="nav flex-column">
+                        <li class="nav-item mb-2">
+                            <router-link to="/terms" class="nav-link p-0 text-white-50 hover-white"
+                                >Terms</router-link
+                            >
                         </li>
-                        <li>
-                            <router-link to="/help" class="footer-link"> Help Center </router-link>
+                        <li class="nav-item mb-2">
+                            <router-link
+                                to="/privacy"
+                                class="nav-link p-0 text-white-50 hover-white"
+                                >Privacy</router-link
+                            >
+                        </li>
+                        <li class="nav-item mb-2">
+                            <router-link
+                                to="/refund-policy"
+                                class="nav-link p-0 text-white-50 hover-white"
+                                >Refunds</router-link
+                            >
+                        </li>
+                        <li class="nav-item mb-2">
+                            <router-link to="/help" class="nav-link p-0 text-white-50 hover-white"
+                                >Help Center</router-link
+                            >
                         </li>
                     </ul>
                 </div>
 
-                <!-- Social & Payments -->
+                <!-- Contact & Social -->
                 <div class="col-lg-3 col-md-6">
-                    <h5 class="footer-title">📲 Connect With Us</h5>
-                    <h5 class="footer-subtitle">scholar@gradesworld.com</h5>
-                    <div class="social-icons mb-3">
-                        <a href="https://x.com" target="_blank" class="social x" aria-label="X">
-                            <i class="fa-brands fa-x-twitter"></i>
+                    <h5 class="footer-heading mb-3">Connect With Us</h5>
+                    <div class="mb-3">
+                        <a
+                            href="mailto:scholar@gradesworld.com"
+                            class="d-flex align-items-center text-white-50 hover-white text-decoration-none mb-2"
+                        >
+                            <i class="bi bi-envelope me-2"></i> scholar@gradesworld.com
+                        </a>
+                    </div>
+
+                    <div class="social-links mb-4">
+                        <a
+                            href="https://x.com"
+                            target="_blank"
+                            class="social-link text-decoration-none me-3"
+                            aria-label="Twitter"
+                        >
+                            <i class="bi bi-twitter-x"></i>
                         </a>
                         <a
                             href="https://facebook.com"
                             target="_blank"
-                            class="social facebook"
+                            class="social-link text-decoration-none me-3"
                             aria-label="Facebook"
                         >
-                            <i class="fa-brands fa-facebook"></i>
+                            <i class="bi bi-facebook"></i>
                         </a>
                         <a
                             href="https://instagram.com"
                             target="_blank"
-                            class="social instagram"
+                            class="social-link text-decoration-none me-3"
                             aria-label="Instagram"
                         >
-                            <i class="fa-brands fa-instagram"></i>
+                            <i class="bi bi-instagram"></i>
+                        </a>
+                        <a
+                            href="https://linkedin.com"
+                            target="_blank"
+                            class="social-link text-decoration-none"
+                            aria-label="LinkedIn"
+                        >
+                            <i class="bi bi-linkedin"></i>
                         </a>
                     </div>
 
-                    <h6 class="footer-subtitle">💳 Secure Payments</h6>
-                    <p class="footer-desc">
-                        We support fast and secure transactions via Visa, MasterCard, and PayPal and
-                        Mpesa.
-                    </p>
+                    <div class="newsletter">
+                        <h6 class="footer-subheading mb-2">Stay Updated</h6>
+                        <div class="input-group">
+                            <input
+                                type="email"
+                                class="form-control form-control-sm"
+                                placeholder="Your email"
+                                aria-label="Email newsletter"
+                            />
+                            <button class="btn btn-light btn-sm" type="button">Subscribe</button>
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            <hr class="border-light my-4" />
+            <hr class="border-light border-opacity-25 my-4" />
 
-            <div class="text-center mt-4">
-                <small class="text-primary">
-                    &copy; {{ new Date().getFullYear() }} Gradesworld. All rights reserved.
-                </small>
+            <div class="footer-bottom text-center pt-3">
+                <p class="mb-0 small">
+                    &copy; {{ new Date().getFullYear() }} GradesWorld. All rights reserved.
+                    <span class="d-block d-md-inline-block mt-2 mt-md-0">
+                        Made with <i class="bi bi-heart-fill text-danger"></i> for students
+                        worldwide
+                    </span>
+                </p>
             </div>
         </div>
     </footer>
@@ -104,87 +197,125 @@
 
 <script>
 export default {
-    name: 'Footer',
+    name: 'AppFooter',
 };
 </script>
 
 <style scoped>
-.footer {
-    background-color: #1a1a1a;
-    color: #eaeaea;
+.site-footer {
+    background: linear-gradient(135deg, #6ea8fe, #b28dff);
+    position: relative;
+    overflow: hidden;
 }
 
-.footer-title {
+.site-footer::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.15);
+}
+
+.footer-brand {
+    font-weight: 700;
+}
+
+.footer-heading {
     font-weight: 600;
-    margin-bottom: 1rem;
+    font-size: 1.1rem;
+    position: relative;
+    padding-bottom: 0.5rem;
 }
 
-.footer-subtitle {
-    font-size: 1rem;
-    font-weight: 500;
-    margin-top: 1.25rem;
+.footer-heading::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 40px;
+    height: 2px;
+    background: rgba(255, 255, 255, 0.5);
 }
 
-.footer-desc {
+.footer-text {
+    color: rgba(255, 255, 255, 0.8);
     font-size: 0.95rem;
     line-height: 1.6;
-    color: #ccc;
 }
 
-.footer-link {
-    display: block;
-    color: #bbb;
-    text-decoration: none;
-    padding: 0.25rem 0;
-    transition: color 0.3s;
-}
-.footer-link:hover {
-    color: #ffc107;
+.hover-white {
+    transition: color 0.2s ease;
 }
 
-.social-icons {
-    display: flex;
-    gap: 12px;
+.hover-white:hover {
+    color: white !important;
 }
 
-.social {
-    font-size: 20px;
-    transition:
-        transform 0.3s ease,
-        color 0.3s ease;
-}
-
-.social:hover {
-    transform: scale(1.15);
-}
-
-.x {
-    color: #000;
-}
-.x:hover {
-    color: #6c757d;
-}
-
-.facebook {
-    color: #1877f2;
-}
-.facebook:hover {
-    color: #1254b3;
-}
-
-.instagram {
-    color: #e1306c;
-}
-.instagram:hover {
-    color: #bc2a6e;
-}
-
-.payment-icons {
-    margin-top: 0.5rem;
-}
 .payment-logo {
-    width: 40px;
-    height: auto;
-    filter: brightness(0.95);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 40px;
+    width: 60px;
+}
+
+.payment-logo img {
+    max-height: 100%;
+    max-width: 100%;
+    object-fit: contain;
+}
+
+.social-link {
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 1.25rem;
+    transition:
+        color 0.2s ease,
+        transform 0.2s ease;
+    display: inline-block;
+}
+
+.social-link:hover {
+    color: white !important;
+    transform: translateY(-2px);
+}
+
+.payment-methods img {
+    background: white;
+    padding: 4px;
+    border-radius: 4px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.mpesa-logo {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.footer-subheading {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.9);
+}
+
+@media (max-width: 768px) {
+    .site-footer {
+        text-align: center;
+    }
+
+    .footer-heading::after {
+        left: 50%;
+        transform: translateX(-50%);
+    }
+
+    .social-links {
+        justify-content: center;
+    }
+
+    .payment-methods {
+        justify-content: center;
+    }
 }
 </style>

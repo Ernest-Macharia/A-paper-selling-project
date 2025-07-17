@@ -1,101 +1,177 @@
 <template>
-    <nav class="navbar navbar-expand-lg custom-navbar">
-        <div class="container">
-            <router-link class="navbar-brand d-flex align-items-center" to="/">
-                <img
-                    src="@/assets/images/gradesworld.png"
-                    alt="GradesWorld Logo"
-                    height="40"
-                    class="me-2"
-                />
-            </router-link>
-        </div>
-    </nav>
-    <div class="vh-100 d-flex justify-content-center align-items-center">
-        <div class="card p-4 shadow-lg" style="width: 22rem">
-            <h3 class="text-center mb-1 text-primary">Join GradesWorld</h3>
-            <p class="text-center mb-3 text-muted">Create your account</p>
-            <form @submit.prevent="handleRegister">
-                <div class="mb-3">
-                    <label class="form-label">First Name</label>
-                    <input
-                        type="text"
-                        class="form-control"
-                        placeholder="Enter first name"
-                        v-model="firstName"
-                        @input="clearFirstNameError"
+    <div class="auth-layout">
+        <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+            <div class="container">
+                <router-link class="navbar-brand" to="/">
+                    <img
+                        src="@/assets/images/gradesworld.png"
+                        alt="GradesWorld Logo"
+                        height="40"
+                        class="d-inline-block align-top"
                     />
-                    <span class="text-danger" v-if="firstNameError">{{ firstNameError }}</span>
-                </div>
-                <div class="mb-3">
-                    <label class="form-label">Last Name</label>
-                    <input
-                        type="text"
-                        class="form-control"
-                        placeholder="Enter last name"
-                        v-model="lastName"
-                        @input="clearLastNameError"
-                    />
-                    <span class="text-danger" v-if="lastNameError">{{ lastNameError }}</span>
-                </div>
-                <div class="mb-3">
-                    <label class="form-label">Email Address</label>
-                    <input
-                        type="email"
-                        class="form-control"
-                        placeholder="Enter email"
-                        v-model="email"
-                        @input="clearEmailError"
-                    />
-                    <span class="text-danger" v-if="emailError">{{ emailError }}</span>
-                </div>
-                <div class="mb-3 position-relative">
-                    <label class="form-label">Password</label>
-                    <input
-                        :type="showPassword ? 'text' : 'password'"
-                        class="form-control"
-                        placeholder="Enter password"
-                        v-model="password"
-                        @input="clearPasswordError"
-                        required
-                    />
-                    <span class="text-danger" v-if="passwordError">{{ passwordError }}</span>
+                </router-link>
+            </div>
+        </nav>
 
-                    <!-- Eye Icon -->
-                    <span
-                        @click="togglePasswordVisibility"
-                        class="position-absolute"
-                        style="right: 10px; top: 35px; cursor: pointer"
+        <main class="auth-container">
+            <div class="auth-card">
+                <div class="auth-header text-center mb-4">
+                    <h2 class="fw-bold text-primary">Join GradesWorld</h2>
+                    <p class="text-muted">Create your account to get started</p>
+                </div>
+
+                <form @submit.prevent="handleRegister" class="auth-form">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="firstName" class="form-label">First Name</label>
+                                <input
+                                    id="firstName"
+                                    type="text"
+                                    class="form-control form-control-lg"
+                                    placeholder="Enter first name"
+                                    v-model="firstName"
+                                    @input="clearFirstNameError"
+                                    :class="{ 'is-invalid': firstNameError }"
+                                    required
+                                />
+                                <div class="invalid-feedback" v-if="firstNameError">
+                                    {{ firstNameError }}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="lastName" class="form-label">Last Name</label>
+                                <input
+                                    id="lastName"
+                                    type="text"
+                                    class="form-control form-control-lg"
+                                    placeholder="Enter last name"
+                                    v-model="lastName"
+                                    @input="clearLastNameError"
+                                    :class="{ 'is-invalid': lastNameError }"
+                                    required
+                                />
+                                <div class="invalid-feedback" v-if="lastNameError">
+                                    {{ lastNameError }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Email Address</label>
+                        <input
+                            id="email"
+                            type="email"
+                            class="form-control form-control-lg"
+                            placeholder="Enter your email"
+                            v-model="email"
+                            @input="clearEmailError"
+                            :class="{ 'is-invalid': emailError }"
+                            required
+                        />
+                        <div class="invalid-feedback" v-if="emailError">{{ emailError }}</div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="password" class="form-label">Password</label>
+                        <div class="input-group">
+                            <input
+                                id="password"
+                                :type="showPassword ? 'text' : 'password'"
+                                class="form-control form-control-lg"
+                                placeholder="Create a password"
+                                v-model="password"
+                                @input="clearPasswordError"
+                                :class="{ 'is-invalid': passwordError }"
+                                required
+                            />
+                            <button
+                                class="btn btn-outline-secondary"
+                                type="button"
+                                @click="togglePasswordVisibility"
+                            >
+                                <i :class="showPassword ? 'bi bi-eye-slash' : 'bi bi-eye'"></i>
+                            </button>
+                            <div class="invalid-feedback" v-if="passwordError">
+                                {{ passwordError }}
+                            </div>
+                        </div>
+                        <div class="form-text">
+                            Use 8 or more characters with a mix of letters, numbers & symbols
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <div class="form-check">
+                            <input
+                                class="form-check-input"
+                                type="checkbox"
+                                id="termsAgreement"
+                                required
+                            />
+                            <label class="form-check-label small" for="termsAgreement">
+                                I agree to the
+                                <a href="#" class="text-primary text-decoration-none">Terms</a> and
+                                <a href="#" class="text-primary text-decoration-none"
+                                    >Privacy Policy</a
+                                >
+                            </label>
+                        </div>
+                    </div>
+
+                    <button
+                        type="submit"
+                        class="btn btn-primary btn-lg w-100 mb-3"
+                        :disabled="auth0Loading"
                     >
-                        {{ showPassword ? '🙈' : '👁️' }}
-                    </span>
+                        <span v-if="!auth0Loading">Create Account</span>
+                        <span
+                            v-else
+                            class="spinner-border spinner-border-sm"
+                            role="status"
+                            aria-hidden="true"
+                        ></span>
+                    </button>
+
+                    <div v-if="serverError" class="alert alert-danger text-center mt-3">
+                        <i class="bi bi-exclamation-circle me-2"></i>{{ serverError }}
+                    </div>
+                </form>
+
+                <div class="auth-divider my-4">
+                    <span class="text-muted">OR SIGN UP WITH</span>
                 </div>
-                <button type="submit" class="btn btn-primary w-100">Register</button>
-                <div v-if="serverError" class="alert alert-danger mt-3 text-center">
-                    {{ serverError }}
+
+                <button
+                    class="btn btn-outline-primary w-100 d-flex align-items-center justify-content-center gap-2 py-2 mb-3"
+                    @click="handleSignup"
+                    :disabled="auth0Loading"
+                >
+                    <img
+                        src="https://fonts.gstatic.com/s/i/productlogos/googleg/v6/24px.svg"
+                        width="20"
+                        height="20"
+                        alt="Google"
+                    />
+                    <span>Google</span>
+                </button>
+
+                <div class="auth-footer text-center mt-4">
+                    <p class="text-muted">
+                        Already have an account?
+                        <router-link
+                            to="/login"
+                            class="text-primary text-decoration-none fw-semibold"
+                        >
+                            Sign in
+                        </router-link>
+                    </p>
                 </div>
-            </form>
-
-            <div class="my-3 text-center text-muted">OR</div>
-
-            <button
-                class="btn google-official-btn w-100 d-flex align-items-center justify-content-center gap-3 py-2"
-                @click="handleSignup"
-            >
-                <img
-                    src="https://fonts.gstatic.com/s/i/productlogos/googleg/v6/24px.svg"
-                    width="20"
-                    height="20"
-                    alt="Google"
-                />
-                <span>Continue with Google</span>
-            </button>
-
-            <p class="mt-3 text-center text-muted">
-                Already have an account?
-                <router-link to="/login" class="text-primary">Login</router-link>
-            </p>
-        </div>
+            </div>
+        </main>
     </div>
 </template>
 
@@ -112,8 +188,6 @@ export default {
             lastName: '',
             email: '',
             password: '',
-            errors: {},
-            errorMessage: '',
             firstNameError: '',
             lastNameError: '',
             emailError: '',
@@ -178,12 +252,6 @@ export default {
             this.showPassword = !this.showPassword;
         },
 
-        handleSignup() {
-            this.loginWithRedirect({
-                screen_hint: 'signup',
-            });
-        },
-
         async handleRegister() {
             this.validateFirstName();
             this.validateLastName();
@@ -209,9 +277,11 @@ export default {
                 this.$router.push('/activation-sent');
                 toast.success('Account created! Please check your email to activate.');
             } catch (error) {
-                if (error.response?.data?.email) {
-                    this.serverError = error.response?.data?.detail || 'Email already exists.';
-                }
+                this.serverError =
+                    error.response?.data?.detail ||
+                    (error.response?.data?.email
+                        ? 'Email already exists.'
+                        : 'Registration failed. Please try again.');
                 toast.error(this.serverError);
             }
         },
@@ -223,6 +293,7 @@ export default {
                     authorizationParams: {
                         screen_hint: 'signup',
                         redirect_uri: window.location.origin,
+                        scope: 'openid profile email',
                     },
                 });
             } catch (error) {
@@ -237,43 +308,76 @@ export default {
 </script>
 
 <style scoped>
-.custom-navbar {
-    position: sticky;
-    top: 0;
-    z-index: 1030;
-    background: linear-gradient(90deg, #6ea8fe, #b28dff);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}
-.navbar-brand {
-    font-weight: bold;
-    font-size: 1.4rem;
-    color: #fff !important;
+/* Reusing the same styles from login page for consistency */
+.auth-layout {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background-color: #f8f9fa;
 }
 
-.google-official-btn {
-    background: white;
-    border: 1px solid #dadce0;
-    border-radius: 4px;
-    color: #3c4043;
-    font-family: 'Google Sans', Roboto, Arial, sans-serif;
-    font-size: 14px;
+.navbar {
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.auth-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-grow: 1;
+    padding: 2rem 1rem;
+}
+
+.auth-card {
+    width: 100%;
+    max-width: 480px;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    padding: 2.5rem;
+}
+
+.auth-header h2 {
+    margin-bottom: 0.5rem;
+}
+
+.auth-divider {
+    display: flex;
+    align-items: center;
+    text-align: center;
+    color: #6c757d;
+    font-size: 0.875rem;
+}
+
+.auth-divider::before,
+.auth-divider::after {
+    content: '';
+    flex: 1;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.auth-divider::before {
+    margin-right: 1rem;
+}
+
+.auth-divider::after {
+    margin-left: 1rem;
+}
+
+.form-control-lg {
+    padding: 0.75rem 1rem;
+}
+
+.btn-lg {
+    padding: 0.75rem 1rem;
     font-weight: 500;
-    height: 40px;
-    padding: 0 24px;
-    transition:
-        background-color 0.218s,
-        border-color 0.218s,
-        box-shadow 0.218s;
 }
 
-.google-official-btn:hover {
-    background: #f7f8f8;
-    box-shadow:
-        0 1px 3px 1px rgba(66, 64, 67, 0.15),
-        0 1px 2px 0 rgba(60, 64, 67, 0.3);
-}
-
-.google-official-btn:active {
-    background: #e8eaed;
+@media (max-width: 576px) {
+    .auth-card {
+        padding: 1.5rem;
+        border-radius: 0;
+        box-shadow: none;
+    }
 }
 </style>
