@@ -260,10 +260,6 @@
             <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
                 <div class="modal-content border-0 shadow-lg">
                     <div class="modal-header bg-primary text-white">
-                        <h5 class="modal-title">
-                            <i class="fas fa-comments me-2"></i>Chat with
-                            {{ paperDetails.author_info.name }}
-                        </h5>
                         <button
                             type="button"
                             class="btn-close btn-close-white"

@@ -16,6 +16,7 @@ import Dashboard from '@/components/dashboard/Dashboard.vue';
 import Uploads from '@/components/dashboard/Uploads.vue';
 import Downloads from '@/components/dashboard/Downloads.vue';
 import Profile from '@/components/dashboard/Profile.vue';
+import SettingsPage from '@/components/dashboard/SettingsPage.vue';
 import Earnings from '@/components/dashboard/Earnings.vue';
 import UploadFile from '@/components/dashboard/UploadFile.vue';
 import Reviews from '@/components/dashboard/Reviews.vue';
@@ -111,6 +112,7 @@ const routes = [
             { path: 'uploads', component: Uploads },
             { path: 'downloads', component: Downloads },
             { path: 'profile', component: Profile },
+            { path: 'settings', component: SettingsPage },
             { path: 'earnings', component: Earnings },
             { path: 'upload-file', component: UploadFile },
             { path: 'reviews', component: Reviews },

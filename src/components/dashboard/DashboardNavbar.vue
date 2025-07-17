@@ -104,11 +104,11 @@
                                     <i class="bi bi-person me-2"></i> Profile
                                 </router-link>
                             </li>
-                            <li>
+                            <!-- <li>
                                 <router-link class="dropdown-item" to="/dashboard/settings">
                                     <i class="bi bi-gear me-2"></i> Settings
                                 </router-link>
-                            </li>
+                            </li> -->
                             <li><hr class="dropdown-divider" /></li>
                             <li>
                                 <button class="dropdown-item text-danger" @click="showLogoutModal">
