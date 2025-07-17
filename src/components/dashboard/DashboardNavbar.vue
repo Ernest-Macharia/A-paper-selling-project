@@ -1,6 +1,7 @@
 <template>
-    <nav class="navbar navbar-expand-lg custom-navbar">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary sticky-top shadow-sm">
         <div class="container">
+            <!-- Brand Logo -->
             <router-link class="navbar-brand d-flex align-items-center" to="/">
                 <img
                     src="@/assets/images/gradesworld.png"
@@ -9,10 +10,10 @@
                     class="me-2"
                 />
             </router-link>
-            <router-link class="nav-link text-white" to="/dashboard">Dashboard</router-link>
 
+            <!-- Mobile Toggle -->
             <button
-                class="navbar-toggler"
+                class="navbar-toggler border-0"
                 type="button"
                 data-bs-toggle="collapse"
                 data-bs-target="#dashboardNavbar"
@@ -20,63 +21,108 @@
                 aria-expanded="false"
                 aria-label="Toggle navigation"
             >
-                <span class="navbar-toggler-icon"></span>
+                <i class="bi bi-list" style="font-size: 1.5rem"></i>
             </button>
 
+            <!-- Navbar Content -->
             <div class="collapse navbar-collapse" id="dashboardNavbar">
-                <ul class="navbar-nav ms-auto">
+                <!-- Main Navigation -->
+                <ul class="navbar-nav me-auto">
                     <li class="nav-item">
-                        <router-link class="nav-link text-white" to="/dashboard/profile"
-                            >Profile</router-link
+                        <router-link
+                            class="nav-link d-flex align-items-center"
+                            active-class="active"
+                            to="/dashboard"
                         >
+                            <i class="bi bi-speedometer2 me-1"></i> Dashboard
+                        </router-link>
                     </li>
+                </ul>
 
-                    <li class="nav-item dropdown text-white">
+                <!-- User Menu -->
+                <div class="d-flex align-items-center ms-auto">
+                    <div class="dropdown">
                         <button
-                            class="nav-link dropdown-toggle btn btn-link"
-                            id="dashboardMenu"
+                            class="btn btn-outline-light dropdown-toggle d-flex align-items-center"
                             type="button"
+                            id="dashboardMenu"
                             data-bs-toggle="dropdown"
                             aria-expanded="false"
                         >
-                            📚 Dashboard Menu
+                            <i class="bi bi-journal-bookmark me-1"></i> My Content
                         </button>
-                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dashboardMenu">
+                        <ul
+                            class="dropdown-menu dropdown-menu-end shadow"
+                            aria-labelledby="dashboardMenu"
+                        >
                             <li>
-                                <router-link class="dropdown-item" to="/dashboard/upload-file"
-                                    >📄 Upload a Paper</router-link
-                                >
+                                <router-link class="dropdown-item" to="/dashboard/upload-file">
+                                    <i class="bi bi-upload me-2"></i> Upload Paper
+                                </router-link>
                             </li>
                             <li>
-                                <router-link class="dropdown-item" to="/dashboard/uploads"
-                                    >📤 Uploads</router-link
-                                >
+                                <router-link class="dropdown-item" to="/dashboard/uploads">
+                                    <i class="bi bi-folder me-2"></i> My Uploads
+                                </router-link>
                             </li>
                             <li>
-                                <router-link class="dropdown-item" to="/dashboard/downloads"
-                                    >📥 Downloads</router-link
-                                >
-                            </li>
-                            <li>
-                                <router-link class="dropdown-item" to="/dashboard/earnings"
-                                    >💰 Earnings</router-link
-                                >
-                            </li>
-                            <li>
-                                <router-link class="dropdown-item" to="/dashboard/reviews"
-                                    >⭐ Reviews</router-link
-                                >
+                                <router-link class="dropdown-item" to="/dashboard/downloads">
+                                    <i class="bi bi-download me-2"></i> Downloads
+                                </router-link>
                             </li>
                             <li><hr class="dropdown-divider" /></li>
+                            <li>
+                                <router-link class="dropdown-item" to="/dashboard/earnings">
+                                    <i class="bi bi-cash-stack me-2"></i> Earnings
+                                </router-link>
+                            </li>
+                            <li>
+                                <router-link class="dropdown-item" to="/dashboard/reviews">
+                                    <i class="bi bi-star me-2"></i> Reviews
+                                </router-link>
+                            </li>
                         </ul>
-                    </li>
-                </ul>
-                <button class="btn btn-sm btn-outline-danger" @click="showLogoutModal">
-                    Logout
-                </button>
+                    </div>
+
+                    <div class="dropdown ms-2">
+                        <button
+                            class="btn btn-light dropdown-toggle d-flex align-items-center"
+                            type="button"
+                            id="userMenu"
+                            data-bs-toggle="dropdown"
+                            aria-expanded="false"
+                        >
+                            <i class="bi bi-person-circle me-1"></i>
+                            <span class="d-none d-lg-inline">Account</span>
+                        </button>
+                        <ul
+                            class="dropdown-menu dropdown-menu-end shadow"
+                            aria-labelledby="userMenu"
+                        >
+                            <li>
+                                <router-link class="dropdown-item" to="/dashboard/profile">
+                                    <i class="bi bi-person me-2"></i> Profile
+                                </router-link>
+                            </li>
+                            <li>
+                                <router-link class="dropdown-item" to="/dashboard/settings">
+                                    <i class="bi bi-gear me-2"></i> Settings
+                                </router-link>
+                            </li>
+                            <li><hr class="dropdown-divider" /></li>
+                            <li>
+                                <button class="dropdown-item text-danger" @click="showLogoutModal">
+                                    <i class="bi bi-box-arrow-right me-2"></i> Logout
+                                </button>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
             </div>
         </div>
     </nav>
+
+    <!-- Logout Modal -->
     <div
         class="modal fade"
         id="logoutModal"
@@ -85,9 +131,9 @@
         aria-hidden="true"
     >
         <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="logoutModalLabel">Confirm Logout</h5>
+            <div class="modal-content border-0 shadow">
+                <div class="modal-header border-0">
+                    <h5 class="modal-title fw-bold" id="logoutModalLabel">Confirm Logout</h5>
                     <button
                         type="button"
                         class="btn-close"
@@ -95,13 +141,16 @@
                         aria-label="Close"
                     ></button>
                 </div>
-                <div class="modal-body text-center">Are you sure you want to log out?</div>
-                <div class="modal-footer">
+                <div class="modal-body py-4 text-center">
+                    <i class="bi bi-question-circle display-5 text-primary mb-3"></i>
+                    <p>Are you sure you want to log out?</p>
+                </div>
+                <div class="modal-footer border-0">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
                         Cancel
                     </button>
                     <button type="button" class="btn btn-danger" @click="confirmLogout">
-                        Yes, Logout
+                        Logout
                     </button>
                 </div>
             </div>
@@ -119,23 +168,18 @@ export default {
     methods: {
         ...mapActions('authentication', ['logout']),
         showLogoutModal() {
-            const modal = new Modal(document.getElementById('logoutModal'));
-            modal.show();
+            new Modal(document.getElementById('logoutModal')).show();
         },
-
         async confirmLogout() {
             try {
-                const modalElement = document.getElementById('logoutModal');
-                const modalInstance = Modal.getInstance(modalElement);
-                if (modalInstance) {
-                    modalInstance.hide();
-                }
-
+                const modal = Modal.getInstance(document.getElementById('logoutModal'));
+                if (modal) modal.hide();
                 await this.logout();
                 this.$router.push('/');
-                toast.success('Logout successful');
-            } catch {
+                toast.success('Logged out successfully');
+            } catch (error) {
                 toast.error('Logout failed');
+                console.error('Logout error:', error);
             }
         },
     },
@@ -143,23 +187,53 @@ export default {
 </script>
 
 <style scoped>
-.custom-navbar {
-    position: sticky;
-    top: 0;
-    z-index: 1030;
-    background: linear-gradient(90deg, #6ea8fe, #b28dff);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+.navbar {
+    background: linear-gradient(135deg, #0d6efd, #6610f2);
+    padding: 0.75rem 0;
+}
+
+.nav-link {
+    font-weight: 500;
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    transition: all 0.2s ease;
+}
+
+.nav-link:hover,
+.nav-link.active {
+    background-color: rgba(255, 255, 255, 0.15);
 }
 
 .dropdown-menu {
-    min-width: 220px;
+    min-width: 240px;
+    border: none;
+}
+
+.dropdown-item {
+    padding: 0.5rem 1rem;
+    border-radius: 0.25rem;
+    transition: all 0.2s ease;
 }
 
 .dropdown-item:hover {
     background-color: #f8f9fa;
 }
 
-.dropdown-item.text-danger {
-    font-weight: 500;
+.btn-outline-light {
+    border-color: rgba(255, 255, 255, 0.5);
+}
+
+.btn-outline-light:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+@media (max-width: 991.98px) {
+    .navbar-collapse {
+        padding-top: 1rem;
+    }
+
+    .dropdown {
+        margin-top: 0.5rem;
+    }
 }
 </style>

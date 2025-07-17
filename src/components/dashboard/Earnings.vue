@@ -1,108 +1,133 @@
 <template>
-    <div class="container my-5">
-        <!-- <div v-if="hasPendingWithdrawals" class="alert alert-warning text-center mb-4">
-      💰 You have a pending or processing withdrawal. Payout is on the way!
-    </div> -->
-        <h3 class="text-center mb-4">Earnings Summary</h3>
+    <div class="container py-4">
+        <!-- Earnings Summary Cards -->
+        <div class="row mb-5">
+            <div class="col-12">
+                <h2 class="fw-bold mb-4">Earnings Dashboard</h2>
 
-        <!-- Wallet Summary -->
-        <div class="row text-center">
-            <div class="col-md-4 mb-3" v-for="(label, key) in summaryFields" :key="key">
-                <div class="card shadow-sm">
-                    <div class="card-body">
-                        <h5>{{ label }}</h5>
-                        <p :class="summaryClass(key)" class="fs-4">
-                            {{ formatCurrency(walletSummary[key], walletSummary.currency) }}
-                        </p>
+                <!-- Summary Cards -->
+                <div class="row g-4">
+                    <div class="col-md-4" v-for="(label, key) in summaryFields" :key="key">
+                        <div class="card border-0 shadow-sm h-100">
+                            <div class="card-body text-center p-4">
+                                <h6 class="text-muted mb-3">{{ label }}</h6>
+                                <h3 :class="summaryClass(key)" class="fw-bold">
+                                    {{ formatCurrency(walletSummary[key], walletSummary.currency) }}
+                                </h3>
+                            </div>
+                        </div>
                     </div>
+                </div>
+
+                <!-- Withdraw Button -->
+                <div class="text-center mt-4">
+                    <button
+                        class="btn btn-primary btn-lg"
+                        @click="showModal = true"
+                        :disabled="walletSummary?.available_balance < 10"
+                    >
+                        <i class="bi bi-cash-stack me-2"></i>Request Withdrawal
+                    </button>
+                    <p v-if="walletSummary?.available_balance < 10" class="text-muted mt-2 small">
+                        Minimum withdrawal amount is $10
+                    </p>
                 </div>
             </div>
         </div>
 
-        <!-- Withdraw Button -->
-        <div class="text-center mt-4">
-            <button class="btn btn-success" @click="showModal = true">Request Withdrawal</button>
-        </div>
-
         <!-- Withdrawal Modal -->
+        <div v-if="showModal" class="modal-backdrop fade show"></div>
         <div
             v-if="showModal"
             class="modal fade show d-block"
             tabindex="-1"
-            style="background: rgba(0, 0, 0, 0.5)"
+            aria-modal="true"
+            role="dialog"
         >
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title">Request Withdrawal</h5>
-                        <button class="btn-close" @click="closeModal"></button>
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content border-0 shadow-lg">
+                    <div class="modal-header border-0">
+                        <h5 class="modal-title fw-bold">Request Withdrawal</h5>
+                        <button type="button" class="btn-close" @click="closeModal"></button>
                     </div>
                     <div class="modal-body">
-                        <!-- Method -->
-                        <div class="mb-3">
-                            <label class="form-label">Method</label>
-                            <select v-model="withdrawalForm.method" class="form-select">
-                                <option value="" disabled>Select method</option>
-                                <option value="mpesa">M-PESA</option>
-                                <option value="paypal">PayPal</option>
-                                <option value="stripe">Stripe</option>
-                            </select>
+                        <!-- Method Selection -->
+                        <div class="mb-4">
+                            <label class="form-label fw-semibold">Payment Method</label>
+                            <div class="btn-group w-100" role="group">
+                                <button
+                                    v-for="method in paymentMethods"
+                                    :key="method.value"
+                                    type="button"
+                                    class="btn btn-outline-primary"
+                                    :class="{ active: withdrawalForm.method === method.value }"
+                                    @click="withdrawalForm.method = method.value"
+                                >
+                                    <i :class="method.icon" class="me-2"></i>{{ method.label }}
+                                </button>
+                            </div>
                         </div>
 
-                        <!-- Account -->
-                        <div class="mb-3">
-                            <label class="form-label">Account</label>
+                        <!-- Account Details -->
+                        <div class="mb-4">
+                            <label class="form-label fw-semibold">
+                                {{ methodLabels[withdrawalForm.method] || 'Account Details' }}
+                            </label>
                             <input
                                 type="text"
                                 v-model="withdrawalForm.account"
                                 :placeholder="getAccountPlaceholder"
-                                class="form-control"
+                                class="form-control form-control-lg"
+                                :class="{ 'is-invalid': accountError }"
                             />
-                            <div class="text-danger small" v-if="accountError">
+                            <div class="invalid-feedback" v-if="accountError">
                                 {{ accountError }}
                             </div>
                         </div>
 
                         <!-- Amount -->
-                        <div class="mb-3">
-                            <label class="form-label">Amount (min $10)</label>
-                            <input
-                                type="number"
-                                v-model.number="withdrawalForm.amount"
-                                class="form-control"
-                                min="10"
-                            />
-                            <div class="text-danger small" v-if="amountError">
+                        <div class="mb-4">
+                            <label class="form-label fw-semibold">Amount</label>
+                            <div class="input-group">
+                                <span class="input-group-text">{{ withdrawalForm.currency }}</span>
+                                <input
+                                    type="number"
+                                    v-model.number="withdrawalForm.amount"
+                                    class="form-control form-control-lg"
+                                    :class="{ 'is-invalid': amountError }"
+                                    min="10"
+                                    :max="walletSummary?.available_balance"
+                                />
+                            </div>
+                            <div class="invalid-feedback" v-if="amountError">
                                 {{ amountError }}
                             </div>
+                            <small class="text-muted">
+                                Available: {{ formatCurrency(walletSummary?.available_balance) }}
+                            </small>
                         </div>
 
-                        <!-- Currency -->
-                        <div class="mb-3">
-                            <label class="form-label">Currency</label>
-                            <input
-                                type="text"
-                                v-model="withdrawalForm.currency"
-                                class="form-control"
-                            />
-                        </div>
-
-                        <!-- Stripe Warning -->
+                        <!-- Stripe Connect Notice -->
                         <div
-                            class="alert alert-warning"
                             v-if="
-                                withdrawalForm.method === 'stripe' &&
-                                (!payoutInfo || !payoutInfo.stripe_account_id)
+                                withdrawalForm.method === 'stripe' && !payoutInfo?.stripe_account_id
                             "
+                            class="alert alert-warning"
                         >
-                            <p>You haven't connected your Stripe account yet.</p>
-                            <a class="btn btn-outline-primary btn-sm" :href="stripeConnectUrl"
-                                >Connect Stripe</a
-                            >
+                            <div class="d-flex align-items-center">
+                                <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                                <div>
+                                    <p class="mb-1">
+                                        You need to connect your Stripe account first
+                                    </p>
+                                    <a :href="stripeConnectUrl" class="btn btn-sm btn-warning">
+                                        Connect Stripe
+                                    </a>
+                                </div>
+                            </div>
                         </div>
                     </div>
-
-                    <div class="modal-footer">
+                    <div class="modal-footer border-0">
                         <button class="btn btn-secondary" @click="closeModal">Cancel</button>
                         <button
                             class="btn btn-primary"
@@ -113,84 +138,106 @@
                                 v-if="isSubmitting"
                                 class="spinner-border spinner-border-sm me-2"
                             ></span>
-                            Submit
+                            Submit Request
                         </button>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Withdrawals Table -->
-        <div class="mt-5">
-            <h5>Withdrawal History</h5>
-
-            <!-- Filters & Sort -->
-            <div class="d-flex justify-content-between align-items-center mb-3">
-                <select class="form-select w-auto" v-model="filterMethod">
-                    <option value="">All Methods</option>
-                    <option value="mpesa">M-PESA</option>
-                    <option value="paypal">PayPal</option>
-                    <option value="stripe">Stripe</option>
-                </select>
-
-                <select class="form-select w-auto" v-model="sortOption">
-                    <option value="date_desc">Newest First</option>
-                    <option value="date_asc">Oldest First</option>
-                    <option value="amount_desc">Amount (High → Low)</option>
-                    <option value="amount_asc">Amount (Low → High)</option>
-                </select>
-            </div>
-
-            <!-- Table -->
-            <div class="table-responsive">
-                <table class="table table-bordered table-hover">
-                    <thead class="table-light">
-                        <tr>
-                            <th>Date</th>
-                            <th>Method</th>
-                            <th>Account</th>
-                            <th>Amount</th>
-                            <th>Status</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr v-if="filteredWithdrawals.length === 0">
-                            <td colspan="5" class="text-center">No withdrawals found.</td>
-                        </tr>
-                        <tr v-for="w in paginatedWithdrawals" :key="w.id">
-                            <td>{{ formatDate(w.created_at) }}</td>
-                            <td class="text-uppercase">{{ w.method }}</td>
-                            <td>{{ w.destination }}</td>
-                            <td>{{ formatCurrency(w.amount) }}</td>
-                            <td>
-                                <span :class="getStatusClass(w.status)">{{ w.status }}</span>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-
-            <!-- Pagination -->
-            <div class="d-flex justify-content-between align-items-center mt-3">
-                <small
-                    >Showing {{ paginatedWithdrawals.length }} of
-                    {{ filteredWithdrawals.length }} withdrawals</small
+        <!-- Withdrawal History -->
+        <div class="card border-0 shadow-sm mt-5">
+            <div class="card-body">
+                <div
+                    class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4"
                 >
-                <div>
-                    <button
-                        class="btn btn-sm btn-outline-secondary me-2"
-                        @click="prevPage"
-                        :disabled="currentPage === 1"
-                    >
-                        Prev
-                    </button>
-                    <button
-                        class="btn btn-sm btn-outline-secondary"
-                        @click="nextPage"
-                        :disabled="currentPage >= totalPages"
-                    >
-                        Next
-                    </button>
+                    <h5 class="fw-bold mb-3 mb-md-0">Withdrawal History</h5>
+
+                    <!-- Filters -->
+                    <div class="d-flex gap-2">
+                        <select v-model="filterMethod" class="form-select form-select-sm w-auto">
+                            <option value="">All Methods</option>
+                            <option
+                                v-for="method in paymentMethods"
+                                :value="method.value"
+                                :key="method.value"
+                            >
+                                {{ method.label }}
+                            </option>
+                        </select>
+
+                        <select v-model="sortOption" class="form-select form-select-sm w-auto">
+                            <option value="date_desc">Newest First</option>
+                            <option value="date_asc">Oldest First</option>
+                            <option value="amount_desc">Amount (High → Low)</option>
+                            <option value="amount_asc">Amount (Low → High)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Table -->
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Method</th>
+                                <th>Account</th>
+                                <th class="text-end">Amount</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-if="filteredWithdrawals.length === 0">
+                                <td colspan="5" class="text-center py-4 text-muted">
+                                    No withdrawal history found
+                                </td>
+                            </tr>
+                            <tr v-for="w in paginatedWithdrawals" :key="w.id">
+                                <td>{{ formatDate(w.created_at) }}</td>
+                                <td>
+                                    <span class="badge bg-light text-dark text-uppercase">
+                                        {{ w.method }}
+                                    </span>
+                                </td>
+                                <td class="text-truncate" style="max-width: 150px">
+                                    {{ w.destination }}
+                                </td>
+                                <td class="text-end fw-bold">
+                                    {{ formatCurrency(w.amount) }}
+                                </td>
+                                <td>
+                                    <span :class="getStatusClass(w.status)" class="badge">
+                                        {{ w.status }}
+                                    </span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pagination -->
+                <div class="d-flex justify-content-between align-items-center mt-3">
+                    <small class="text-muted">
+                        Showing {{ paginatedWithdrawals.length }} of
+                        {{ filteredWithdrawals.length }} records
+                    </small>
+                    <div class="btn-group">
+                        <button
+                            class="btn btn-sm btn-outline-primary"
+                            @click="prevPage"
+                            :disabled="currentPage === 1"
+                        >
+                            <i class="bi bi-chevron-left"></i>
+                        </button>
+                        <button
+                            class="btn btn-sm btn-outline-primary"
+                            @click="nextPage"
+                            :disabled="currentPage >= totalPages"
+                        >
+                            <i class="bi bi-chevron-right"></i>
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -212,6 +259,16 @@ export default {
                 amount: null,
                 currency: 'USD',
             },
+            paymentMethods: [
+                { value: 'mpesa', label: 'M-Pesa', icon: 'bi bi-phone' },
+                { value: 'paypal', label: 'PayPal', icon: 'bi bi-paypal' },
+                { value: 'stripe', label: 'Stripe', icon: 'bi bi-credit-card' },
+            ],
+            methodLabels: {
+                mpesa: 'M-Pesa Phone Number',
+                paypal: 'PayPal Email',
+                stripe: 'Stripe Account',
+            },
             isSubmitting: false,
             amountError: '',
             accountError: '',
@@ -230,14 +287,14 @@ export default {
         },
         summaryFields() {
             return {
-                total_earned: 'Total Earned',
+                total_earned: 'Total Earnings',
                 total_withdrawn: 'Total Withdrawn',
                 available_balance: 'Available Balance',
             };
         },
         canSubmit() {
             return (
-                this.withdrawalForm.amount &&
+                this.withdrawalForm.amount >= 10 &&
                 this.withdrawalForm.account &&
                 this.withdrawalForm.method &&
                 !this.amountError &&
@@ -276,46 +333,46 @@ export default {
         totalPages() {
             return Math.ceil(this.filteredWithdrawals.length / this.perPage);
         },
-        hasPendingWithdrawals() {
-            return this.withdrawals?.some((w) => ['pending', 'processing'].includes(w.status));
-        },
         getAccountPlaceholder() {
             switch (this.withdrawalForm.method) {
                 case 'paypal':
-                    return 'e.g., user@example.com';
+                    return 'your@email.com';
                 case 'mpesa':
-                    return 'e.g., +254712345678';
+                    return 'e.g. +254712345678';
                 case 'stripe':
-                    return 'e.g., acct_123ABC456';
+                    return 'Stripe account ID';
                 default:
-                    return '';
+                    return 'Enter account details';
             }
         },
     },
     watch: {
         'withdrawalForm.method'(val) {
             if (!val || !this.payoutInfo) return;
-            if (val === 'paypal') this.withdrawalForm.account = this.payoutInfo.paypal_email || '';
-            else if (val === 'stripe')
-                this.withdrawalForm.account = this.payoutInfo.stripe_account_id || '';
-            else if (val === 'mpesa')
-                this.withdrawalForm.account = this.payoutInfo.mpesa_phone || '';
+            this.withdrawalForm.account =
+                val === 'paypal'
+                    ? this.payoutInfo.paypal_email || ''
+                    : val === 'stripe'
+                      ? this.payoutInfo.stripe_account_id || ''
+                      : val === 'mpesa'
+                        ? this.payoutInfo.mpesa_phone || ''
+                        : '';
         },
         'withdrawalForm.amount'(val) {
             const available = this.walletSummary?.available_balance || 0;
             this.amountError =
-                !val || val < 10
+                val < 10
                     ? 'Minimum withdrawal is $10'
                     : val > available
-                      ? 'Amount exceeds available balance'
+                      ? 'Exceeds available balance'
                       : '';
         },
         'withdrawalForm.account'(val) {
             const method = this.withdrawalForm.method;
             if (method === 'paypal' && !this.validateEmail(val)) {
-                this.accountError = 'Invalid PayPal email';
+                this.accountError = 'Please enter a valid email';
             } else if (method === 'mpesa' && !this.validatePhone(val)) {
-                this.accountError = 'Phone must be in format +2547XXXXXXX';
+                this.accountError = 'Please include country code (e.g. +254...)';
             } else {
                 this.accountError = '';
             }
@@ -339,16 +396,20 @@ export default {
             this.isSubmitting = true;
             try {
                 const { amount, method, account: destination, currency } = this.withdrawalForm;
-                if (method === 'paypal') await this.updatePayoutInfo({ paypal_email: destination });
-                else if (method === 'mpesa')
+
+                // Update payout info if needed
+                if (method === 'paypal') {
+                    await this.updatePayoutInfo({ paypal_email: destination });
+                } else if (method === 'mpesa') {
                     await this.updatePayoutInfo({ mpesa_phone: destination });
+                }
 
                 await this.requestWithdrawal({ amount, method, destination, currency });
-                toast.success('Withdrawal submitted');
+                toast.success('Withdrawal request submitted successfully');
                 this.closeModal();
                 await this.loadSummary();
             } catch (err) {
-                toast.error(err?.response?.data?.non_field_errors?.[0] || 'Withdrawal failed');
+                toast.error(err?.response?.data?.message || 'Withdrawal request failed');
                 console.error(err);
             } finally {
                 this.isSubmitting = false;
@@ -361,7 +422,7 @@ export default {
             this.accountError = '';
         },
         formatCurrency(amount, currency = 'USD') {
-            if (!amount) return `${currency} 0.00`;
+            if (amount === null || amount === undefined) return `${currency} 0.00`;
             return new Intl.NumberFormat('en-US', {
                 style: 'currency',
                 currency,
@@ -369,26 +430,34 @@ export default {
             }).format(amount);
         },
         formatDate(dateStr) {
+            if (!dateStr) return '';
             const date = new Date(dateStr);
-            return date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
+            return date.toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric',
+            });
         },
         getStatusClass(status) {
-            switch (status) {
+            switch (status?.toLowerCase()) {
                 case 'approved':
-                    return 'badge bg-success';
+                    return 'bg-success';
                 case 'pending':
-                    return 'badge bg-warning text-dark';
+                    return 'bg-warning text-dark';
+                case 'processing':
+                    return 'bg-info';
                 case 'rejected':
-                    return 'badge bg-danger';
+                    return 'bg-danger';
                 default:
-                    return 'badge bg-secondary';
+                    return 'bg-secondary';
             }
         },
         summaryClass(key) {
-            if (key === 'total_earned') return 'text-primary';
-            if (key === 'total_withdrawn') return 'text-danger';
-            if (key === 'available_balance') return 'text-success';
-            return '';
+            return {
+                'text-primary': key === 'total_earned',
+                'text-danger': key === 'total_withdrawn',
+                'text-success': key === 'available_balance',
+            };
         },
         prevPage() {
             if (this.currentPage > 1) this.currentPage--;
@@ -396,13 +465,17 @@ export default {
         nextPage() {
             if (this.currentPage < this.totalPages) this.currentPage++;
         },
-
         async loadSummary() {
-            await Promise.all([
-                this.fetchWalletSummary(),
-                this.fetchPayoutInfo(),
-                this.fetchWithdrawalRequests(),
-            ]);
+            try {
+                await Promise.all([
+                    this.fetchWalletSummary(),
+                    this.fetchPayoutInfo(),
+                    this.fetchWithdrawalRequests(),
+                ]);
+            } catch (error) {
+                toast.error('Failed to load earnings data');
+                console.error(error);
+            }
         },
     },
     mounted() {
@@ -412,7 +485,54 @@ export default {
 </script>
 
 <style scoped>
+.modal-backdrop {
+    opacity: 0.5;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 1040;
+    width: 100vw;
+    height: 100vh;
+    background-color: #000;
+}
+
 .modal {
-    display: block;
+    z-index: 1050;
+}
+
+.card {
+    border-radius: 0.75rem;
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.1) !important;
+}
+
+.table {
+    --bs-table-hover-bg: rgba(var(--bs-primary-rgb), 0.05);
+}
+
+.badge {
+    padding: 0.5em 0.75em;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+}
+
+.btn-group .btn {
+    transition: all 0.2s ease;
+}
+
+.btn-group .btn.active {
+    background-color: var(--bs-primary);
+    color: white;
+    border-color: var(--bs-primary);
+}
+
+.form-control-lg {
+    padding: 0.75rem 1rem;
 }
 </style>

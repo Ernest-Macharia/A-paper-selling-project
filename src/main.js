@@ -58,14 +58,47 @@ if (token && !isTokenExpired(token)) {
 api.defaults.baseURL = import.meta.env.VITE_API_BASE_URL || 'https://gradesworld.com/api';
 
 // --- Auth0 (Optional) ---
+
 app.use(
     createAuth0({
         domain: import.meta.env.VITE_AUTH0_DOMAIN,
         clientId: import.meta.env.VITE_AUTH0_CLIENT_ID,
+        authorizationParams: {
+            audience: import.meta.env.VITE_AUTH0_AUDIENCE,
+            redirect_uri: window.location.origin,
+        },
         cacheLocation: 'localstorage',
         useRefreshTokens: true,
     }),
 );
+
+const auth0 = app.config.globalProperties.$auth0;
+
+// Handle callback if returning from Auth0
+if (window.location.search.includes('code=')) {
+    auth0
+        .handleRedirectCallback()
+        .then(() => {
+            const returnTo = localStorage.getItem('returnTo') || '/';
+            localStorage.removeItem('returnTo');
+            router.push(returnTo);
+        })
+        .catch((err) => {
+            console.error('Auth0 callback error:', err);
+            router.push('/login?error=auth_failed');
+        });
+}
+
+(async () => {
+    if (auth0.isAuthenticated) {
+        try {
+            const token = await auth0.getAccessTokenSilently();
+            // Use this token with your backend
+        } catch (error) {
+            console.error('Token refresh failed:', error);
+        }
+    }
+})();
 
 // --- Use plugins ---
 app.use(router);

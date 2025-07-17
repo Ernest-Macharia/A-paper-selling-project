@@ -1,10 +1,10 @@
 // src/auth_config.js
 
 export const authConfig = {
-    domain: 'gradesworld.us.auth0.com',
-    clientId: '<YOUR_AUTH0_CLIENT_ID>',
+    domain: import.meta.env.VITE_AUTH0_DOMAIN,
+    clientId: import.meta.env.VITE_AUTH0_CLIENT_ID,
     authorizationParams: {
-        audience: 'https://gradesworld.us.auth0.com/api/v2/',
+        audience: import.meta.env.VITE_AUTH0_AUDIENCE,
         redirect_uri: window.location.origin,
     },
 };

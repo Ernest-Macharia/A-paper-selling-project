@@ -79,16 +79,16 @@
             <div class="my-3 text-center text-muted">OR</div>
 
             <button
-                class="btn bg-white border w-100 d-flex align-items-center justify-content-center gap-2 shadow-sm"
+                class="btn google-official-btn w-100 d-flex align-items-center justify-content-center gap-3 py-2"
                 @click="handleSignup"
             >
                 <img
-                    src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg"
+                    src="https://fonts.gstatic.com/s/i/productlogos/googleg/v6/24px.svg"
                     width="20"
                     height="20"
                     alt="Google"
                 />
-                <span class="fw-semibold text-dark">Continue with Google</span>
+                <span>Continue with Google</span>
             </button>
 
             <p class="mt-3 text-center text-muted">
@@ -120,11 +120,12 @@ export default {
             passwordError: '',
             serverError: '',
             showPassword: false,
+            auth0Loading: false,
         };
     },
     setup() {
-        const { loginWithRedirect } = useAuth0();
-        return { loginWithRedirect };
+        const auth0 = useAuth0();
+        return { auth0 };
     },
     methods: {
         ...mapActions('authentication', ['register']),
@@ -215,8 +216,21 @@ export default {
             }
         },
 
-        async registerWithAuth0() {
-            await this.loginWithRedirect();
+        async handleSignup() {
+            this.auth0Loading = true;
+            try {
+                await this.auth0.loginWithRedirect({
+                    authorizationParams: {
+                        screen_hint: 'signup',
+                        redirect_uri: window.location.origin,
+                    },
+                });
+            } catch (error) {
+                toast.error('Auth0 signup failed');
+                console.error(error);
+            } finally {
+                this.auth0Loading = false;
+            }
         },
     },
 };
@@ -234,5 +248,32 @@ export default {
     font-weight: bold;
     font-size: 1.4rem;
     color: #fff !important;
+}
+
+.google-official-btn {
+    background: white;
+    border: 1px solid #dadce0;
+    border-radius: 4px;
+    color: #3c4043;
+    font-family: 'Google Sans', Roboto, Arial, sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    height: 40px;
+    padding: 0 24px;
+    transition:
+        background-color 0.218s,
+        border-color 0.218s,
+        box-shadow 0.218s;
+}
+
+.google-official-btn:hover {
+    background: #f7f8f8;
+    box-shadow:
+        0 1px 3px 1px rgba(66, 64, 67, 0.15),
+        0 1px 2px 0 rgba(60, 64, 67, 0.3);
+}
+
+.google-official-btn:active {
+    background: #e8eaed;
 }
 </style>

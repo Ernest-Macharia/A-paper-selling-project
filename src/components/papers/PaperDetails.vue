@@ -1,176 +1,276 @@
 <template>
     <Navbar />
-    <div class="container py-5">
-        <nav class="container mt-3" aria-label="breadcrumb">
-            <ol class="breadcrumb">
+    <div class="container py-4">
+        <!-- Improved Breadcrumb -->
+        <nav aria-label="breadcrumb" class="mt-3">
+            <ol class="breadcrumb bg-light p-3 rounded-3">
                 <li class="breadcrumb-item">
-                    <router-link to="/papers">All Papers</router-link>
+                    <router-link to="/papers" class="text-decoration-none">
+                        <i class="fas fa-chevron-left me-2"></i>All Papers
+                    </router-link>
                 </li>
-                <li class="breadcrumb-item active" aria-current="page">Paper Details</li>
+                <li class="breadcrumb-item active" aria-current="page">
+                    <i class="fas fa-file-alt me-2"></i>Paper Details
+                </li>
             </ol>
         </nav>
 
-        <div v-if="isLoading" class="text-center my-5">
-            <span class="spinner-border text-primary" role="status"></span>
+        <!-- Loading State -->
+        <div v-if="isLoading" class="text-center my-5 py-5">
+            <div class="spinner-grow text-primary" style="width: 3rem; height: 3rem" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <p class="mt-3 text-muted">Loading paper details...</p>
         </div>
 
-        <div
-            v-else
-            class="paper-details-card shadow-lg rounded-4 p-4 mx-auto border border-2 border-primary"
-            style="max-width: 900px; background: #fefefe"
-        >
-            <!-- Grid Layout -->
-            <div class="grid-sections mb-4">
-                <!-- Left Column -->
-                <div class="section-column">
-                    <!-- Paper Preview -->
-                    <section class="mb-4">
-                        <h4 class="section-title d-flex align-items-center gap-2 text-primary">
-                            <i class="fas fa-file-pdf"></i> Paper Preview
-                        </h4>
-                        <button
-                            class="btn btn-outline-primary w-100 d-flex justify-content-center align-items-center gap-2"
-                            @click="paperDetails.preview_url && (showPreviewModal = true)"
-                            :disabled="!paperDetails.preview_url"
-                        >
-                            <i class="fas fa-eye"></i> View Preview
-                        </button>
-                    </section>
-
-                    <!-- Uploader Info -->
-                    <section
-                        class="mb-4 uploader-box p-3 rounded-3 bg-light border border-secondary"
-                    >
-                        <h5 class="mb-3 text-secondary d-flex align-items-center gap-2">
-                            <i class="fas fa-user-circle"></i> Uploaded By
-                        </h5>
-                        <p class="mb-1">
-                            <strong>Name:</strong> {{ paperDetails.author_info?.name || 'Unknown' }}
-                        </p>
-
-                        <!-- Show chat button only if the viewer is not the uploader -->
-                        <div
-                            v-if="
-                                userDetails &&
-                                paperDetails.author_info &&
-                                userDetails.id !== paperDetails.author_info.id
-                            "
-                        >
-                            <button
-                                class="btn btn-outline-primary btn-sm mt-2"
-                                @click="showChatModal = true"
-                            >
-                                <i class="fas fa-comments"></i> Message
-                                {{ paperDetails.author_info.name }}
-                            </button>
-                        </div>
-                    </section>
+        <!-- Main Content -->
+        <div v-else class="paper-details-container">
+            <!-- Paper Card -->
+            <div class="card shadow-lg border-primary mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="mb-0">
+                        <i class="fas fa-file-alt me-2"></i>{{ paperDetails.title }}
+                    </h3>
                 </div>
 
-                <!-- Right Column -->
-                <div class="section-column">
-                    <section class="mb-4">
-                        <h4 class="section-title d-flex align-items-center gap-2 text-primary">
-                            <i class="fas fa-info-circle"></i> Paper Details
-                        </h4>
-                        <div class="info-grid">
-                            <div>
-                                <i class="fas fa-file-alt text-primary"></i> <strong>Title:</strong>
-                                {{ paperDetails.title }}
-                            </div>
-                            <div>
-                                <i class="fas fa-align-left text-primary"></i>
-                                <strong>Description:</strong>
-                                <div class="text-muted mt-1">
-                                    {{ trimmedDescription }}
+                <div class="card-body">
+                    <!-- Grid Layout -->
+                    <div class="row g-4">
+                        <!-- Left Column -->
+                        <div class="col-lg-5">
+                            <!-- Paper Preview Section -->
+                            <div class="mb-4">
+                                <h4 class="section-title text-primary mb-3">
+                                    <i class="fas fa-file-pdf me-2"></i>Paper Preview
+                                </h4>
+                                <div class="preview-thumbnail mb-3 text-center">
+                                    <div class="pdf-icon-placeholder mb-3">
+                                        <i
+                                            class="fas fa-file-pdf text-danger"
+                                            style="font-size: 5rem"
+                                        ></i>
+                                    </div>
                                     <button
-                                        class="btn btn-link p-0 ps-1"
-                                        @click="showDescriptionModal = true"
+                                        class="btn w-100 d-flex justify-content-center align-items-center gap-2"
+                                        @click="
+                                            paperDetails.preview_url && (showPreviewModal = true)
+                                        "
+                                        :disabled="!paperDetails.preview_url"
+                                        :class="{
+                                            'btn-primary': paperDetails.preview_url,
+                                            'btn-secondary': !paperDetails.preview_url,
+                                        }"
                                     >
-                                        Read More
+                                        <i class="fas fa-eye"></i>
+                                        {{
+                                            paperDetails.preview_url
+                                                ? 'View Preview'
+                                                : 'Preview Not Available'
+                                        }}
                                     </button>
                                 </div>
                             </div>
 
-                            <div>
-                                <i class="fas fa-dollar-sign text-success"></i>
-                                <strong>Price:</strong> ${{ paperDetails?.price }}
-                            </div>
-                            <div>
-                                <i class="fas fa-calendar-alt text-secondary"></i>
-                                <strong>Uploaded:</strong>
-                                {{ formatDate(paperDetails.upload_date) }}
-                            </div>
-                            <div>
-                                <i class="fas fa-book text-info"></i> <strong>Course:</strong>
-                                {{ paperDetails.course?.name || 'N/A' }}
-                            </div>
-                            <div>
-                                <i class="fas fa-tags text-warning"></i> <strong>Category:</strong>
-                                {{ paperDetails.category?.name || 'N/A' }}
-                            </div>
-                            <div>
-                                <i class="fas fa-file-word text-primary"></i>
-                                <strong>Pages:</strong> {{ paperDetails.pages || 'N/A' }}
-                            </div>
-                            <div>
-                                <i class="fas fa-download text-info"></i>
-                                <strong>Downloads:</strong>
-                                {{ paperDetails.download_count || 'N/A' }}
-                            </div>
-                            <div>
-                                <i class="fas fa-star text-warning"></i> <strong>Reviews:</strong>
-                                {{ paperDetails.average_rating.toFixed(1) || 'N/A' }} / 5
-                            </div>
-                            <div>
-                                <i class="fas fa-clock text-secondary"></i>
-                                <strong>Last Updated:</strong>
-                                {{
-                                    formatDate(paperDetails.updated_at || paperDetails.upload_date)
-                                }}
+                            <!-- Uploader Info -->
+                            <div class="uploader-info card mb-4">
+                                <div class="card-body">
+                                    <h5 class="card-title text-secondary mb-3">
+                                        <i class="fas fa-user-circle me-2"></i> Uploaded By
+                                    </h5>
+                                    <div class="d-flex align-items-center mb-3">
+                                        <div class="avatar me-3">
+                                            <i class="fas fa-user fa-2x text-primary"></i>
+                                        </div>
+                                        <div>
+                                            <h6 class="mb-0">
+                                                {{ paperDetails.author_info?.name || 'Unknown' }}
+                                            </h6>
+                                            <small class="text-muted"
+                                                >Uploaded
+                                                {{ formatDate(paperDetails.upload_date) }}</small
+                                            >
+                                        </div>
+                                    </div>
+
+                                    <!-- Chat Button -->
+                                    <div
+                                        v-if="
+                                            userDetails &&
+                                            paperDetails.author_info &&
+                                            userDetails.id !== paperDetails.author_info.id
+                                        "
+                                    >
+                                        <button
+                                            class="btn btn-outline-primary w-100"
+                                            @click="showChatModal = true"
+                                        >
+                                            <i class="fas fa-comments me-2"></i> Message Author
+                                        </button>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                    </section>
+
+                        <!-- Right Column -->
+                        <div class="col-lg-7">
+                            <!-- Paper Details -->
+                            <div class="paper-details">
+                                <h4 class="section-title text-primary mb-3">
+                                    <i class="fas fa-info-circle me-2"></i> Paper Details
+                                </h4>
+
+                                <div class="table-responsive">
+                                    <table class="table table-borderless">
+                                        <tbody>
+                                            <tr>
+                                                <td class="text-muted" width="30%">
+                                                    <i class="fas fa-align-left me-2"></i
+                                                    >Description:
+                                                </td>
+                                                <td>
+                                                    {{ trimmedDescription }}
+                                                    <button
+                                                        class="btn btn-link p-0 ps-2 text-primary"
+                                                        @click="showDescriptionModal = true"
+                                                    >
+                                                        Read More
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="text-muted">
+                                                    <i class="fas fa-dollar-sign me-2"></i>Price:
+                                                </td>
+                                                <td>
+                                                    <span class="badge bg-success"
+                                                        >${{ paperDetails?.price }}</span
+                                                    >
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="text-muted">
+                                                    <i class="fas fa-book me-2"></i>Course:
+                                                </td>
+                                                <td>{{ paperDetails.course?.name || 'N/A' }}</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="text-muted">
+                                                    <i class="fas fa-tags me-2"></i>Category:
+                                                </td>
+                                                <td>{{ paperDetails.category?.name || 'N/A' }}</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="text-muted">
+                                                    <i class="fas fa-file-word me-2"></i>Pages:
+                                                </td>
+                                                <td>{{ paperDetails.pages || 'N/A' }}</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="text-muted">
+                                                    <i class="fas fa-download me-2"></i>Downloads:
+                                                </td>
+                                                <td>{{ paperDetails.download_count || 'N/A' }}</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="text-muted">
+                                                    <i class="fas fa-star me-2"></i>Rating:
+                                                </td>
+                                                <td>
+                                                    <div class="d-flex align-items-center">
+                                                        <div class="rating me-2">
+                                                            <i
+                                                                v-for="i in 5"
+                                                                :key="i"
+                                                                class="fas fa-star"
+                                                                :class="{
+                                                                    'text-warning':
+                                                                        i <=
+                                                                        Math.round(
+                                                                            paperDetails.average_rating,
+                                                                        ),
+                                                                    'text-light':
+                                                                        i >
+                                                                        Math.round(
+                                                                            paperDetails.average_rating,
+                                                                        ),
+                                                                }"
+                                                            ></i>
+                                                        </div>
+                                                        <span
+                                                            >{{
+                                                                paperDetails.average_rating.toFixed(
+                                                                    1,
+                                                                ) || 'N/A'
+                                                            }}
+                                                            / 5</span
+                                                        >
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="text-muted">
+                                                    <i class="fas fa-clock me-2"></i>Last Updated:
+                                                </td>
+                                                <td>
+                                                    {{
+                                                        formatDate(
+                                                            paperDetails.updated_at ||
+                                                                paperDetails.upload_date,
+                                                        )
+                                                    }}
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="action-buttons d-flex gap-3 mt-4">
+                        <button
+                            class="btn btn-primary flex-grow-1 d-flex justify-content-center align-items-center gap-2 py-2"
+                            @click="addToCheckout"
+                        >
+                            <i class="fas fa-cart-plus"></i> Add to Cart
+                        </button>
+                        <button
+                            class="btn btn-success flex-grow-1 d-flex justify-content-center align-items-center gap-2 py-2"
+                            @click="openCheckoutModal"
+                            :disabled="cartCount === 0"
+                        >
+                            <i class="fas fa-shopping-cart"></i>
+                            <span class="d-none d-sm-inline">View Cart</span>
+                            <span>({{ cartCount }})</span>
+                        </button>
+                    </div>
                 </div>
             </div>
-
-            <!-- Action Buttons -->
-            <section class="d-grid gap-3">
-                <button
-                    class="btn btn-primary btn-lg d-flex justify-content-center align-items-center gap-2"
-                    @click="addToCheckout"
-                >
-                    <i class="fas fa-cart-plus"></i> Add to Cart
-                </button>
-                <button
-                    class="btn btn-success btn-lg d-flex justify-content-center align-items-center gap-2"
-                    @click="openCheckoutModal"
-                    :disabled="cartCount.length === 0"
-                >
-                    <i class="fas fa-shopping-cart"></i> View Cart ({{ cartCount }})
-                </button>
-            </section>
         </div>
 
         <!-- Chat Modal -->
         <div
-            class="modal fade show"
+            class="modal fade"
+            :class="{ show: showChatModal }"
             v-if="showChatModal"
             tabindex="-1"
-            role="dialog"
             style="display: block; background-color: rgba(0, 0, 0, 0.5)"
         >
-            <div class="modal-dialog modal-dialog-scrollable modal-md" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title">Chat with {{ paperDetails.author_info.name }}</h5>
+            <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+                <div class="modal-content border-0 shadow-lg">
+                    <div class="modal-header bg-primary text-white">
+                        <h5 class="modal-title">
+                            <i class="fas fa-comments me-2"></i>Chat with
+                            {{ paperDetails.author_info.name }}
+                        </h5>
                         <button
                             type="button"
-                            class="btn-close"
+                            class="btn-close btn-close-white"
                             @click="showChatModal = false"
                         ></button>
                     </div>
-                    <div class="modal-body">
+                    <div class="modal-body p-0">
                         <UserChatBox
                             :recipient-id="paperDetails.author_info.id"
                             :recipient-name="paperDetails.author_info.name"
@@ -194,24 +294,30 @@
 
         <!-- PDF Preview Modal -->
         <div
-            class="modal fade show d-block"
+            class="modal fade"
+            :class="{ show: showPreviewModal }"
             v-if="showPreviewModal"
-            style="background-color: rgba(0, 0, 0, 0.5)"
-            tabindex="-1"
-            role="dialog"
+            style="display: block; background-color: rgba(0, 0, 0, 0.5)"
         >
-            <div class="modal-dialog modal-xl modal-dialog-centered" role="document">
-                <div class="modal-content border-0 rounded-4 overflow-hidden">
+            <div class="modal-dialog modal-xl modal-dialog-centered">
+                <div class="modal-content border-0 shadow-lg">
                     <div class="modal-header bg-primary text-white">
-                        <h5 class="modal-title"><i class="fas fa-file-pdf"></i> Paper Preview</h5>
+                        <h5 class="modal-title">
+                            <i class="fas fa-file-pdf me-2"></i> Paper Preview
+                        </h5>
                         <button
                             type="button"
-                            class="btn-close"
+                            class="btn-close btn-close-white"
                             @click="showPreviewModal = false"
                         ></button>
                     </div>
                     <div class="modal-body p-0" style="height: 80vh">
                         <PDFPreview :src="paperDetails.preview_url" :visible="showPreviewModal" />
+                    </div>
+                    <div class="modal-footer bg-light">
+                        <button class="btn btn-secondary" @click="showPreviewModal = false">
+                            <i class="fas fa-times me-2"></i>Close
+                        </button>
                     </div>
                 </div>
             </div>
@@ -219,32 +325,31 @@
 
         <!-- Full Description Modal -->
         <div
+            class="modal fade"
+            :class="{ show: showDescriptionModal }"
             v-if="showDescriptionModal"
-            class="modal fade show d-block"
-            style="background-color: rgba(0, 0, 0, 0.5)"
-            tabindex="-1"
-            role="dialog"
+            style="display: block; background-color: rgba(0, 0, 0, 0.5)"
         >
-            <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
-                <div class="modal-content border-0 rounded-4 overflow-hidden">
+            <div class="modal-dialog modal-lg modal-dialog-centered">
+                <div class="modal-content border-0 shadow-lg">
                     <div class="modal-header bg-primary text-white">
                         <h5 class="modal-title">
                             <i class="fas fa-align-left me-2"></i> Full Description
                         </h5>
                         <button
                             type="button"
-                            class="btn-close"
+                            class="btn-close btn-close-white"
                             @click="showDescriptionModal = false"
                         ></button>
                     </div>
                     <div class="modal-body" style="max-height: 60vh; overflow-y: auto">
-                        <p class="text-muted" style="white-space: pre-line">
-                            {{ paperDetails.description }}
-                        </p>
+                        <div class="description-content p-3">
+                            <p style="white-space: pre-line">{{ paperDetails.description }}</p>
+                        </div>
                     </div>
                     <div class="modal-footer bg-light">
                         <button class="btn btn-secondary" @click="showDescriptionModal = false">
-                            Close
+                            <i class="fas fa-times me-2"></i>Close
                         </button>
                     </div>
                 </div>
@@ -255,7 +360,6 @@
 
 <script>
 import Navbar from '@/components/home/Navbar.vue';
-// import { VPdfViewer } from '@vue-pdf-viewer/viewer';
 import CheckoutModal from '@/components/papers/CheckoutModal.vue';
 import { mapActions, mapGetters } from 'vuex';
 import { toast } from 'vue3-toastify';
@@ -265,7 +369,6 @@ import UserChatBox from '@/components/chat/UserChatBox.vue';
 export default {
     components: {
         Navbar,
-        // VPdfViewer,
         CheckoutModal,
         PDFPreview,
         UserChatBox,
@@ -273,7 +376,6 @@ export default {
     data() {
         return {
             paperDetails: null,
-            showPreview: false,
             showPreviewModal: false,
             isLoading: true,
             checkoutModalVisible: false,
@@ -320,7 +422,11 @@ export default {
         },
 
         formatDate(dateStr) {
-            return new Date(dateStr).toLocaleDateString();
+            return new Date(dateStr).toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+            });
         },
 
         addToCheckout() {
@@ -350,103 +456,147 @@ export default {
 </script>
 
 <style scoped>
-.grid-sections {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 2rem;
+.paper-details-container {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.card {
+    border-radius: 0.75rem;
+    overflow: hidden;
+    border: none;
+}
+
+.card-header {
+    padding: 1.5rem;
+    border-bottom: none;
+}
+
+.card-body {
+    padding: 2rem;
 }
 
 .section-title {
-    font-size: 1.6rem;
-    font-weight: 700;
-    margin-bottom: 1rem;
+    font-size: 1.25rem;
+    font-weight: 600;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid rgba(13, 110, 253, 0.2);
 }
 
-.info-grid {
-    display: grid;
-    gap: 0.8rem;
-    font-size: 1rem;
-    color: #444;
-}
-
-.section-column {
-    display: flex;
-    flex-direction: column;
-}
-
-.uploader-box {
-    background-color: #f9fafb;
+.uploader-info {
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
     border-radius: 0.5rem;
 }
 
-button[disabled] {
-    cursor: not-allowed !important;
-    opacity: 0.65 !important;
+.avatar {
+    width: 50px;
+    height: 50px;
+    background-color: #e9f5ff;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
-.btn-lg {
-    font-weight: 600;
+.preview-thumbnail {
+    background-color: #f8f9fa;
+    padding: 1.5rem;
+    border-radius: 0.5rem;
+    border: 2px dashed #dee2e6;
+    min-height: 200px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.pdf-icon-placeholder {
+    color: #e74c3c; /* Red color similar to PDF icons */
+    margin: 0 auto;
+    width: fit-content;
+}
+
+.table td {
+    padding: 0.75rem 0.5rem;
+    vertical-align: middle;
+}
+
+.table tr:not(:last-child) td {
+    border-bottom: 1px solid #eee;
+}
+
+.rating {
+    color: #e9ecef;
+}
+
+.description-content {
+    background-color: #f8f9fa;
+    border-radius: 0.5rem;
+}
+
+.action-buttons {
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.btn {
+    font-size: 1rem;
+    font-weight: 500;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+    min-height: 48px;
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.btn:active {
+    transform: translateY(0);
+}
+
+.btn i {
     font-size: 1.1rem;
 }
 
-.preview-container {
-    border-radius: 0.5rem;
-    box-shadow: 0 0 15px rgb(0 0 0 / 0.1);
-    background: white;
-}
-
+/* Modal animations */
 .modal.fade {
-    animation: fadeIn 0.3s ease-in-out;
+    transition: opacity 0.3s linear;
 }
 
-.modal {
-    display: block;
-    z-index: 1050;
+.modal.fade:not(.show) {
+    opacity: 0;
 }
 
-.modal-backdrop {
-    display: none;
+.modal.fade .modal-dialog {
+    transition: transform 0.3s ease-out;
+    transform: translate(0, -50px);
 }
 
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: scale(0.95);
-    }
-    to {
-        opacity: 1;
-        transform: scale(1);
-    }
+.modal.fade.show .modal-dialog {
+    transform: none;
 }
 
 @media (max-width: 768px) {
-    .grid-sections {
-        grid-template-columns: 1fr;
+    .action-buttons {
+        flex-direction: column;
+        gap: 1rem;
     }
 
-    .info-grid {
-        grid-template-columns: 1fr;
+    .btn {
+        width: 100%;
+    }
+}
+
+@media (max-width: 576px) {
+    .btn {
+        font-size: 0.9rem;
+        padding: 0.5rem 1rem;
     }
 
-    .btn-lg {
+    .btn i {
         font-size: 1rem;
-        padding: 0.75rem 1rem;
-    }
-
-    .modal-dialog {
-        margin: 1rem;
-    }
-
-    .paper-details-card {
-        padding: 1.25rem !important;
-    }
-
-    .section-title {
-        font-size: 1.3rem;
-    }
-
-    .breadcrumb {
-        flex-wrap: wrap;
     }
 }
 </style>

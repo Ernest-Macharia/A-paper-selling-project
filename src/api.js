@@ -1,5 +1,6 @@
 import axios from 'axios';
 import store from '@/store';
+import { useAuth0 } from '@auth0/auth0-vue';
 
 // Determine the base URL
 const isLocalhost =
@@ -11,13 +12,34 @@ const api = axios.create({
         : import.meta.env.VITE_API_BASE_URL || 'https://gradesworld.com/api',
 });
 
+let auth0;
+
+try {
+    auth0 = useAuth0();
+} catch (error) {
+    console.warn('Auth0 not initialized yet');
+}
+
 // Attach token automatically from localStorage
 api.interceptors.request.use(
-    (config) => {
+    async (config) => {
         const token = localStorage.getItem('access');
+
+        // For traditional auth
         if (token) {
             config.headers.Authorization = `Bearer ${token}`;
         }
+
+        // For Auth0 authenticated requests
+        if (auth0?.isAuthenticated.value && !token) {
+            try {
+                const auth0Token = await auth0.getAccessTokenSilently();
+                config.headers.Authorization = `Bearer ${auth0Token}`;
+            } catch (error) {
+                console.error('Failed to get Auth0 token:', error);
+            }
+        }
+
         return config;
     },
     (error) => Promise.reject(error),

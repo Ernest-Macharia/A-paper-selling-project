@@ -1,400 +1,373 @@
 <template>
     <Navbar />
 
-    <div class="home">
-        <!-- Hero / Banner -->
-        <section class="hero-section text-white d-flex align-items-center" data-aos="zoom-out">
-            <div class="overlay"></div>
-            <div class="hero-content text-center">
-                <h1 class="display-4 fw-bold">Access Quality Academic Papers</h1>
-                <router-link
-                    v-if="!isAuthenticated"
-                    to="/register"
-                    class="btn btn-primary btn-lg mt-3"
-                >
-                    Start Selling
-                </router-link>
-                <router-link v-else to="/dashboard/upload-file" class="btn btn-success btn-lg mt-3">
-                    Upload Paper
-                </router-link>
+    <div class="home-page">
+        <!-- Hero Section -->
+        <section class="hero-section position-relative overflow-hidden">
+            <div class="hero-overlay"></div>
+            <div class="container position-relative z-index-1">
+                <div class="row min-vh-80 align-items-center py-8">
+                    <div class="col-lg-8 mx-auto text-center">
+                        <h1 class="display-3 fw-bold text-white mb-4">
+                            Elevate Your Academic Journey
+                        </h1>
+                        <p class="lead text-white-80 mb-5">
+                            Access premium academic resources or monetize your work with our global
+                            community of scholars and researchers.
+                        </p>
+                        <div class="d-flex gap-3 justify-content-center">
+                            <router-link
+                                v-if="!isAuthenticated"
+                                to="/register"
+                                class="btn btn-primary btn-lg px-5 py-3 rounded-pill shadow"
+                            >
+                                Start Selling Papers
+                            </router-link>
+                            <router-link
+                                v-else
+                                to="/dashboard/upload-file"
+                                class="btn btn-success btn-lg px-5 py-3 rounded-pill shadow"
+                            >
+                                Upload New Paper
+                            </router-link>
+                            <router-link
+                                to="/papers"
+                                class="btn btn-outline-light btn-lg px-5 py-3 rounded-pill"
+                            >
+                                Browse Papers
+                            </router-link>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="hero-wave">
+                <svg viewBox="0 0 1200 120" preserveAspectRatio="none">
+                    <path
+                        d="M0,0V46.29c47.79,22.2,103.59,32.17,158,28,70.36-5.37,136.33-33.31,206.8-37.5C438.64,32.43,512.34,53.67,583,72.05c69.27,18,138.3,24.88,209.4,13.08,36.15-6,69.85-17.84,104.45-29.34C989.49,25,1113-14.29,1200,52.47V0Z"
+                        opacity=".25"
+                        fill="currentColor"
+                    ></path>
+                    <path
+                        d="M0,0V15.81C13,36.92,27.64,56.86,47.69,72.05,99.41,111.27,165,111,224.58,91.58c31.15-10.15,60.09-26.07,89.67-39.8,40.92-19,84.73-46,130.83-49.67,36.26-2.85,70.9,9.42,98.6,31.56,31.77,25.39,62.32,62,103.63,73,40.44,10.79,81.35-6.69,119.13-24.28s75.16-39,116.92-43.05c59.73-5.85,113.28,22.88,168.9,38.84,30.2,8.66,59,6.17,87.09-7.5,22.43-10.89,48-26.93,60.65-49.24V0Z"
+                        opacity=".5"
+                        fill="currentColor"
+                    ></path>
+                    <path
+                        d="M0,0V5.63C149.93,59,314.09,71.32,475.83,42.57c43-7.64,84.23-20.12,127.61-26.46,59-8.63,112.48,12.24,165.56,35.4C827.93,77.22,886,95.24,951.2,90c86.53-7,172.46-45.71,248.8-84.81V0Z"
+                        fill="currentColor"
+                    ></path>
+                </svg>
             </div>
         </section>
 
-        <!-- How It Works Section -->
-        <section
-            class="how-it-works-section py-5 bg-light"
-            data-aos="zoom-in"
-            data-aos-delay="200"
-            data-aos-duration="1000"
-        >
+        <!-- Stats Bar -->
+        <div class="stats-bar bg-white shadow-sm py-4">
             <div class="container">
-                <div class="text-center mb-5">
-                    <h2 class="fw-bold text-primary-emphasis">Share & Discover Academic Papers</h2>
-                    <p class="lead text-muted">
-                        Upload, explore, and earn from top-quality academic content — made easy.
+                <div class="row g-4 text-center">
+                    <div class="col-md-3">
+                        <div class="stat-item">
+                            <div class="stat-value display-5 fw-bold text-primary">10,000+</div>
+                            <div class="stat-label text-muted">Academic Papers</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stat-item">
+                            <div class="stat-value display-5 fw-bold text-success">5,000+</div>
+                            <div class="stat-label text-muted">Active Contributors</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stat-item">
+                            <div class="stat-value display-5 fw-bold text-warning">$250K+</div>
+                            <div class="stat-label text-muted">Earned by Users</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stat-item">
+                            <div class="stat-value display-5 fw-bold text-info">100+</div>
+                            <div class="stat-label text-muted">Universities</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- How It Works -->
+        <section class="how-it-works py-8 bg-light">
+            <div class="container">
+                <div class="text-center mb-7">
+                    <h2 class="display-5 fw-bold mb-3">How GradesWorld Works</h2>
+                    <p class="lead text-muted mx-auto" style="max-width: 700px">
+                        A simple three-step process to share knowledge and earn rewards
                     </p>
-                    <h3 class="text-primary-emphasis fw-semibold mt-4">How It Works</h3>
                 </div>
 
-                <div class="row text-center gy-4">
-                    <div class="col-md-3">
-                        <div class="step-card shadow-sm bg-white p-4 rounded-4 h-100">
-                            <div class="step-icon bg-primary text-white mb-3 mx-auto">
-                                <i class="fas fa-user-graduate fa-lg"></i>
+                <div class="row g-5">
+                    <div class="col-lg-4">
+                        <div class="step-card text-center p-5 h-100">
+                            <div
+                                class="step-number bg-primary bg-opacity-10 text-primary rounded-circle mb-4 mx-auto"
+                            >
+                                1
                             </div>
-                            <h5 class="fw-semibold text-dark">1. Sign Up</h5>
-                            <p class="text-muted small">
-                                Create your account in just a few clicks.
+                            <div class="step-icon display-3 text-primary mb-4">
+                                <i class="bi bi-person-plus"></i>
+                            </div>
+                            <h3 class="h4 mb-3">Create Your Account</h3>
+                            <p class="text-muted mb-0">
+                                Sign up in seconds to join our academic community. Start as a
+                                contributor or learner.
                             </p>
                         </div>
                     </div>
-
-                    <div class="col-md-3">
-                        <div class="step-card shadow-sm bg-white p-4 rounded-4 h-100">
-                            <div class="step-icon bg-success text-white mb-3 mx-auto">
-                                <i class="fas fa-upload fa-lg"></i>
+                    <div class="col-lg-4">
+                        <div class="step-card text-center p-5 h-100">
+                            <div
+                                class="step-number bg-success bg-opacity-10 text-success rounded-circle mb-4 mx-auto"
+                            >
+                                2
                             </div>
-                            <h5 class="fw-semibold text-dark">2. Upload Papers</h5>
-                            <p class="text-muted small">
-                                Share your work and contribute knowledge.
+                            <div class="step-icon display-3 text-success mb-4">
+                                <i class="bi bi-cloud-arrow-up"></i>
+                            </div>
+                            <h3 class="h4 mb-3">Upload Your Papers</h3>
+                            <p class="text-muted mb-0">
+                                Share your academic work with proper categorization. Set your price
+                                or offer for free.
                             </p>
                         </div>
                     </div>
-
-                    <div class="col-md-3">
-                        <div class="step-card shadow-sm bg-white p-4 rounded-4 h-100">
-                            <div class="step-icon bg-info text-white mb-3 mx-auto">
-                                <i class="fas fa-download fa-lg"></i>
+                    <div class="col-lg-4">
+                        <div class="step-card text-center p-5 h-100">
+                            <div
+                                class="step-number bg-warning bg-opacity-10 text-warning rounded-circle mb-4 mx-auto"
+                            >
+                                3
                             </div>
-                            <h5 class="fw-semibold text-dark">3. Download Papers</h5>
-                            <p class="text-muted small">
-                                Access quality academic resources anytime.
+                            <div class="step-icon display-3 text-warning mb-4">
+                                <i class="bi bi-cash-coin"></i>
+                            </div>
+                            <h3 class="h4 mb-3">Earn & Learn</h3>
+                            <p class="text-muted mb-0">
+                                Get paid when others download your work. Access premium content to
+                                boost your studies.
                             </p>
-                        </div>
-                    </div>
-
-                    <div class="col-md-3">
-                        <div class="step-card shadow-sm bg-white p-4 rounded-4 h-100">
-                            <div class="step-icon bg-warning text-white mb-3 mx-auto">
-                                <i class="fas fa-money-bill-wave fa-lg"></i>
-                            </div>
-                            <h5 class="fw-semibold text-dark">4. Get Paid</h5>
-                            <p class="text-muted small">Earn each time your work is downloaded.</p>
                         </div>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- Featured Papers Section -->
-        <section class="featured-papers bg-gradient py-5" data-aos="fade-up">
+        <!-- Featured Papers -->
+        <section class="featured-papers py-8">
             <div class="container">
-                <h2 class="text-center mb-5 fw-bold text-primary-emphasis">
-                    Latest Academic Papers
-                </h2>
-                <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
-                    <div class="col" v-for="(paper, index) in latestPapers" :key="index">
-                        <router-link
-                            :to="{ name: 'paper-details', params: { id: paper.id } }"
-                            class="paper-card card h-100 text-decoration-none"
-                        >
-                            <div class="card-body d-flex flex-column justify-content-between">
-                                <div>
-                                    <h5 class="card-title text-secondary mb-2 fw-semibold">
-                                        {{ paper.title }}
-                                    </h5>
-                                    <p class="mb-1 text-muted small">
-                                        <i class="bi bi-book"></i> {{ paper.course?.name }}
-                                    </p>
-                                    <p class="mb-1 text-muted small">
-                                        <i class="bi bi-tags"></i> {{ paper.category?.name }}
-                                    </p>
-                                    <p class="mb-3 text-muted small">
-                                        <i class="bi bi-calendar-check"></i>
+                <div class="d-flex justify-content-between align-items-end mb-6">
+                    <div>
+                        <h2 class="display-5 fw-bold mb-2">Featured Academic Papers</h2>
+                        <p class="text-muted">Recently added premium resources</p>
+                    </div>
+                    <router-link to="/papers" class="btn btn-outline-primary">
+                        View All Papers <i class="bi bi-arrow-right ms-2"></i>
+                    </router-link>
+                </div>
+
+                <div class="row g-4">
+                    <div
+                        class="col-md-6 col-lg-4 col-xl-3"
+                        v-for="(paper, index) in latestPapers"
+                        :key="index"
+                    >
+                        <div class="paper-card card border-0 shadow-sm h-100 overflow-hidden">
+                            <div
+                                class="card-img-top position-relative overflow-hidden"
+                                style="height: 160px; background-color: #f8f9fa"
+                            >
+                                <div class="position-absolute w-100" style="top: 20%">
+                                    <div
+                                        class="bg-white mx-auto"
+                                        style="height: 8px; width: 90%"
+                                    ></div>
+                                    <div
+                                        class="bg-white mx-auto mt-2"
+                                        style="height: 8px; width: 95%"
+                                    ></div>
+                                    <div
+                                        class="bg-white mx-auto mt-2"
+                                        style="height: 8px; width: 85%"
+                                    ></div>
+                                    <div
+                                        class="bg-white mx-auto mt-2"
+                                        style="height: 8px; width: 92%"
+                                    ></div>
+                                </div>
+                                <!-- <div class="position-absolute bottom-0 start-0 end-0 text-center pb-2">
+                                    <span class="badge bg-primary">PDF</span>
+                                </div> -->
+                            </div>
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-start mb-3">
+                                    <span
+                                        class="badge bg-primary bg-opacity-10 text-primary rounded-pill"
+                                    >
+                                        {{ paper.course?.name || 'General' }}
+                                    </span>
+                                    <span class="text-warning small fw-bold">
+                                        {{ paper.price > 0 ? `$${paper.price}` : 'FREE' }}
+                                    </span>
+                                </div>
+                                <h5 class="card-title mb-2">{{ paper.title }}</h5>
+                                <p class="text-muted small mb-3">
+                                    <i class="bi bi-tag me-1"></i>
+                                    {{ paper.category?.name || 'Uncategorized' }}
+                                </p>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span class="text-muted small">
+                                        <i class="bi bi-calendar me-1"></i>
                                         {{ formatDate(paper.upload_date) }}
-                                    </p>
+                                    </span>
+                                    <span class="text-muted small">
+                                        <i class="bi bi-download me-1"></i>
+                                        {{ paper.download_count || 0 }}
+                                    </span>
                                 </div>
                             </div>
-                        </router-link>
+                            <router-link
+                                :to="{ name: 'paper-details', params: { id: paper.id } }"
+                                class="stretched-link"
+                            ></router-link>
+                        </div>
                     </div>
                 </div>
-                <div class="text-center mt-5">
-                    <router-link to="/papers" class="btn btn-outline-primary">
-                        Browse All Papers
+            </div>
+        </section>
+
+        <!-- Popular Courses -->
+        <section class="popular-courses py-8 bg-light">
+            <div class="container">
+                <div class="text-center mb-7">
+                    <h2 class="display-5 fw-bold mb-3">Browse by Popular Courses</h2>
+                    <p class="lead text-muted mx-auto" style="max-width: 700px">
+                        Discover academic resources tailored to your field of study
+                    </p>
+                </div>
+
+                <div class="row g-4">
+                    <div
+                        class="col-md-6 col-lg-4 col-xl-3"
+                        v-for="(course, index) in popularCourses.slice(0, 8)"
+                        :key="index"
+                    >
+                        <div class="course-card card border-0 shadow-sm h-100 text-center">
+                            <div class="card-body p-5">
+                                <div
+                                    class="course-icon bg-primary bg-opacity-10 text-primary rounded-circle mb-4 mx-auto p-4"
+                                >
+                                    <i class="bi bi-journal-richtext fs-3"></i>
+                                </div>
+                                <h5 class="card-title mb-2">{{ course.name }}</h5>
+                                <p class="text-muted small mb-3">
+                                    {{ course.paper_count || 0 }} papers available
+                                </p>
+                                <router-link
+                                    :to="`/courses/${course.slug || course.id}`"
+                                    class="btn btn-sm btn-outline-primary stretched-link"
+                                >
+                                    View Papers
+                                </router-link>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="text-center mt-6">
+                    <router-link to="/courses" class="btn btn-primary px-5 py-3">
+                        Explore All Courses <i class="bi bi-arrow-right ms-2"></i>
                     </router-link>
                 </div>
             </div>
         </section>
 
-        <!-- Popular Courses Section -->
-        <section class="popular-courses-section py-5" data-aos="fade-up">
+        <!-- Testimonials -->
+        <section class="testimonials py-8 bg-white">
             <div class="container">
-                <h2 class="text-center fw-bold text-primary-emphasis mb-5">Popular Courses</h2>
+                <div class="text-center mb-7">
+                    <h2 class="display-5 fw-bold mb-3">Trusted by Academics Worldwide</h2>
+                    <p class="lead text-muted mx-auto" style="max-width: 700px">
+                        What our community members say about GradesWorld
+                    </p>
+                </div>
 
-                <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
-                    <div
-                        class="col"
-                        v-for="(course, index) in popularCourses.slice(0, 6)"
-                        :key="index"
-                    >
-                        <div class="course-card card text-center h-100 border-0 shadow-sm p-4">
-                            <div class="card-body d-flex flex-column justify-content-between">
-                                <div>
-                                    <div class="icon-circle mb-3 mx-auto">
-                                        <i class="bi bi-journal-richtext fs-3 text-white"></i>
+                <div class="row g-4">
+                    <div class="col-md-4" v-for="(testimonial, index) in testimonials" :key="index">
+                        <div class="testimonial-card card border-0 shadow-sm h-100">
+                            <div class="card-body p-5">
+                                <div class="d-flex align-items-center mb-4">
+                                    <img
+                                        :src="`https://i.pravatar.cc/100?img=${index + 3}`"
+                                        class="rounded-circle me-3"
+                                        width="60"
+                                        height="60"
+                                        alt="User"
+                                    />
+                                    <div>
+                                        <h6 class="mb-0">{{ testimonial.name }}</h6>
+                                        <span class="text-muted small">Academic Contributor</span>
                                     </div>
-                                    <h5 class="card-title text-dark fw-semibold">
-                                        {{ course.name }}
-                                    </h5>
                                 </div>
-                                <p class="text-muted mt-3 mb-0 small">
-                                    <span class="badge bg-primary text-light py-1 px-2">
-                                        <i class="bi bi-book"></i> {{ course.paper_count }} papers
-                                    </span>
+                                <p class="mb-0">
+                                    <i
+                                        class="bi bi-quote text-primary opacity-25 fs-1 float-start me-2"
+                                    ></i>
+                                    {{ testimonial.message }}
                                 </p>
                             </div>
                         </div>
                     </div>
                 </div>
-                <div class="text-center mt-4">
-                    <router-link to="/courses" class="btn btn-outline-primary"
-                        >Explore All Courses</router-link
-                    >
-                </div>
             </div>
         </section>
 
-        <!-- Popular Categories Section -->
-        <section class="popular-categories-section py-5 bg-light" data-aos="fade-up">
+        <!-- CTA Section -->
+        <section class="cta-section py-8 bg-primary text-white">
             <div class="container">
-                <h2 class="text-center fw-bold text-primary-emphasis mb-5">Popular Categories</h2>
-
-                <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
-                    <div
-                        class="col"
-                        v-for="(category, index) in popularCategories.slice(0, 6)"
-                        :key="index"
-                    >
-                        <div class="category-card card h-100 shadow-sm p-4 border-0 text-center">
-                            <div class="icon-circle bg-secondary mb-3 mx-auto">
-                                <i class="bi bi-tags fs-4 text-white"></i>
-                            </div>
-                            <h5 class="mb-2 text-dark fw-semibold">{{ category.name }}</h5>
-                            <p class="text-muted mb-0 small">
-                                <span class="badge bg-primary text-light py-1 px-2">
-                                    <i class="bi bi-book"></i> {{ category.paper_count }} papers
-                                </span>
-                            </p>
-                        </div>
+                <div class="row align-items-center">
+                    <div class="col-lg-8 mb-5 mb-lg-0">
+                        <h2 class="display-5 fw-bold mb-3">Ready to Share Your Knowledge?</h2>
+                        <p class="lead mb-0 opacity-75">
+                            Join thousands of academics who are already earning from their research
+                            and study materials.
+                        </p>
                     </div>
-                </div>
-                <div class="text-center mt-4">
-                    <router-link to="/categories" class="btn btn-outline-primary">
-                        Explore All Categories
-                    </router-link>
-                </div>
-            </div>
-        </section>
-
-        <!-- Top Contributors Section -->
-        <section class="top-contributors text-center bg-light py-5" data-aos="fade-up">
-            <div class="container">
-                <h2 class="text-center fw-bold text-primary-emphasis mb-5">Top Contributors</h2>
-                <div class="row">
-                    <div class="col-md-4" v-for="(user, index) in topContributors" :key="index">
-                        <div class="card p-3 shadow-sm mb-3">
-                            <img
-                                :src="user.avatar"
-                                class="rounded-circle mb-2"
-                                width="80"
-                                height="80"
-                            />
-                            <h5>{{ user.name }}</h5>
-                            <p class="text-muted">
-                                {{ user.papers }} papers • {{ user.downloads }} downloads
-                            </p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Why Choose GradesWorld -->
-        <section class="why-us-section py-5 bg-white" data-aos="fade-up">
-            <div class="container">
-                <div class="text-center mb-5">
-                    <h2 class="text-center fw-bold text-primary-emphasis mb-5">
-                        Why Choose GradesWorld?
-                    </h2>
-                    <p class="lead text-muted">
-                        Experience academic access like never before fast, global, and rewarding.
-                    </p>
-                </div>
-
-                <div class="row text-center gy-4">
-                    <div class="col-md-4">
-                        <div class="why-us-card bg-light p-4 rounded-4 shadow-sm h-100">
-                            <div class="icon-circle bg-primary text-white mb-3 mx-auto">
-                                <i class="fas fa-bolt fa-lg"></i>
-                            </div>
-                            <h5 class="fw-semibold text-dark">Instant Access</h5>
-                            <p class="text-muted small">
-                                Download academic papers instantly without unnecessary steps or
-                                friction.
-                            </p>
-                        </div>
-                    </div>
-
-                    <div class="col-md-4">
-                        <div class="why-us-card bg-light p-4 rounded-4 shadow-sm h-100">
-                            <div class="icon-circle bg-success text-white mb-3 mx-auto">
-                                <i class="fas fa-globe fa-lg"></i>
-                            </div>
-                            <h5 class="fw-semibold text-dark">Global Network</h5>
-                            <p class="text-muted small">
-                                Connect with learners and researchers across the world, sharing
-                                knowledge globally.
-                            </p>
-                        </div>
-                    </div>
-
-                    <div class="col-md-4">
-                        <div class="why-us-card bg-light p-4 rounded-4 shadow-sm h-100">
-                            <div class="icon-circle bg-warning text-white mb-3 mx-auto">
-                                <i class="fas fa-wallet fa-lg"></i>
-                            </div>
-                            <h5 class="fw-semibold text-dark">Earn & Learn</h5>
-                            <p class="text-muted small">
-                                Earn every time someone downloads your paper, turn your work into
-                                income.
-                            </p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Testimonials Section -->
-        <section class="testimonials-section py-5" data-aos="fade-up">
-            <div class="container">
-                <h2 class="text-center text-primary-emphasis fw-bold mb-5">What Our Users Say</h2>
-                <div
-                    id="testimonialCarousel"
-                    class="carousel slide"
-                    data-bs-ride="carousel"
-                    data-bs-interval="2000"
-                >
-                    <div class="carousel-inner">
-                        <div class="carousel-item active" v-if="testimonials.length">
-                            <div class="testimonial-item mx-auto text-center px-3 px-md-5">
-                                <blockquote class="blockquote fs-5 fst-italic">
-                                    "{{ testimonials[0].message }}"
-                                </blockquote>
-                                <p class="fw-semibold mt-3">— {{ testimonials[0].name }}</p>
-                            </div>
-                        </div>
-                        <div
-                            class="carousel-item"
-                            v-for="(testimonial, index) in testimonials.slice(1)"
-                            :key="index + 1"
+                    <div class="col-lg-4 text-lg-end">
+                        <router-link
+                            v-if="!isAuthenticated"
+                            to="/register"
+                            class="btn btn-light btn-lg px-5 py-3 rounded-pill shadow"
                         >
-                            <div class="testimonial-item mx-auto text-center px-3 px-md-5">
-                                <blockquote class="blockquote fs-5 fst-italic">
-                                    "{{ testimonial.message }}"
-                                </blockquote>
-                                <p class="fw-semibold mt-3">— {{ testimonial.name }}</p>
-                            </div>
-                        </div>
+                            Get Started Now
+                        </router-link>
+                        <router-link
+                            v-else
+                            to="/dashboard/upload-file"
+                            class="btn btn-light btn-lg px-5 py-3 rounded-pill shadow"
+                        >
+                            Upload Your Paper
+                        </router-link>
                     </div>
-
-                    <!-- Carousel Controls -->
-                    <button
-                        class="carousel-control-prev"
-                        type="button"
-                        data-bs-target="#testimonialCarousel"
-                        data-bs-slide="prev"
-                    >
-                        <span class="carousel-control-prev-icon"></span>
-                    </button>
-                    <button
-                        class="carousel-control-next"
-                        type="button"
-                        data-bs-target="#testimonialCarousel"
-                        data-bs-slide="next"
-                    >
-                        <span class="carousel-control-next-icon"></span>
-                    </button>
                 </div>
             </div>
         </section>
 
-        <!-- Newsletter CTA Section -->
-        <section class="newsletter text-center py-5" data-aos="zoom-in">
-            <div class="container">
-                <h2 class="fw-bold text-primary-emphasis mb-3">Stay in the Loop</h2>
-                <p class="lead text-muted">
-                    Subscribe for updates on new papers, features, and academic opportunities.
-                </p>
-                <form class="row justify-content-center mt-4" @submit.prevent="submitSubscription">
-                    <div class="col-md-6 mb-2 mb-md-0">
-                        <input
-                            v-model="subscribeEmail"
-                            type="email"
-                            class="form-control form-control-lg newsletter-input"
-                            placeholder="Enter your email"
-                            @input="clearSubscribeError"
-                            required
-                        />
-                        <div v-if="subscribeError" class="text-danger mt-1 text-start">
-                            {{ subscribeError }}
-                        </div>
-                    </div>
-                    <div class="col-md-2">
-                        <button type="submit" class="btn btn-outline-primary">Subscribe</button>
-                    </div>
-                </form>
-            </div>
-        </section>
-
-        <!-- Call to Action -->
-        <section class="cta-section text-center py-5" data-aos="slide-up">
-            <div class="container">
-                <h2 class="fw-bold text-primary-emphasis mb-3">
-                    Start Your Journey with GradesWorld
-                </h2>
-                <p class="text-muted mb-4">
-                    Join a thriving academic community of contributors and learners.
-                </p>
-                <router-link
-                    v-if="!isAuthenticated"
-                    to="/register"
-                    class="btn btn-outline-primary btn-lg px-4"
-                >
-                    Get Started
-                </router-link>
-                <router-link
-                    v-else
-                    to="/dashboard/upload-file"
-                    class="btn btn-outline-success btn-lg px-4"
-                >
-                    Upload Paper
-                </router-link>
-            </div>
-        </section>
         <ContactForm />
-        <!-- <ChatPopup /> -->
+        <Footer />
     </div>
-    <Footer />
 </template>
 
 <script>
 import { mapActions, mapGetters } from 'vuex';
-import { Swiper, SwiperSlide } from 'swiper/vue';
-// import ChatPopup from '@/components/chat/ChatPopup.vue';
 import ContactForm from '@/components/views/ContactForm.vue';
 import Footer from './Footer.vue';
 import Navbar from './Navbar.vue';
-import 'swiper/swiper-bundle.css';
 import { toast } from 'vue3-toastify';
 
 export default {
@@ -402,9 +375,6 @@ export default {
     components: {
         Footer,
         Navbar,
-        Swiper,
-        SwiperSlide,
-        // ChatPopup,
         ContactForm,
     },
     data() {
@@ -415,46 +385,32 @@ export default {
             subscribeEmail: '',
             subscribeError: '',
             testimonials: [
-                { name: 'Alice', message: 'This platform helped me earn while sharing knowledge!' },
-                { name: 'Bob', message: 'A must-have for students and researchers.' },
                 {
-                    name: 'Carlos',
-                    message: 'Finally, a place to get quality research materials easily!',
-                },
-            ],
-            topContributors: [
-                {
-                    name: 'Dr. Emily Rose',
-                    avatar: 'https://i.pravatar.cc/100?img=10',
-                    papers: 23,
-                    downloads: 50,
+                    name: 'Dr. Sarah Johnson',
+                    message:
+                        'GradesWorld has transformed how I share my research. I earn passive income while helping students worldwide.',
                 },
                 {
-                    name: 'Prof. Alan Green',
-                    avatar: 'https://i.pravatar.cc/100?img=7',
-                    papers: 15,
-                    downloads: 80,
+                    name: 'Michael Chen',
+                    message:
+                        'As a graduate student, the quality papers I found here saved me countless hours of research. Worth every penny!',
                 },
                 {
-                    name: 'Jane Student',
-                    avatar: 'https://i.pravatar.cc/100?img=5',
-                    papers: 30,
-                    downloads: 70,
+                    name: 'Prof. David Wilson',
+                    message:
+                        'Finally a platform that properly values academic work. My papers earn more here than through traditional publishing.',
                 },
             ],
         };
     },
-
     computed: {
         ...mapGetters('authentication', ['isAuthenticated']),
     },
-
     async created() {
         await this.loadLatestPapers();
         await this.loadPopularCourses();
         await this.loadPopularCategories();
     },
-
     methods: {
         ...mapActions('papers', [
             'fetchAllPapers',
@@ -469,7 +425,7 @@ export default {
                 const sortedPapers = data.results.sort(
                     (a, b) => new Date(b.upload_date) - new Date(a.upload_date),
                 );
-                this.latestPapers = sortedPapers.slice(0, 6);
+                this.latestPapers = sortedPapers.slice(0, 8);
             } catch (error) {
                 console.error('Error fetching latest papers:', error);
             }
@@ -540,241 +496,221 @@ export default {
 </script>
 
 <style scoped>
+.home-page {
+    overflow-x: hidden;
+}
+
+/* Hero Section */
 .hero-section {
     position: relative;
     background-image: url('/images/background.jpg');
+    color: white;
     background-size: cover;
     background-position: center;
-    height: 60vh;
-    min-height: 400px;
+    background-repeat: no-repeat;
+    background-attachment: fixed; /* Optional: creates parallax effect */
+    min-height: 100vh; /* Ensures full viewport height */
 }
-.hero-section .overlay {
+
+.hero-overlay {
     position: absolute;
-    inset: 0;
-    background-color: rgba(0, 0, 0, 0.5);
-}
-.hero-content {
-    position: relative;
-    z-index: 1;
+    top: 0;
+    left: 0;
     width: 100%;
-    max-width: 700px;
-    margin: 0 auto;
-}
-.hero-content h1,
-.hero-content p {
-    color: #fff;
+    height: 100%;
+    background: linear-gradient(to right, rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.3));
+    z-index: 0;
 }
 
-/* How it works section*/
+.hero-wave {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 150px;
+    color: white;
+}
+
+.hero-wave svg {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+/* Stats Bar */
+.stats-bar {
+    position: relative;
+    margin-top: -50px;
+    z-index: 10;
+    border-radius: 12px;
+}
+
+.stat-item {
+    padding: 1rem;
+    border-right: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.stat-item:last-child {
+    border-right: none;
+}
+
+/* How It Works */
 .step-card {
-    transition:
-        transform 0.3s ease,
-        box-shadow 0.3s ease;
-}
-.step-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
+    background: white;
+    border-radius: 12px;
+    transition: all 0.3s ease;
 }
 
-.step-icon {
-    width: 60px;
-    height: 60px;
-    border-radius: 50%;
-    font-size: 24px;
+.step-card:hover {
+    transform: translateY(-10px);
+    box-shadow:
+        0 20px 25px -5px rgba(0, 0, 0, 0.1),
+        0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+.step-number {
+    width: 50px;
+    height: 50px;
     display: flex;
     align-items: center;
     justify-content: center;
+    font-size: 1.5rem;
+    font-weight: bold;
 }
 
-/* Featured Papers Section */
-.featured-papers {
-    background: linear-gradient(135deg, #e3f2fd, #ede7f6); /* light blue to lavender */
-    padding-top: 3rem;
-    padding-bottom: 3rem;
-}
-
-/* Paper Card Styling */
+/* Featured Papers */
 .paper-card {
-    border: none;
-    border-radius: 16px;
-    background: linear-gradient(to bottom right, #ffffff, #f8f9ff);
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
-    transition:
-        transform 0.25s ease-in-out,
-        box-shadow 0.25s ease-in-out;
+    transition: all 0.3s ease;
+    border-radius: 12px;
+    overflow: hidden;
 }
 
 .paper-card:hover {
-    transform: translateY(-6px);
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+    transform: translateY(-5px);
+    box-shadow:
+        0 10px 15px -3px rgba(0, 0, 0, 0.1),
+        0 4px 6px -2px rgba(0, 0, 0, 0.05);
 }
 
-/* Card Title */
-.paper-card .card-title {
-    color: #3f51b5; /* Indigo */
-}
-
-/* Meta Info */
-.paper-card .text-muted i {
-    color: #6c63ff;
-}
-
-/* Browse All Papers Button */
-.featured-papers .btn-outline-primary {
-    border-color: #6c63ff;
-    color: #6c63ff;
-}
-
-.featured-papers .btn-outline-primary:hover {
-    background-color: #6c63ff;
-    color: #fff;
-}
-
-/* Badges */
-.badge.bg-primary {
-    background-color: #ff6b6b !important;
-}
-
-/* Cards General */
-.card {
-    border-radius: 12px;
-    border: none;
-}
-
-/* Popular Courses Carousel */
-.popular-courses-section {
-    background: linear-gradient(to right, #ffffff, #f0f4ff);
-}
-
+/* Popular Courses */
 .course-card {
-    border-radius: 16px;
-    background: #ffffff;
-    transition:
-        transform 0.3s ease-in-out,
-        box-shadow 0.3s ease-in-out;
+    transition: all 0.3s ease;
+    border-radius: 12px;
 }
 
 .course-card:hover {
-    transform: translateY(-6px);
-    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.08);
-}
-
-.icon-circle {
-    width: 60px;
-    height: 60px;
-    background-color: #0d6efd;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-/* Popular Categories Carousel */
-.popular-categories-section {
-    background: linear-gradient(to right, #f8f9fa, #eef1f7);
-}
-
-.category-card {
-    border-radius: 16px;
-    background: #ffffff;
-    transition:
-        transform 0.3s ease,
-        box-shadow 0.3s ease;
-}
-
-.category-card:hover {
-    transform: translateY(-6px);
-    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.08);
-}
-
-.icon-circle {
-    width: 50px;
-    height: 50px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-/* Top Contributors */
-.top-contributors .card {
-    background: linear-gradient(to right, #f8f9fa, #eef1f7);
-    border: 1px solid #ddd;
-    border-radius: 12px;
-}
-
-/* Why Us*/
-.why-us-card {
-    transition:
-        transform 0.3s ease,
-        box-shadow 0.3s ease;
-}
-.why-us-card:hover {
     transform: translateY(-5px);
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.08);
+    box-shadow:
+        0 10px 15px -3px rgba(0, 0, 0, 0.1),
+        0 4px 6px -2px rgba(0, 0, 0, 0.05);
 }
 
-.icon-circle {
-    width: 60px;
-    height: 60px;
-    border-radius: 50%;
-    font-size: 24px;
+.course-icon {
+    width: 80px;
+    height: 80px;
     display: flex;
     align-items: center;
     justify-content: center;
 }
 
 /* Testimonials */
-.testimonials-section {
-    background-color: #f9fafc;
+.testimonial-card {
+    transition: all 0.3s ease;
+    border-radius: 12px;
 }
 
-.testimonial-item {
-    max-width: 720px;
+.testimonial-card:hover {
+    transform: translateY(-5px);
+    box-shadow:
+        0 10px 15px -3px rgba(0, 0, 0, 0.1),
+        0 4px 6px -2px rgba(0, 0, 0, 0.05);
 }
 
-.testimonial-item .avatar img {
-    width: 80px;
-    height: 80px;
-    object-fit: cover;
-    border: 3px solid #dee2e6;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
-}
-
-.blockquote {
-    color: #343a40;
-}
-
-.carousel-control-prev-icon,
-.carousel-control-next-icon {
-    background-color: #4e54c8;
-    border-radius: 50%;
-    padding: 10px;
-}
-
-/* Newsletter Section */
-.newsletter {
-    background: linear-gradient(to right, #f8f9fa, #eef1f7);
-}
-.newsletter-input {
-    border-radius: 30px;
-    padding: 0.75rem 1.5rem;
-    border: 1px solid #ced4da;
-}
-
-/* Call to Action */
+/* CTA Section */
 .cta-section {
-    background: linear-gradient(to right, #f8f9fa, #eef1f7);
+    background: linear-gradient(135deg, #4e54c8, #8f94fb);
+    position: relative;
+    overflow: hidden;
 }
 
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(-20px);
+.cta-section::before {
+    content: '';
+    position: absolute;
+    top: -50px;
+    right: -50px;
+    width: 200px;
+    height: 200px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 50%;
+}
+
+.cta-section::after {
+    content: '';
+    position: absolute;
+    bottom: -80px;
+    left: -80px;
+    width: 300px;
+    height: 300px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 50%;
+}
+
+/* Utility Classes */
+.z-index-1 {
+    z-index: 1;
+}
+
+.min-vh-80 {
+    min-height: 80vh;
+}
+
+.py-8 {
+    padding-top: 6rem;
+    padding-bottom: 6rem;
+}
+
+.mb-6 {
+    margin-bottom: 4rem;
+}
+
+.mb-7 {
+    margin-bottom: 5rem;
+}
+
+.text-white-80 {
+    color: rgba(255, 255, 255, 0.8);
+}
+
+/* Responsive Adjustments */
+@media (max-width: 767.98px) {
+    .hero-section {
+        padding-top: 4rem;
+        padding-bottom: 6rem;
     }
-    to {
-        opacity: 1;
-        transform: translateY(0);
+
+    .stat-item {
+        border-right: none;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        padding: 1.5rem 0;
+    }
+
+    .stat-item:last-child {
+        border-bottom: none;
+    }
+
+    .stats-bar {
+        margin-top: -30px;
+    }
+
+    .display-3 {
+        font-size: 2.5rem;
+    }
+
+    .py-8 {
+        padding-top: 4rem;
+        padding-bottom: 4rem;
     }
 }
 </style>

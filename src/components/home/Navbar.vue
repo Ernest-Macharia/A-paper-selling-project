@@ -1,6 +1,7 @@
 <template>
-    <nav class="navbar navbar-expand-lg custom-navbar">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary sticky-top shadow-sm">
         <div class="container">
+            <!-- Brand Logo -->
             <router-link class="navbar-brand d-flex align-items-center" to="/">
                 <img
                     src="@/assets/images/gradesworld.png"
@@ -10,9 +11,9 @@
                 />
             </router-link>
 
-            <!-- 📱 Toggler button for mobile -->
+            <!-- Mobile Toggle -->
             <button
-                class="navbar-toggler"
+                class="navbar-toggler border-0"
                 type="button"
                 data-bs-toggle="collapse"
                 data-bs-target="#navbarContent"
@@ -20,91 +21,138 @@
                 aria-expanded="false"
                 aria-label="Toggle navigation"
             >
-                <span class="navbar-toggler-icon"></span>
+                <i class="bi bi-list" style="font-size: 1.5rem"></i>
             </button>
 
-            <!-- 🌐 Navbar content collapsible on mobile -->
+            <!-- Navbar Content -->
             <div class="collapse navbar-collapse" id="navbarContent">
-                <ul class="navbar-nav me-auto ms-3 mb-2 mb-lg-0">
+                <!-- Main Navigation -->
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                     <li class="nav-item">
-                        <router-link class="nav-link text-white" to="/courses">
-                            Courses
+                        <router-link class="nav-link" active-class="active" to="/courses">
+                            <i class="bi bi-journal-bookmark me-1"></i> Courses
                         </router-link>
                     </li>
                     <li class="nav-item">
-                        <router-link class="nav-link text-white" to="/categories">
-                            Categories
+                        <router-link class="nav-link" active-class="active" to="/categories">
+                            <i class="bi bi-tags me-1"></i> Categories
                         </router-link>
                     </li>
                 </ul>
 
-                <!-- 🔍 Search box with dropdown -->
+                <!-- Search Box -->
                 <div
-                    class="d-flex mx-auto my-2 my-lg-0 position-relative"
-                    style="width: 100%; max-width: 400px"
+                    class="d-flex position-relative mx-lg-3 my-2 my-lg-0 flex-grow-1 flex-lg-grow-0"
                 >
-                    <div class="input-group search-box w-100">
-                        <span class="input-group-text bg-white border-end-0">
-                            <i class="bi bi-search text-primary"></i>
-                        </span>
+                    <div class="input-group search-box">
                         <input
                             v-model="searchQuery"
                             type="text"
-                            class="form-control border-start-0"
+                            class="form-control border-end-0"
                             placeholder="Search papers..."
                             @input="filterPapers"
                         />
+                        <span class="input-group-text bg-white border-start-0">
+                            <i class="bi bi-search text-muted"></i>
+                        </span>
                     </div>
 
-                    <!-- Dropdown for suggestions -->
-                    <ul
+                    <!-- Search Dropdown -->
+                    <div
                         v-if="searchQuery"
-                        class="search-dropdown list-group position-absolute w-100"
+                        class="search-dropdown position-absolute top-100 start-0 end-0 mt-1 bg-white rounded shadow-lg z-3"
                     >
-                        <li
-                            v-for="(paper, index) in filteredPapers"
-                            :key="index"
-                            class="list-group-item list-group-item-action"
+                        <div
+                            v-for="paper in filteredPapers"
+                            :key="paper.id"
+                            class="dropdown-item p-3 border-bottom"
                             @click="goToPaper(paper.id)"
                         >
-                            {{ paper.title }}
-                        </li>
-
-                        <!-- Empty state -->
-                        <li
-                            v-if="filteredPapers.length === 0"
-                            class="list-group-item text-muted text-center"
-                            style="cursor: default"
+                            <div class="d-flex justify-content-between">
+                                <span class="fw-semibold">{{ paper.title }}</span>
+                                <span class="text-success small">${{ paper.price }}</span>
+                            </div>
+                            <div class="text-muted small">
+                                {{ paper.course?.name || paper.category?.name }}
+                            </div>
+                        </div>
+                        <div
+                            v-if="filteredPapers.length === 0 && !isLoading"
+                            class="p-3 text-muted text-center"
                         >
-                            No papers found.
-                        </li>
-                    </ul>
+                            No papers found
+                        </div>
+                        <div v-if="isLoading" class="p-3 text-center">
+                            <div
+                                class="spinner-border spinner-border-sm text-primary"
+                                role="status"
+                            >
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
-                <!-- 👤 Auth buttons -->
-                <div class="d-flex ms-auto mt-2 mt-lg-0" v-if="!isAuthenticated">
-                    <router-link class="btn btn-outline-primary mx-2" to="/login">
-                        Login
-                    </router-link>
-                    <router-link class="btn btn-outline-success mx-2" to="/register">
-                        <i class="fas fa-upload fa-lg"></i>Sell
-                    </router-link>
-                </div>
-
-                <div class="d-flex ms-auto mt-2 mt-lg-0" v-else>
-                    <span class="nav-link text-white mx-2 d-flex align-items-center">
-                        👋 {{ user?.first_name || 'User' }}
-                    </span>
-                    <router-link class="btn btn-outline-secondary mx-2" to="/dashboard">
-                        Dashboard
-                    </router-link>
-                    <button class="btn btn-sm btn-outline-danger" @click="showLogoutModal">
-                        Logout
-                    </button>
+                <!-- Auth Buttons -->
+                <div class="d-flex ms-lg-2">
+                    <template v-if="!isAuthenticated">
+                        <router-link
+                            class="btn btn-outline-light mx-1 d-flex align-items-center"
+                            to="/login"
+                        >
+                            <i class="bi bi-box-arrow-in-right me-1"></i> Login
+                        </router-link>
+                        <router-link
+                            class="btn btn-success mx-1 d-flex align-items-center"
+                            to="/register"
+                        >
+                            <i class="bi bi-upload me-1"></i> Sell Papers
+                        </router-link>
+                    </template>
+                    <template v-else>
+                        <div class="dropdown">
+                            <button
+                                class="btn btn-outline-light dropdown-toggle d-flex align-items-center"
+                                type="button"
+                                id="userDropdown"
+                                data-bs-toggle="dropdown"
+                                aria-expanded="false"
+                            >
+                                <i class="bi bi-person-circle me-1"></i>
+                                {{ user?.first_name || 'Account' }}
+                            </button>
+                            <ul
+                                class="dropdown-menu dropdown-menu-end"
+                                aria-labelledby="userDropdown"
+                            >
+                                <li>
+                                    <router-link class="dropdown-item" to="/dashboard">
+                                        <i class="bi bi-speedometer2 me-2"></i> Dashboard
+                                    </router-link>
+                                </li>
+                                <li>
+                                    <router-link class="dropdown-item" to="/dashboard/profile">
+                                        <i class="bi bi-person me-2"></i> Profile
+                                    </router-link>
+                                </li>
+                                <li><hr class="dropdown-divider" /></li>
+                                <li>
+                                    <button
+                                        class="dropdown-item text-danger"
+                                        @click="showLogoutModal"
+                                    >
+                                        <i class="bi bi-box-arrow-right me-2"></i> Logout
+                                    </button>
+                                </li>
+                            </ul>
+                        </div>
+                    </template>
                 </div>
             </div>
         </div>
     </nav>
+
+    <!-- Logout Modal -->
     <div
         class="modal fade"
         id="logoutModal"
@@ -113,9 +161,9 @@
         aria-hidden="true"
     >
         <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="logoutModalLabel">Confirm Logout</h5>
+            <div class="modal-content border-0 shadow">
+                <div class="modal-header border-0">
+                    <h5 class="modal-title fw-bold" id="logoutModalLabel">Confirm Logout</h5>
                     <button
                         type="button"
                         class="btn-close"
@@ -123,13 +171,16 @@
                         aria-label="Close"
                     ></button>
                 </div>
-                <div class="modal-body text-center">Are you sure you want to log out?</div>
-                <div class="modal-footer">
+                <div class="modal-body py-4 text-center">
+                    <i class="bi bi-question-circle display-5 text-primary mb-3"></i>
+                    <p>Are you sure you want to log out?</p>
+                </div>
+                <div class="modal-footer border-0">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
                         Cancel
                     </button>
                     <button type="button" class="btn btn-danger" @click="confirmLogout">
-                        Yes, Logout
+                        Logout
                     </button>
                 </div>
             </div>
@@ -144,7 +195,6 @@ import { toast } from 'vue3-toastify';
 
 export default {
     name: 'Navbar',
-
     data() {
         return {
             papers: [],
@@ -153,16 +203,13 @@ export default {
             isLoading: false,
         };
     },
-
     computed: {
         ...mapGetters('authentication', ['isAuthenticated']),
         ...mapState('authentication', ['user']),
     },
-
     created() {
         this.loadPapers();
     },
-
     methods: {
         ...mapActions('papers', ['fetchAllPapers']),
         ...mapActions('authentication', ['logout']),
@@ -171,18 +218,23 @@ export default {
             this.isLoading = true;
             try {
                 const data = await this.fetchAllPapers();
-                this.papers = data.results;
+                this.papers = Array.isArray(data?.results) ? data.results : [];
             } catch (error) {
                 console.error('Error fetching papers:', error);
+                toast.error('Failed to load search data');
             } finally {
                 this.isLoading = false;
             }
         },
 
         filterPapers() {
+            if (!this.searchQuery) {
+                this.filteredPapers = [];
+                return;
+            }
             const query = this.searchQuery.toLowerCase();
             this.filteredPapers = this.papers.filter((paper) =>
-                paper.title.toLowerCase().includes(query),
+                paper?.title?.toLowerCase().includes(query),
             );
         },
 
@@ -193,23 +245,26 @@ export default {
         },
 
         showLogoutModal() {
-            const modal = new Modal(document.getElementById('logoutModal'));
-            modal.show();
+            new Modal(document.getElementById('logoutModal')).show();
         },
 
         async confirmLogout() {
             try {
-                const modalElement = document.getElementById('logoutModal');
-                const modalInstance = Modal.getInstance(modalElement);
-                if (modalInstance) {
-                    modalInstance.hide();
-                }
+                const modal = Modal.getInstance(document.getElementById('logoutModal'));
+                if (modal) modal.hide();
+
+                // if (this.$auth0 && this.$auth0.isAuthenticated) {
+                //     await this.$auth0.logout({
+                //         logoutParams: { returnTo: window.location.origin }
+                //     });
+                // }
 
                 await this.logout();
                 this.$router.push('/');
-                toast.success('Logout successful');
-            } catch {
+                toast.success('Logged out successfully');
+            } catch (error) {
                 toast.error('Logout failed');
+                console.error('Logout error:', error);
             }
         },
     },
@@ -217,55 +272,74 @@ export default {
 </script>
 
 <style scoped>
-.custom-navbar {
-    position: sticky;
-    top: 0;
-    z-index: 1030;
-    background: linear-gradient(90deg, #6ea8fe, #b28dff);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+.navbar {
+    background: linear-gradient(135deg, #0d6efd, #6610f2);
+    padding: 0.75rem 0;
 }
 
-.navbar-brand img {
-    max-height: 40px;
+.navbar-brand {
+    font-family: 'Poppins', sans-serif;
 }
 
-.navbar-toggler {
-    border: none;
+.nav-link {
+    font-weight: 500;
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    transition: all 0.2s ease;
 }
 
-.navbar-brand:hover {
-    text-decoration: none;
-    opacity: 0.85;
+.nav-link:hover,
+.nav-link.active {
+    background-color: rgba(255, 255, 255, 0.15);
 }
 
 .search-box {
+    border-radius: 2rem;
+    overflow: hidden;
+    border: 1px solid #dee2e6;
+    transition: all 0.3s ease;
     max-width: 400px;
-    width: 100%;
 }
 
-.input-group-text {
-    background: rgba(255, 255, 255, 0.8);
-    border: none;
-    border-radius: 20px 0 0 20px;
-}
-
-.form-control {
-    border: none;
-    border-radius: 0 20px 20px 0;
-    color: #333;
-}
-
-.input-group-text i {
-    color: #0d6efd;
+.search-box:focus-within {
+    border-color: #0d6efd;
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
 }
 
 .search-dropdown {
-    top: 100%;
-    z-index: 1050;
-    max-height: 300px;
+    max-height: 60vh;
     overflow-y: auto;
-    border-top: none;
-    border-radius: 0 0 8px 8px;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+.dropdown-item {
+    transition: background-color 0.2s ease;
+    cursor: pointer;
+}
+
+.dropdown-item:hover {
+    background-color: #f8f9fa;
+}
+
+.btn-outline-light {
+    border-color: rgba(255, 255, 255, 0.5);
+}
+
+.btn-outline-light:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+@media (max-width: 991.98px) {
+    .search-box {
+        margin-left: 0;
+        margin-right: 0;
+        width: 100%;
+    }
+
+    .navbar-collapse {
+        padding: 1rem;
+        background-color: rgba(13, 110, 253, 0.98);
+        border-radius: 0.5rem;
+        margin-top: 0.5rem;
+    }
 }
 </style>

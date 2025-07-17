@@ -33,6 +33,12 @@ const mutations = {
     SET_USERS(state, users) {
         state.users = users;
     },
+    SET_AUTH0_USER(state, user) {
+        state.auth0User = user;
+    },
+    SET_AUTH_METHOD(state, method) {
+        state.authMethod = method;
+    },
 };
 
 const actions = {
@@ -49,9 +55,23 @@ const actions = {
         return res;
     },
 
-    logout({ commit }) {
-        commit('LOGOUT');
-        return Promise.resolve();
+    async logout({ commit }, auth0) {
+        try {
+            if (auth0?.isAuthenticated) {
+                await auth0.logout({
+                    logoutParams: {
+                        returnTo: window.location.origin,
+                    },
+                });
+            }
+
+            // Standard logout
+            commit('LOGOUT');
+            return true;
+        } catch (error) {
+            console.error('Logout failed:', error);
+            return false;
+        }
     },
 
     async requestPasswordReset(_, email) {
@@ -70,6 +90,35 @@ const actions = {
             return true;
         } catch (err) {
             console.error('Activation error:', err?.response?.data || err.message);
+            return false;
+        }
+    },
+
+    async auth0Login({ commit }, auth0Token) {
+        try {
+            const response = await api.post('/users/auth0-login/', { token: auth0Token });
+            commit('SET_TOKEN', response.data.access);
+            commit('SET_USER', response.data.user);
+            commit('SET_AUTH_METHOD', 'traditional');
+            return true;
+        } catch (error) {
+            console.error('Auth0 backend sync failed:', error);
+            return false;
+        }
+    },
+
+    async handleAuth0Callback({ commit, dispatch }) {
+        try {
+            const auth0 = useAuth0();
+            if (auth0.isAuthenticated.value) {
+                const token = await auth0.getAccessTokenSilently();
+                const user = auth0.user.value;
+                commit('SET_AUTH0_USER', user);
+                return await dispatch('auth0Login', token);
+            }
+            return false;
+        } catch (error) {
+            console.error('Auth0 callback handling failed:', error);
             return false;
         }
     },
