@@ -1,130 +1,173 @@
 <template>
     <Navbar />
     <div class="container py-5">
-        <!-- Congratulations Message -->
+        <!-- Success Header -->
         <div class="text-center mb-5">
-            <div class="success-icon text-success mb-3">
-                <i class="fas fa-check-circle fa-3x"></i>
+            <div class="success-animation mb-4">
+                <svg class="checkmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
+                    <circle class="checkmark__circle" cx="26" cy="26" r="25" fill="none" />
+                    <path class="checkmark__check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8" />
+                </svg>
             </div>
-            <h2 class="fw-bold text-success">Congratulations!</h2>
-            <p class="lead text-muted">
-                You’ve successfully purchased your exam paper{{
-                    paperDetailsList.length > 1 ? 's' : ''
-                }}.
+            <h1 class="fw-bold mb-3 text-success">Download Successful!</h1>
+            <p class="lead text-muted mb-4">
+                Your paper{{ paperDetailsList.length > 1 ? 's are' : ' is' }} ready for download
             </p>
-            <p class="text-secondary">
-                You can now download and review your paper{{
-                    paperDetailsList.length > 1 ? 's' : ''
-                }}
-                below.
-            </p>
-        </div>
-
-        <h4 class="mb-4 text-center text-primary-emphasis fw-semibold">
-            📄 Your Exam Paper{{ paperDetailsList.length > 1 ? 's' : '' }}
-        </h4>
-
-        <!-- Loading -->
-        <div v-if="isLoading" class="text-center my-5">
-            <div class="spinner-border text-primary" role="status">
-                <span class="visually-hidden">Loading...</span>
+            <div v-if="paperDetailsList.length > 1" class="d-flex justify-content-center gap-3">
+                <button
+                    @click="downloadAllPapers"
+                    class="btn btn-primary"
+                    :disabled="isDownloadingAll"
+                >
+                    <span
+                        v-if="isDownloadingAll"
+                        class="spinner-border spinner-border-sm me-2"
+                    ></span>
+                    <i class="bi bi-download me-2"></i>Download All
+                </button>
+                <router-link to="/dashboard/downloads" class="btn btn-outline-secondary">
+                    <i class="bi bi-list-check me-2"></i>View Downloads
+                </router-link>
             </div>
         </div>
 
-        <!-- Error -->
-        <div v-if="errorMessage" class="alert alert-danger text-center">
-            {{ errorMessage }}
-        </div>
+        <!-- Papers Grid -->
+        <div class="row g-4">
+            <div v-for="paper in paperDetailsList" :key="paper.id" class="col-md-6">
+                <div class="card border-0 shadow-sm h-100 hover-lift transition-all">
+                    <div class="card-body p-4">
+                        <div class="d-flex justify-content-between align-items-start mb-3">
+                            <h3 class="card-title text-primary fw-bold mb-0">
+                                <i class="bi bi-journal-text me-2"></i>{{ paper.title }}
+                            </h3>
+                            <span class="badge bg-success bg-opacity-10 text-success">
+                                ${{ paper.price ?? 'Free' }}
+                            </span>
+                        </div>
 
-        <!-- Papers -->
-        <div v-else class="row row-cols-1 row-cols-md-2 g-4">
-            <div v-for="(paper, index) in paperDetailsList" :key="paper.id" class="col">
-                <div class="card h-100 shadow border-0">
-                    <div class="card-body">
-                        <h5 class="card-title text-primary">
-                            <i class="bi bi-journal-text me-2"></i>{{ paper.title }}
-                        </h5>
-                        <p class="text-muted">
-                            {{ paper.description || 'No description available.' }}
+                        <p class="text-muted mb-4">
+                            {{ paper.description || 'No description available' }}
                         </p>
-                        <ul class="list-unstyled small mb-3">
-                            <li><strong>Category:</strong> {{ paper.category?.name || '—' }}</li>
-                            <li><strong>Pages:</strong> {{ paper.pages || '—' }}</li>
-                            <li><strong>Uploaded:</strong> {{ formatDate(paper.upload_date) }}</li>
+
+                        <ul class="list-unstyled small mb-4">
+                            <li class="mb-2">
+                                <i class="bi bi-folder me-2 text-muted"></i>
+                                <span class="text-muted">Category:</span>
+                                {{ paper.category?.name || '—' }}
+                            </li>
+                            <li class="mb-2">
+                                <i class="bi bi-file-text me-2 text-muted"></i>
+                                <span class="text-muted">Pages:</span> {{ paper.pages || '—' }}
+                            </li>
                             <li>
-                                <strong>Price:</strong>
-                                <span class="text-success">${{ paper.price ?? 'Free' }}</span>
+                                <i class="bi bi-calendar me-2 text-muted"></i>
+                                <span class="text-muted">Uploaded:</span>
+                                {{ formatDate(paper.upload_date) }}
                             </li>
                         </ul>
-                        <button class="btn btn-success me-2" @click="downloadSinglePaper(paper.id)">
-                            <i class="bi bi-download me-1"></i>Download
-                        </button>
-                        <button class="btn btn-outline-primary" @click="openReviewModal(paper)">
-                            <i class="bi bi-star-half me-1"></i>Leave Review
-                        </button>
+
+                        <div class="d-flex flex-wrap gap-2">
+                            <button
+                                @click="downloadSinglePaper(paper.id)"
+                                class="btn btn-success flex-grow-1"
+                                :disabled="isDownloading === paper.id"
+                            >
+                                <span
+                                    v-if="isDownloading === paper.id"
+                                    class="spinner-border spinner-border-sm me-2"
+                                ></span>
+                                <i class="bi bi-download me-1"></i>Download
+                            </button>
+                            <button
+                                @click="openReviewModal(paper)"
+                                class="btn btn-outline-primary flex-grow-1"
+                            >
+                                <i class="bi bi-star me-1"></i>Review
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
 
         <!-- Review Modal -->
-        <div class="modal fade show" tabindex="-1" style="display: block" v-if="showModal">
-            <div class="modal-dialog">
-                <div class="modal-content border-0 shadow">
-                    <div class="modal-header bg-primary text-white">
-                        <h5 class="modal-title">Review: {{ selectedPaper?.title }}</h5>
+        <div v-if="showModal" class="modal-backdrop fade show"></div>
+        <div
+            v-if="showModal"
+            class="modal fade show d-block"
+            tabindex="-1"
+            aria-modal="true"
+            role="dialog"
+        >
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content border-0 shadow-lg">
+                    <div class="modal-header border-0">
+                        <h5 class="modal-title fw-bold">Review Paper</h5>
                         <button type="button" class="btn-close" @click="closeReviewModal"></button>
                     </div>
                     <div class="modal-body">
-                        <form @submit.prevent="submitReview">
-                            <div class="mb-3">
-                                <label class="form-label">Your Rating</label>
-                                <div>
-                                    <i
-                                        v-for="n in 5"
-                                        :key="n"
-                                        class="bi me-1 fs-4"
-                                        :class="{
-                                            'bi-star-fill text-warning': reviewForm.rating >= n,
-                                            'bi-star text-secondary': reviewForm.rating < n,
-                                        }"
-                                        style="cursor: pointer"
-                                        @click="reviewForm.rating = n"
-                                    ></i>
-                                </div>
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label">Your Comment</label>
-                                <textarea
-                                    v-model="reviewForm.comment"
-                                    class="form-control"
-                                    rows="3"
-                                    placeholder="Share your thoughts..."
-                                ></textarea>
-                            </div>
+                        <h6 class="mb-3 text-primary">{{ selectedPaper?.title }}</h6>
 
-                            <div class="d-flex justify-content-between">
-                                <button type="submit" class="btn btn-primary">Submit Review</button>
-                                <button
-                                    type="button"
-                                    class="btn btn-secondary"
-                                    @click="closeReviewModal"
-                                >
-                                    Cancel
-                                </button>
+                        <div class="mb-4">
+                            <label class="form-label fw-semibold">Rating</label>
+                            <div class="star-rating">
+                                <i
+                                    v-for="n in 5"
+                                    :key="n"
+                                    class="bi me-2 fs-3"
+                                    :class="{
+                                        'bi-star-fill text-warning': reviewForm.rating >= n,
+                                        'bi-star text-muted': reviewForm.rating < n,
+                                    }"
+                                    style="cursor: pointer"
+                                    @click="reviewForm.rating = n"
+                                ></i>
+                                <span class="ms-2 text-muted small">
+                                    {{ reviewForm.rating }} of 5 stars
+                                </span>
                             </div>
+                        </div>
 
-                            <div v-if="submissionError" class="alert alert-danger mt-3">
-                                {{ submissionError }}
-                            </div>
-                        </form>
+                        <div class="mb-4">
+                            <label class="form-label fw-semibold">Your Review</label>
+                            <textarea
+                                v-model="reviewForm.comment"
+                                class="form-control"
+                                rows="4"
+                                placeholder="Share your experience with this paper..."
+                            ></textarea>
+                        </div>
+
+                        <div v-if="submissionError" class="alert alert-danger mb-4">
+                            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                            {{ submissionError }}
+                        </div>
+
+                        <div class="d-flex justify-content-end gap-2">
+                            <button
+                                type="button"
+                                class="btn btn-secondary"
+                                @click="closeReviewModal"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                type="submit"
+                                class="btn btn-primary"
+                                @click="submitReview"
+                                :disabled="reviewForm.rating === 0 || isSubmittingReview"
+                            >
+                                <span
+                                    v-if="isSubmittingReview"
+                                    class="spinner-border spinner-border-sm me-2"
+                                ></span>
+                                Submit Review
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-
-        <!-- Modal Backdrop -->
-        <div v-if="showModal" class="modal-backdrop fade show"></div>
     </div>
     <Footer />
 </template>
@@ -137,7 +180,6 @@ import Footer from '@/components/home/Footer.vue';
 
 export default {
     name: 'PaperDownloadView',
-
     components: {
         Navbar,
         Footer,
@@ -153,8 +195,10 @@ export default {
                 rating: 0,
                 comment: '',
             },
-            reviewSuccess: false,
+            isSubmittingReview: false,
             submissionError: null,
+            isDownloading: null,
+            isDownloadingAll: false,
         };
     },
     methods: {
@@ -168,92 +212,105 @@ export default {
                 return;
             }
 
-            const paperIds = idsQuery
-                .split(',')
-                .map((id) => parseInt(id.trim(), 10))
-                .filter(Boolean);
-
             try {
+                const paperIds = idsQuery
+                    .split(',')
+                    .map((id) => parseInt(id.trim(), 10))
+                    .filter(Boolean);
+
                 const results = await Promise.all(
                     paperIds.map(async (id) => {
                         try {
-                            const paper = await this.fetchPaperById(id);
-                            return paper;
+                            return await this.fetchPaperById(id);
                         } catch {
                             return null;
                         }
                     }),
                 );
+
                 this.paperDetailsList = results.filter(Boolean);
                 if (this.paperDetailsList.length === 0) {
                     this.errorMessage = 'No valid papers found.';
-                } else {
-                    toast.success('Papers loaded successfully!');
                 }
-            } catch {
-                this.paperDetailsList = [];
-                toast.error('Failed to load papers.');
+            } catch (error) {
+                console.error('Failed to load papers:', error);
                 this.errorMessage = 'There was a problem fetching your downloads.';
+                toast.error('Failed to load papers');
             } finally {
                 this.isLoading = false;
             }
         },
 
         async downloadSinglePaper(paperId) {
+            this.isDownloading = paperId;
             try {
                 const fileUrl = await this.downloadPaperById(paperId);
                 if (fileUrl) {
                     window.open(fileUrl, '_blank');
-                    toast.success('Paper downloaded successfully!');
-                } else {
-                    throw new Error('No download URL found.');
+                    toast.success('Download started successfully!');
                 }
-            } catch {
-                toast.error('Failed to download paper.');
+            } catch (error) {
+                console.error('Download failed:', error);
+                toast.error('Failed to download paper');
+            } finally {
+                this.isDownloading = null;
+            }
+        },
+
+        async downloadAllPapers() {
+            this.isDownloadingAll = true;
+            try {
+                for (const paper of this.paperDetailsList) {
+                    await this.downloadSinglePaper(paper.id);
+                }
+                toast.success('All downloads started successfully!');
+            } catch (error) {
+                console.error('Batch download failed:', error);
+                toast.error('Some downloads failed');
+            } finally {
+                this.isDownloadingAll = false;
             }
         },
 
         openReviewModal(paper) {
             this.selectedPaper = paper;
-            this.reviewForm = { rating: 0, comment: '' };
-            this.submissionError = null;
-            this.reviewSuccess = false;
             this.showModal = true;
         },
 
         closeReviewModal() {
             this.showModal = false;
-            this.selectedPaper = null;
+            this.reviewForm = { rating: 0, comment: '' };
+            this.submissionError = null;
         },
 
         async submitReview() {
-            if (!this.selectedPaper || !this.selectedPaper.id) {
-                this.submissionError = 'Paper not selected.';
+            if (!this.selectedPaper?.id) {
+                this.submissionError = 'No paper selected for review';
                 return;
             }
 
-            const reviewPayload = {
-                rating: this.reviewForm.rating,
-                comment: this.reviewForm.comment,
-            };
+            this.isSubmittingReview = true;
+            this.submissionError = null;
 
             try {
                 await this.submitPaperReview({
                     paper: this.selectedPaper.id,
-                    reviewData: reviewPayload,
+                    reviewData: this.reviewForm,
                 });
-                this.reviewSuccess = true;
-                this.submissionError = null;
                 toast.success('Review submitted successfully!');
                 this.closeReviewModal();
-            } catch {
-                this.submissionError = 'Failed to submit review. Please try again.';
+            } catch (error) {
+                console.error('Review submission failed:', error);
+                this.submissionError = error.response?.data?.message || 'Failed to submit review';
+                toast.error('Review submission failed');
+            } finally {
+                this.isSubmittingReview = false;
             }
         },
 
         formatDate(dateStr) {
             if (!dateStr) return '—';
-            return new Date(dateStr).toLocaleDateString(undefined, {
+            return new Date(dateStr).toLocaleDateString('en-US', {
                 year: 'numeric',
                 month: 'short',
                 day: 'numeric',
@@ -267,16 +324,97 @@ export default {
 </script>
 
 <style scoped>
-.card-title {
-    font-weight: 600;
+.success-animation {
+    width: 100px;
+    height: 100px;
+    margin: 0 auto;
 }
+
+.checkmark__circle {
+    stroke-dasharray: 166;
+    stroke-dashoffset: 166;
+    stroke-width: 2;
+    stroke-miterlimit: 10;
+    stroke: #28a745;
+    fill: none;
+    animation: stroke 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards;
+}
+
+.checkmark {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    display: block;
+    stroke-width: 2;
+    stroke: #fff;
+    stroke-miterlimit: 10;
+    margin: 0 auto;
+    box-shadow: 0 0 0 rgba(40, 167, 69, 0.4);
+    animation:
+        fill 0.4s ease-in-out 0.4s forwards,
+        scale 0.3s ease-in-out 0.9s both;
+}
+
+.checkmark__check {
+    transform-origin: 50% 50%;
+    stroke-dasharray: 48;
+    stroke-dashoffset: 48;
+    animation: stroke 0.3s cubic-bezier(0.65, 0, 0.45, 1) 0.8s forwards;
+}
+
+@keyframes stroke {
+    100% {
+        stroke-dashoffset: 0;
+    }
+}
+
+@keyframes scale {
+    0%,
+    100% {
+        transform: none;
+    }
+    50% {
+        transform: scale3d(1.1, 1.1, 1);
+    }
+}
+
+@keyframes fill {
+    100% {
+        box-shadow: inset 0 0 0 100px rgba(40, 167, 69, 0.1);
+    }
+}
+
+.hover-lift {
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.hover-lift:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.1) !important;
+}
+
+.star-rating {
+    display: flex;
+    align-items: center;
+}
+
 .modal-backdrop {
     z-index: 1040;
+    background-color: rgba(0, 0, 0, 0.5);
 }
+
 .modal {
     z-index: 1050;
 }
-.success-icon {
-    font-size: 3rem;
+
+.card {
+    border-radius: 0.75rem;
+}
+
+.btn {
+    border-radius: 0.5rem;
+    padding: 0.5rem 1.25rem;
 }
 </style>

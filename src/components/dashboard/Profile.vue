@@ -1,62 +1,61 @@
 <template>
-    <div class="container my-5">
-        <div class="card shadow-lg">
-            <div class="card-body bg-light">
-                <div class="d-flex justify-content-between align-items-center mb-4">
+    <div class="profile-container">
+        <!-- Profile Card -->
+        <div class="card profile-card shadow-sm border-0 overflow-hidden">
+            <div class="card-header bg-primary text-white py-3">
+                <div class="d-flex justify-content-between align-items-center">
                     <div>
-                        <h2 class="card-title text-primary">User Profile</h2>
-                        <p class="text-muted mb-0">Manage your personal information</p>
+                        <h2 class="h5 mb-0">
+                            <i class="bi bi-person-circle me-2"></i>User Profile
+                        </h2>
+                        <p class="small mb-0 opacity-75">Manage your personal information</p>
                     </div>
-                    <button class="btn btn-primary" @click="openModal">
-                        <i class="bi bi-pencil-square me-2"></i>Edit Profile
+                    <button class="btn btn-light btn-sm" @click="openModal">
+                        <i class="bi bi-pencil-square me-1"></i>Edit
                     </button>
                 </div>
+            </div>
 
-                <div class="row gy-3">
-                    <div class="col-md-3 text-center">
-                        <img
-                            :src="userDetails.avatar || defaultAvatar"
-                            class="img-thumbnail rounded-circle"
-                            style="width: 150px; height: 150px; object-fit: cover"
-                            alt="Avatar"
-                        />
+            <div class="card-body">
+                <div class="row align-items-center">
+                    <!-- Avatar Column -->
+                    <div class="col-md-3 text-center mb-4 mb-md-0">
+                        <div class="avatar-container position-relative mx-auto">
+                            <img
+                                :src="userDetails.avatar || defaultAvatar"
+                                class="img-thumbnail rounded-circle border-primary"
+                                style="width: 150px; height: 150px; object-fit: cover"
+                                alt="Profile Avatar"
+                            />
+                            <div class="online-status bg-success rounded-circle"></div>
+                        </div>
                     </div>
-                    <div class="col-md-9 row gy-3">
-                        <div class="col-md-6">
-                            <label class="form-label fw-bold">Full Name</label>
-                            <p class="form-control-plaintext">{{ userDetails.full_name }}</p>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label fw-bold">Email</label>
-                            <p class="form-control-plaintext">{{ userDetails.email }}</p>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label fw-bold">School</label>
-                            <p class="form-control-plaintext">{{ userDetails.school }}</p>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label fw-bold">Country</label>
-                            <p class="form-control-plaintext">{{ userDetails.country }}</p>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label fw-bold">Course</label>
-                            <p class="form-control-plaintext">{{ userDetails.course }}</p>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label fw-bold">Gender</label>
-                            <p class="form-control-plaintext text-capitalize">
-                                {{ userDetails.gender }}
-                            </p>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label fw-bold">Birth Year</label>
-                            <p class="form-control-plaintext">{{ userDetails.birth_year }}</p>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label fw-bold">School Type</label>
-                            <p class="form-control-plaintext">
-                                {{ getSchoolTypeLabel(userDetails.school_type) }}
-                            </p>
+
+                    <!-- Details Column -->
+                    <div class="col-md-9">
+                        <div class="row gy-3">
+                            <template v-for="(field, index) in profileFields" :key="index">
+                                <div class="col-md-6" v-if="userDetails[field.key]">
+                                    <div class="profile-field">
+                                        <label class="text-muted small text-uppercase fw-bold">{{
+                                            field.label
+                                        }}</label>
+                                        <p class="mb-0 fw-semibold">
+                                            {{ userDetails[field.key] || 'Not specified' }}
+                                        </p>
+                                    </div>
+                                </div>
+                            </template>
+                            <div class="col-md-6" v-if="userDetails.school_type">
+                                <div class="profile-field">
+                                    <label class="text-muted small text-uppercase fw-bold"
+                                        >School Type</label
+                                    >
+                                    <p class="mb-0 fw-semibold">
+                                        {{ getSchoolTypeLabel(userDetails.school_type) }}
+                                    </p>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -64,131 +63,193 @@
         </div>
 
         <!-- Edit Modal -->
-        <div class="modal fade show d-block" v-if="showModal" tabindex="-1">
-            <div class="modal-dialog modal-lg">
-                <div class="modal-content shadow">
+        <div
+            class="modal fade"
+            :class="{ show: showModal }"
+            tabindex="-1"
+            :style="{ display: showModal ? 'block' : 'none' }"
+        >
+            <div class="modal-dialog modal-lg modal-dialog-centered">
+                <div class="modal-content border-0 shadow-lg">
                     <div class="modal-header bg-primary text-white">
-                        <h5 class="modal-title">Edit Profile</h5>
+                        <h5 class="modal-title">
+                            <i class="bi bi-pencil-square me-2"></i>Edit Profile
+                        </h5>
                         <button
                             type="button"
                             class="btn-close btn-close-white"
                             @click="closeModal"
+                            aria-label="Close"
                         ></button>
                     </div>
+
                     <form @submit.prevent="saveProfileChanges">
-                        <div class="modal-body row g-3">
-                            <div class="col-12 text-center">
-                                <img
-                                    :src="avatarPreview || userDetails.avatar || defaultAvatar"
-                                    class="rounded-circle mb-3"
-                                    style="width: 120px; height: 120px; object-fit: cover"
-                                />
-                            </div>
-
-                            <div class="col-md-6">
-                                <label class="form-label">First Name</label>
-                                <input
-                                    v-model="form.first_name"
-                                    type="text"
-                                    class="form-control"
-                                    :disabled="loading"
-                                />
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label">Last Name</label>
-                                <input
-                                    v-model="form.last_name"
-                                    type="text"
-                                    class="form-control"
-                                    :disabled="loading"
-                                />
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label">Email</label>
-                                <input
-                                    v-model="form.email"
-                                    type="email"
-                                    class="form-control"
-                                    :disabled="loading"
-                                />
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label">School</label>
-                                <input v-model="form.school" type="text" class="form-control" />
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label">Country</label>
-                                <input v-model="form.country" type="text" class="form-control" />
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label">Course</label>
-                                <input v-model="form.course" type="text" class="form-control" />
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label">Gender</label>
-                                <select v-model="form.gender" class="form-select">
-                                    <option value="" disabled>Select Gender</option>
-                                    <option value="male">Male</option>
-                                    <option value="female">Female</option>
-                                    <option value="other">Other</option>
-                                </select>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label">Birth Year</label>
-                                <input
-                                    v-model="form.birth_year"
-                                    type="number"
-                                    min="1900"
-                                    max="2100"
-                                    class="form-control"
-                                />
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label">Avatar</label>
-                                <input
-                                    type="file"
-                                    @change="handleAvatarChange"
-                                    class="form-control"
-                                    accept="image/*"
-                                />
-                            </div>
-
-                            <div class="col-12">
-                                <label class="form-label">School Type</label>
-                                <div class="list-group">
+                        <div class="modal-body">
+                            <!-- Avatar Upload -->
+                            <div class="text-center mb-4">
+                                <div class="avatar-upload position-relative d-inline-block">
+                                    <img
+                                        :src="avatarPreview || userDetails.avatar || defaultAvatar"
+                                        class="rounded-circle border border-3 border-primary"
+                                        style="width: 120px; height: 120px; object-fit: cover"
+                                    />
                                     <label
-                                        v-for="(type, index) in schoolTypes"
-                                        :key="index"
-                                        class="list-group-item list-group-item-action d-flex align-items-center"
-                                        :class="{ active: form.school_type === type.value }"
-                                        @click="form.school_type = type.value"
-                                        style="cursor: pointer"
+                                        class="avatar-upload-label rounded-circle bg-primary text-white"
                                     >
-                                        <i
-                                            :class="['me-3', type.icon]"
-                                            style="font-size: 1.5rem"
-                                        ></i>
-                                        <div>
-                                            <div class="fw-semibold">{{ type.label }}</div>
-                                            <div class="text-muted small">
-                                                {{ type.description }}
+                                        <i class="bi bi-camera-fill"></i>
+                                        <input
+                                            type="file"
+                                            @change="handleAvatarChange"
+                                            class="d-none"
+                                            accept="image/*"
+                                        />
+                                    </label>
+                                </div>
+                            </div>
+
+                            <!-- Form Fields -->
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="form-label"
+                                        >First Name <span class="text-danger">*</span></label
+                                    >
+                                    <input
+                                        v-model="form.first_name"
+                                        type="text"
+                                        class="form-control"
+                                        :class="{ 'is-invalid': !form.first_name && formSubmitted }"
+                                        :disabled="loading"
+                                        required
+                                    />
+                                    <div class="invalid-feedback">First name is required</div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label"
+                                        >Last Name <span class="text-danger">*</span></label
+                                    >
+                                    <input
+                                        v-model="form.last_name"
+                                        type="text"
+                                        class="form-control"
+                                        :class="{ 'is-invalid': !form.last_name && formSubmitted }"
+                                        :disabled="loading"
+                                        required
+                                    />
+                                    <div class="invalid-feedback">Last name is required</div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label"
+                                        >Email <span class="text-danger">*</span></label
+                                    >
+                                    <input
+                                        v-model="form.email"
+                                        type="email"
+                                        class="form-control"
+                                        :class="{
+                                            'is-invalid':
+                                                (!form.email || !isValidEmail(form.email)) &&
+                                                formSubmitted,
+                                        }"
+                                        :disabled="loading"
+                                        required
+                                    />
+                                    <div class="invalid-feedback">Valid email is required</div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">School</label>
+                                    <input v-model="form.school" type="text" class="form-control" />
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Country</label>
+                                    <input
+                                        v-model="form.country"
+                                        type="text"
+                                        class="form-control"
+                                    />
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Course</label>
+                                    <input v-model="form.course" type="text" class="form-control" />
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Gender</label>
+                                    <select v-model="form.gender" class="form-select">
+                                        <option value="" disabled>Select Gender</option>
+                                        <option value="male">Male</option>
+                                        <option value="female">Female</option>
+                                        <option value="other">Other</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Birth Year</label>
+                                    <input
+                                        v-model="form.birth_year"
+                                        type="number"
+                                        min="1900"
+                                        max="2100"
+                                        class="form-control"
+                                    />
+                                </div>
+
+                                <!-- School Type Selection -->
+                                <div class="col-12">
+                                    <label class="form-label">School Type</label>
+                                    <div class="row g-2">
+                                        <div
+                                            class="col-md-4"
+                                            v-for="(type, index) in schoolTypes"
+                                            :key="index"
+                                        >
+                                            <div
+                                                class="card h-100 school-type-card"
+                                                :class="{
+                                                    'border-primary':
+                                                        form.school_type === type.value,
+                                                }"
+                                                @click="form.school_type = type.value"
+                                            >
+                                                <div class="card-body text-center">
+                                                    <div class="icon-container mb-3">
+                                                        <i
+                                                            :class="[
+                                                                'bi',
+                                                                type.icon,
+                                                                'text-primary',
+                                                            ]"
+                                                            style="font-size: 1.75rem"
+                                                        ></i>
+                                                    </div>
+                                                    <h6 class="card-title mb-1">
+                                                        {{ type.label }}
+                                                    </h6>
+                                                    <p class="card-text text-muted small">
+                                                        {{ type.description }}
+                                                    </p>
+                                                </div>
                                             </div>
                                         </div>
-                                    </label>
+                                    </div>
                                 </div>
                             </div>
                         </div>
 
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" @click="closeModal">
+                        <div class="modal-footer border-top-0">
+                            <button
+                                type="button"
+                                class="btn btn-outline-secondary"
+                                @click="closeModal"
+                                :disabled="loading"
+                            >
                                 Cancel
                             </button>
-                            <button type="submit" class="btn btn-success" :disabled="loading">
-                                <span v-if="loading">
+                            <button type="submit" class="btn btn-primary" :disabled="loading">
+                                <template v-if="loading">
                                     <span class="spinner-border spinner-border-sm me-1"></span>
                                     Saving...
-                                </span>
-                                <span v-else>Save Changes</span>
+                                </template>
+                                <template v-else>
+                                    <i class="bi bi-check-circle me-1"></i>Save Changes
+                                </template>
                             </button>
                         </div>
                     </form>
@@ -196,7 +257,7 @@
             </div>
         </div>
 
-        <div class="modal-backdrop fade show" v-if="showModal"></div>
+        <div class="modal-backdrop fade" :class="{ show: showModal }" v-if="showModal"></div>
     </div>
 </template>
 
@@ -205,11 +266,12 @@ import { mapActions } from 'vuex';
 import { toast } from 'vue3-toastify';
 
 export default {
-    name: 'Profile',
+    name: 'ProfilePage',
     data() {
         return {
             showModal: false,
             loading: false,
+            formSubmitted: false,
             avatarFile: null,
             avatarPreview: null,
             defaultAvatar: '/images/avatar.png',
@@ -225,36 +287,45 @@ export default {
                 birth_year: '',
                 school_type: '',
             },
+            profileFields: [
+                { key: 'full_name', label: 'Full Name' },
+                { key: 'email', label: 'Email' },
+                { key: 'school', label: 'School' },
+                { key: 'country', label: 'Country' },
+                { key: 'course', label: 'Course' },
+                { key: 'gender', label: 'Gender' },
+                { key: 'birth_year', label: 'Birth Year' },
+            ],
             schoolTypes: [
                 {
                     value: 'high_school',
-                    label: 'High school diploma',
+                    label: 'High School',
                     description: 'Secondary level education',
-                    icon: 'icon-diploma',
+                    icon: 'bi-book',
                 },
                 {
                     value: 'degree',
                     label: 'Degree',
                     description: "Bachelor's, Masters/PhD",
-                    icon: 'icon-laurea',
+                    icon: 'bi-mortarboard',
                 },
                 {
                     value: 'post_graduate',
-                    label: 'Post-graduate course',
-                    description: 'Masters, PhD, Training Courses',
-                    icon: 'icon-corso-post',
+                    label: 'Post-graduate',
+                    description: 'Masters, PhD, Training',
+                    icon: 'bi-award',
                 },
                 {
                     value: 'competition',
-                    label: 'Competition, State Examination',
-                    description: 'Prep for exams and qualifications',
-                    icon: 'icon-concorso',
+                    label: 'Competition',
+                    description: 'Exams and qualifications',
+                    icon: 'bi-clipboard-check',
                 },
                 {
                     value: 'self_culture',
                     label: 'Self-culture',
-                    description: 'Autonomous learning and personal study',
-                    icon: 'icon-cultura',
+                    description: 'Personal study',
+                    icon: 'bi-lightbulb',
                 },
             ],
         };
@@ -274,6 +345,7 @@ export default {
         },
         openModal() {
             this.showModal = true;
+            this.formSubmitted = false;
             this.avatarFile = null;
             this.avatarPreview = null;
             this.form = {
@@ -296,36 +368,42 @@ export default {
         handleAvatarChange(event) {
             const file = event.target.files[0];
             if (file) {
+                if (file.size > 2 * 1024 * 1024) {
+                    toast.error('Image size should be less than 2MB');
+                    return;
+                }
                 this.avatarFile = file;
                 this.avatarPreview = URL.createObjectURL(file);
             }
+        },
+        isValidEmail(email) {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return emailRegex.test(email);
         },
         getSchoolTypeLabel(value) {
             const match = this.schoolTypes.find((type) => type.value === value);
             return match ? match.label : value;
         },
         async saveProfileChanges() {
+            this.formSubmitted = true;
             this.loading = true;
 
-            const data = { ...this.form };
-            if (!data.first_name || !data.last_name || !data.email) {
-                toast.error('First name, last name, and email are required.');
-                this.loading = false;
-                return;
-            }
-
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            if (!emailRegex.test(data.email)) {
-                toast.error('Enter a valid email address.');
+            // Validate required fields
+            if (
+                !this.form.first_name ||
+                !this.form.last_name ||
+                !this.form.email ||
+                !this.isValidEmail(this.form.email)
+            ) {
                 this.loading = false;
                 return;
             }
 
             try {
                 const formData = new FormData();
-                for (const key in data) {
-                    if (data[key] !== null && data[key] !== undefined) {
-                        formData.append(key, data[key]);
+                for (const key in this.form) {
+                    if (this.form[key] !== null && this.form[key] !== undefined) {
+                        formData.append(key, this.form[key]);
                     }
                 }
                 if (this.avatarFile) {
@@ -347,7 +425,93 @@ export default {
 </script>
 
 <style scoped>
-.modal {
-    display: block;
+.profile-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem 1rem;
+}
+
+.profile-card {
+    border-radius: 0.75rem;
+}
+
+.avatar-container {
+    width: 150px;
+    height: 150px;
+    position: relative;
+}
+
+.online-status {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    width: 15px;
+    height: 15px;
+    border: 2px solid white;
+}
+
+.profile-field {
+    background-color: #f8f9fa;
+    border-radius: 0.5rem;
+    padding: 0.75rem 1rem;
+    height: 100%;
+}
+
+.avatar-upload {
+    position: relative;
+}
+
+.avatar-upload-label {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+.school-type-card {
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: 1px solid #dee2e6;
+}
+
+.school-type-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
+}
+
+.icon-container {
+    width: 50px;
+    height: 50px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(13, 110, 253, 0.1);
+    border-radius: 50%;
+}
+
+.modal-content {
+    border-radius: 0.75rem;
+    overflow: hidden;
+}
+
+.modal-backdrop.show {
+    opacity: 0.5;
+}
+
+@media (max-width: 768px) {
+    .profile-container {
+        padding: 1rem 0.5rem;
+    }
+
+    .avatar-container {
+        width: 120px;
+        height: 120px;
+    }
 }
 </style>
