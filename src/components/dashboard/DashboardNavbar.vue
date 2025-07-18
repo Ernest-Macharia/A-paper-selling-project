@@ -41,11 +41,11 @@
 
                 <!-- User Menu -->
                 <div
-                    class="d-flex align-items-center ms-lg-auto flex-column flex-lg-row gap-2 w-80 w-lg-auto"
+                    class="d-flex align-items-center ms-lg-auto flex-column flex-lg-row gap-2 w-100 w-lg-auto"
                 >
                     <div class="dropdown w-100 w-lg-auto">
                         <button
-                            class="btn btn-outline-light dropdown-toggle d-flex align-items-center w-80 float-end justify-content-center"
+                            class="btn btn-outline-light dropdown-toggle d-flex align-items-center w-100 float-end justify-content-center"
                             type="button"
                             id="dashboardMenu"
                             data-bs-toggle="dropdown"
@@ -86,7 +86,7 @@
                         </ul>
                     </div>
 
-                    <div class="dropdown w-80 w-lg-auto">
+                    <div class="dropdown w-100 w-lg-auto">
                         <button
                             class="btn btn-light dropdown-toggle d-flex align-items-center w-100 float-end justify-content-center"
                             type="button"
