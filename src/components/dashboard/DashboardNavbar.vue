@@ -1,6 +1,6 @@
 <template>
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary sticky-top shadow-sm">
-        <div class="container">
+        <div class="container-fluid px-3 px-md-4">
             <!-- Brand Logo -->
             <router-link class="navbar-brand d-flex align-items-center" to="/">
                 <img
@@ -27,7 +27,7 @@
             <!-- Navbar Content -->
             <div class="collapse navbar-collapse" id="dashboardNavbar">
                 <!-- Main Navigation -->
-                <ul class="navbar-nav me-auto">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                     <li class="nav-item">
                         <router-link
                             class="nav-link d-flex align-items-center"
@@ -40,10 +40,12 @@
                 </ul>
 
                 <!-- User Menu -->
-                <div class="d-flex align-items-center ms-auto">
-                    <div class="dropdown">
+                <div
+                    class="d-flex align-items-center ms-lg-auto flex-column flex-lg-row gap-2 w-80 w-lg-auto"
+                >
+                    <div class="dropdown w-100 w-lg-auto">
                         <button
-                            class="btn btn-outline-light dropdown-toggle d-flex align-items-center"
+                            class="btn btn-outline-light dropdown-toggle d-flex align-items-center w-80 float-end justify-content-center"
                             type="button"
                             id="dashboardMenu"
                             data-bs-toggle="dropdown"
@@ -52,7 +54,7 @@
                             <i class="bi bi-journal-bookmark me-1"></i> My Content
                         </button>
                         <ul
-                            class="dropdown-menu dropdown-menu-end shadow"
+                            class="dropdown-menu dropdown-menu-lg-end shadow w-100"
                             aria-labelledby="dashboardMenu"
                         >
                             <li>
@@ -84,9 +86,9 @@
                         </ul>
                     </div>
 
-                    <div class="dropdown ms-2">
+                    <div class="dropdown w-80 w-lg-auto">
                         <button
-                            class="btn btn-light dropdown-toggle d-flex align-items-center"
+                            class="btn btn-light dropdown-toggle d-flex align-items-center w-100 float-end justify-content-center"
                             type="button"
                             id="userMenu"
                             data-bs-toggle="dropdown"
@@ -96,7 +98,7 @@
                             <span class="d-none d-lg-inline">Account</span>
                         </button>
                         <ul
-                            class="dropdown-menu dropdown-menu-end shadow"
+                            class="dropdown-menu dropdown-menu-lg-end shadow w-100"
                             aria-labelledby="userMenu"
                         >
                             <li>
@@ -104,11 +106,6 @@
                                     <i class="bi bi-person me-2"></i> Profile
                                 </router-link>
                             </li>
-                            <!-- <li>
-                                <router-link class="dropdown-item" to="/dashboard/settings">
-                                    <i class="bi bi-gear me-2"></i> Settings
-                                </router-link>
-                            </li> -->
                             <li><hr class="dropdown-divider" /></li>
                             <li>
                                 <button class="dropdown-item text-danger" @click="showLogoutModal">
@@ -205,8 +202,8 @@ export default {
 }
 
 .dropdown-menu {
-    min-width: 240px;
     border: none;
+    margin-top: 0.5rem;
 }
 
 .dropdown-item {
@@ -233,7 +230,25 @@ export default {
     }
 
     .dropdown {
-        margin-top: 0.5rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .dropdown-menu {
+        width: calc(100vw - 2rem) !important;
+        left: 50% !important;
+        transform: translateX(-50%) !important;
+        max-width: 300px;
+    }
+
+    .dropdown-toggle {
+        text-align: center;
+    }
+}
+
+@media (max-width: 575.98px) {
+    .container-fluid {
+        padding-left: 1rem;
+        padding-right: 1rem;
     }
 }
 </style>

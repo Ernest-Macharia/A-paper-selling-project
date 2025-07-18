@@ -99,7 +99,6 @@
                                 >
                                     Please set a valid price
                                 </div>
-                                <small class="text-muted">Recommended price: $5-$20</small>
                             </div>
 
                             <!-- Category, Course, School in responsive grid -->
@@ -204,9 +203,15 @@
                                         >
                                             <i class="bi bi-folder2-open me-2"></i>Browse Files
                                         </button>
-                                        <p class="small text-muted mt-2 mb-0">
-                                            Supported formats: PDF, DOCX, PPTX (Max 50MB)
-                                        </p>
+                                        <p class="small text-muted mt-2 mb-0">Max 50MB per file</p>
+
+                                        <!-- Help Text -->
+                                        <div class="text-center mt-4">
+                                            <p class="text-muted small">
+                                                <i class="bi bi-shield-lock me-1"></i> Your paper
+                                                will be reviewed before publishing
+                                            </p>
+                                        </div>
                                     </div>
 
                                     <div
@@ -277,14 +282,6 @@
                             </div>
                         </form>
                     </div>
-                </div>
-
-                <!-- Help Text -->
-                <div class="text-center mt-4">
-                    <p class="text-muted small">
-                        <i class="bi bi-shield-lock me-1"></i> Your paper will be reviewed before
-                        publishing
-                    </p>
                 </div>
             </div>
         </div>

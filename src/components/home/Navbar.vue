@@ -1,6 +1,6 @@
 <template>
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary sticky-top shadow-sm">
-        <div class="container">
+        <div class="container-fluid px-3 px-lg-4">
             <!-- Brand Logo -->
             <router-link class="navbar-brand d-flex align-items-center" to="/">
                 <img
@@ -27,14 +27,22 @@
             <!-- Navbar Content -->
             <div class="collapse navbar-collapse" id="navbarContent">
                 <!-- Main Navigation -->
-                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                <ul class="navbar-nav me-auto mb-3 mb-lg-0">
                     <li class="nav-item">
-                        <router-link class="nav-link" active-class="active" to="/courses">
+                        <router-link
+                            class="nav-link d-flex align-items-center"
+                            active-class="active"
+                            to="/courses"
+                        >
                             <i class="bi bi-journal-bookmark me-1"></i> Courses
                         </router-link>
                     </li>
                     <li class="nav-item">
-                        <router-link class="nav-link" active-class="active" to="/categories">
+                        <router-link
+                            class="nav-link d-flex align-items-center"
+                            active-class="active"
+                            to="/categories"
+                        >
                             <i class="bi bi-tags me-1"></i> Categories
                         </router-link>
                     </li>
@@ -44,7 +52,7 @@
                 <div
                     class="d-flex position-relative mx-lg-3 my-2 my-lg-0 flex-grow-1 flex-lg-grow-0"
                 >
-                    <div class="input-group search-box">
+                    <div class="input-group search-box w-100">
                         <input
                             v-model="searchQuery"
                             type="text"
@@ -60,7 +68,7 @@
                     <!-- Search Dropdown -->
                     <div
                         v-if="searchQuery"
-                        class="search-dropdown position-absolute top-100 start-0 end-0 mt-1 bg-white rounded shadow-lg z-3"
+                        class="search-dropdown position-absolute top-100 start-0 end-0 mt-1 bg-white rounded shadow-lg z-3 overflow-hidden"
                     >
                         <div
                             v-for="paper in filteredPapers"
@@ -69,10 +77,10 @@
                             @click="goToPaper(paper.id)"
                         >
                             <div class="d-flex justify-content-between">
-                                <span class="fw-semibold">{{ paper.title }}</span>
-                                <span class="text-success small">${{ paper.price }}</span>
+                                <span class="fw-semibold text-truncate">{{ paper.title }}</span>
+                                <span class="text-success small ms-2">${{ paper.price }}</span>
                             </div>
-                            <div class="text-muted small">
+                            <div class="text-muted small text-truncate">
                                 {{ paper.course?.name || paper.category?.name }}
                             </div>
                         </div>
@@ -94,35 +102,37 @@
                 </div>
 
                 <!-- Auth Buttons -->
-                <div class="d-flex ms-lg-2">
+                <div class="d-flex ms-lg-2 mt-2 mt-lg-0">
                     <template v-if="!isAuthenticated">
                         <router-link
-                            class="btn btn-outline-light mx-1 d-flex align-items-center"
+                            class="btn btn-outline-light mx-1 d-flex align-items-center justify-content-center"
                             to="/login"
                         >
                             <i class="bi bi-box-arrow-in-right me-1"></i> Login
                         </router-link>
                         <router-link
-                            class="btn btn-success mx-1 d-flex align-items-center"
+                            class="btn btn-success mx-1 d-flex align-items-center justify-content-center"
                             to="/register"
                         >
                             <i class="bi bi-upload me-1"></i> Sell Papers
                         </router-link>
                     </template>
                     <template v-else>
-                        <div class="dropdown">
+                        <div class="dropdown w-100">
                             <button
-                                class="btn btn-outline-light dropdown-toggle d-flex align-items-center"
+                                class="btn btn-outline-light dropdown-toggle d-flex align-items-center w-100"
                                 type="button"
                                 id="userDropdown"
                                 data-bs-toggle="dropdown"
                                 aria-expanded="false"
                             >
                                 <i class="bi bi-person-circle me-1"></i>
-                                {{ user?.first_name || 'Account' }}
+                                <span class="text-truncate">{{
+                                    user?.first_name || 'Account'
+                                }}</span>
                             </button>
                             <ul
-                                class="dropdown-menu dropdown-menu-end"
+                                class="dropdown-menu dropdown-menu-end w-100"
                                 aria-labelledby="userDropdown"
                             >
                                 <li>
@@ -252,13 +262,6 @@ export default {
             try {
                 const modal = Modal.getInstance(document.getElementById('logoutModal'));
                 if (modal) modal.hide();
-
-                // if (this.$auth0 && this.$auth0.isAuthenticated) {
-                //     await this.$auth0.logout({
-                //         logoutParams: { returnTo: window.location.origin }
-                //     });
-                // }
-
                 await this.logout();
                 this.$router.push('/');
                 toast.success('Logged out successfully');
@@ -309,11 +312,13 @@ export default {
 .search-dropdown {
     max-height: 60vh;
     overflow-y: auto;
+    width: 100%;
 }
 
 .dropdown-item {
     transition: background-color 0.2s ease;
     cursor: pointer;
+    white-space: normal;
 }
 
 .dropdown-item:hover {
@@ -329,17 +334,41 @@ export default {
 }
 
 @media (max-width: 991.98px) {
-    .search-box {
-        margin-left: 0;
-        margin-right: 0;
-        width: 100%;
-    }
-
     .navbar-collapse {
         padding: 1rem;
         background-color: rgba(13, 110, 253, 0.98);
         border-radius: 0.5rem;
         margin-top: 0.5rem;
+    }
+
+    .search-box {
+        margin: 0.5rem 0;
+        max-width: 100%;
+    }
+
+    .search-dropdown {
+        left: 0 !important;
+        right: 0 !important;
+        width: calc(100vw - 2rem) !important;
+        max-width: 100%;
+    }
+
+    .dropdown-menu {
+        width: 100% !important;
+    }
+
+    .btn {
+        width: 100%;
+        margin: 0.25rem 0 !important;
+        text-align: center;
+        justify-content: center;
+    }
+}
+
+@media (max-width: 575.98px) {
+    .container-fluid {
+        padding-left: 1rem;
+        padding-right: 1rem;
     }
 }
 </style>
