@@ -8,7 +8,6 @@
                     <h2 class="h5 mb-3 mb-md-0">
                         <i class="bi bi-upload me-2"></i>My Uploaded Papers
                     </h2>
-
                     <div class="search-bar position-relative" style="max-width: 400px">
                         <input
                             v-model="searchQuery"
@@ -42,7 +41,7 @@
                     <i class="bi bi-file-earmark-x text-muted" style="font-size: 3rem"></i>
                     <h3 class="h5 mt-3">No Uploads Found</h3>
                     <p class="text-muted">Papers you upload will appear here</p>
-                    <router-link to="/upload" class="btn btn-primary mt-3">
+                    <router-link to="/upload-file" class="btn btn-primary mt-3">
                         <i class="bi bi-plus-circle me-1"></i>Upload New Paper
                     </router-link>
                 </div>
@@ -84,6 +83,7 @@
                                             <i :class="sortIcon('views')" class="ms-2"></i>
                                         </div>
                                     </th>
+                                    <th>Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -142,6 +142,34 @@
                                             {{ paper.views }}
                                         </span>
                                     </td>
+                                    <td class="text-nowrap">
+                                        <button
+                                            @click.stop="openEditModal(paper)"
+                                            class="btn btn-sm btn-outline-primary me-1"
+                                            title="Edit"
+                                            :disabled="isProcessing"
+                                        >
+                                            <i class="bi bi-pencil"></i>
+                                        </button>
+                                        <button
+                                            @click.stop="confirmDelete(paper.id)"
+                                            class="btn btn-sm btn-outline-danger"
+                                            title="Delete"
+                                            :disabled="
+                                                isProcessing || deletingPapers.includes(paper.id)
+                                            "
+                                        >
+                                            <i
+                                                v-if="!deletingPapers.includes(paper.id)"
+                                                class="bi bi-trash"
+                                            ></i>
+                                            <span
+                                                v-else
+                                                class="spinner-border spinner-border-sm"
+                                                role="status"
+                                            ></span>
+                                        </button>
+                                    </td>
                                 </tr>
                             </tbody>
                         </table>
@@ -159,7 +187,6 @@
                                     <i class="bi bi-chevron-left"></i>
                                 </button>
                             </li>
-
                             <li
                                 v-for="page in visiblePages"
                                 :key="page"
@@ -170,7 +197,6 @@
                                     {{ page }}
                                 </button>
                             </li>
-
                             <li class="page-item" :class="{ disabled: currentPage === totalPages }">
                                 <button
                                     class="page-link"
@@ -185,11 +211,175 @@
                 </div>
             </div>
         </div>
+
+        <!-- Edit Paper Modal -->
+        <div
+            class="modal fade"
+            id="editPaperModal"
+            tabindex="-1"
+            aria-hidden="true"
+            ref="editModal"
+        >
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Edit Paper</h5>
+                        <button
+                            type="button"
+                            class="btn-close"
+                            data-bs-dismiss="modal"
+                            aria-label="Close"
+                        ></button>
+                    </div>
+                    <div class="modal-body">
+                        <form v-if="editingPaper" @submit.prevent="submitEdit">
+                            <div class="mb-3">
+                                <label class="form-label">Title*</label>
+                                <input
+                                    v-model="editingPaper.title"
+                                    type="text"
+                                    class="form-control"
+                                    required
+                                />
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Description</label>
+                                <textarea
+                                    v-model="editingPaper.description"
+                                    class="form-control"
+                                    rows="3"
+                                ></textarea>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Price ($)</label>
+                                <input
+                                    v-model="editingPaper.price"
+                                    type="number"
+                                    step="0.01"
+                                    min="0"
+                                    class="form-control"
+                                />
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Status</label>
+                                <select v-model="editingPaper.status" class="form-select">
+                                    <option value="draft">Draft</option>
+                                    <option value="published">Published</option>
+                                    <option value="archived">Archived</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Current File</label>
+                                <div>
+                                    <a
+                                        :href="editingPaper.file"
+                                        target="_blank"
+                                        class="btn btn-sm btn-outline-secondary"
+                                    >
+                                        <i class="bi bi-file-earmark-text me-1"></i> View Current
+                                        File
+                                    </a>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Replace File (optional)</label>
+                                <input
+                                    type="file"
+                                    class="form-control"
+                                    @change="handleFileChange"
+                                    accept=".pdf,.doc,.docx"
+                                />
+                                <small class="text-muted">PDF or Word documents only</small>
+                                <small v-if="newFile" class="text-success d-block mt-1">
+                                    New file selected: {{ newFile.name }}
+                                </small>
+                            </div>
+                            <div class="d-flex justify-content-end">
+                                <button
+                                    type="button"
+                                    class="btn btn-secondary me-2"
+                                    data-bs-dismiss="modal"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    type="submit"
+                                    class="btn btn-primary"
+                                    :disabled="isSubmitting"
+                                >
+                                    <span v-if="isSubmitting">
+                                        <span
+                                            class="spinner-border spinner-border-sm"
+                                            role="status"
+                                            aria-hidden="true"
+                                        ></span>
+                                        Saving...
+                                    </span>
+                                    <span v-else>Save Changes</span>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Delete Confirmation Modal -->
+        <div
+            class="modal fade"
+            id="deleteConfirmationModal"
+            tabindex="-1"
+            aria-hidden="true"
+            ref="deleteModal"
+        >
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Confirm Deletion</h5>
+                        <button
+                            type="button"
+                            class="btn-close"
+                            data-bs-dismiss="modal"
+                            aria-label="Close"
+                        ></button>
+                    </div>
+                    <div class="modal-body">
+                        <p>
+                            Are you sure you want to delete this paper? This action cannot be
+                            undone.
+                        </p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                            Cancel
+                        </button>
+                        <button
+                            type="button"
+                            class="btn btn-danger"
+                            @click="handleDelete"
+                            :disabled="isDeleting"
+                        >
+                            <span v-if="isDeleting">
+                                <span
+                                    class="spinner-border spinner-border-sm"
+                                    role="status"
+                                    aria-hidden="true"
+                                ></span>
+                                Deleting...
+                            </span>
+                            <span v-else>Delete</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </template>
 
 <script>
-import { mapActions } from 'vuex';
+import { mapActions, mapGetters, mapState } from 'vuex';
+import { Modal } from 'bootstrap';
+import { toast } from 'vue3-toastify';
 
 export default {
     name: 'UploadedPapers',
@@ -202,9 +392,26 @@ export default {
             sortKey: 'upload_date',
             sortAsc: false,
             isLoading: false,
+
+            // Edit modal state
+            editingPaper: null,
+            newFile: null,
+            isSubmitting: false,
+
+            // Delete modal state
+            paperToDelete: null,
+            isDeleting: false,
+            isProcessing: false,
+
+            // Modal instances
+            editModal: null,
+            deleteModal: null,
         };
     },
     computed: {
+        ...mapGetters('papers', ['getPaperById']),
+        ...mapState('papers', ['deletingPapers']),
+
         filteredPapers() {
             const query = this.searchQuery.toLowerCase();
             return this.uploadedPapersList.filter((paper) =>
@@ -250,8 +457,13 @@ export default {
     async created() {
         await this.fetchUploadedPapersHandler();
     },
+    mounted() {
+        this.editModal = new Modal(this.$refs.editModal);
+        this.deleteModal = new Modal(this.$refs.deleteModal);
+    },
     methods: {
-        ...mapActions('papers', ['fetchUploadedPapers']),
+        ...mapActions('papers', ['fetchUploadedPapers', 'updatePaper', 'deletePaper']),
+
         async fetchUploadedPapersHandler() {
             this.isLoading = true;
             try {
@@ -263,6 +475,87 @@ export default {
             }
             this.isLoading = false;
         },
+
+        openEditModal(paper) {
+            this.editingPaper = { ...paper };
+            this.newFile = null;
+            this.editModal.show();
+        },
+
+        handleFileChange(event) {
+            this.newFile = event.target.files[0];
+        },
+
+        async submitEdit() {
+            this.isSubmitting = true;
+            this.isProcessing = true;
+            try {
+                const formData = new FormData();
+                formData.append('title', this.editingPaper.title);
+                formData.append('description', this.editingPaper.description);
+                formData.append('price', this.editingPaper.price);
+                formData.append('status', this.editingPaper.status);
+
+                if (this.newFile) {
+                    formData.append('file', this.newFile);
+                }
+
+                await this.updatePaper({
+                    paperId: this.editingPaper.id,
+                    formData,
+                });
+
+                toast.success('Paper updated successfully');
+                this.editModal.hide();
+                await this.fetchUploadedPapersHandler();
+            } catch (error) {
+                if (error.response?.status === 400) {
+                    const errors = error.response.data;
+                    for (const [field, messages] of Object.entries(errors)) {
+                        const message = Array.isArray(messages) ? messages.join(', ') : messages;
+                        toast.error(`${field}: ${message}`);
+                    }
+                } else {
+                    toast.error('Failed to update paper');
+                }
+            } finally {
+                this.isSubmitting = false;
+                this.isProcessing = false;
+            }
+        },
+
+        confirmDelete(paperId) {
+            this.paperToDelete = paperId;
+            this.deleteModal.show();
+        },
+
+        async handleDelete() {
+            if (!this.paperToDelete || this.isDeleting) return;
+
+            this.isDeleting = true;
+            this.isProcessing = true;
+
+            try {
+                await this.deletePaper(this.paperToDelete);
+                toast.success('Paper deleted successfully');
+                this.deleteModal.hide();
+                await this.fetchUploadedPapersHandler();
+            } catch (error) {
+                if (error.response?.status === 403) {
+                    toast.error("You don't have permission to delete this paper");
+                } else if (error.response?.status === 404) {
+                    toast.error('Paper not found');
+                } else {
+                    toast.error('Failed to delete paper');
+                }
+                console.error(error);
+            } finally {
+                this.isDeleting = false;
+                this.isProcessing = false;
+                this.paperToDelete = null;
+            }
+        },
+
         onSearch() {
             this.currentPage = 1;
         },
@@ -363,6 +656,12 @@ export default {
 .page-link {
     min-width: 40px;
     text-align: center;
+}
+
+.btn-outline-primary,
+.btn-outline-danger {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.875rem;
 }
 
 @media (max-width: 768px) {

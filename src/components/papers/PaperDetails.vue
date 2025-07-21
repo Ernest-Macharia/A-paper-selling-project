@@ -244,6 +244,12 @@
                             <span class="d-none d-sm-inline">View Cart</span>
                             <span>({{ cartCount }})</span>
                         </button>
+                        <button
+                            class="btn btn-danger flex-grow-1 d-flex justify-content-center align-items-center gap-2 py-2"
+                            @click="showCopyrightModal = true"
+                        >
+                            <i class="fas fa-flag"></i> Report Copyright
+                        </button>
                     </div>
                 </div>
             </div>
@@ -273,6 +279,82 @@
                             :current-user-id="userDetails.id"
                             :current-user-name="userDetails.name"
                         />
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div
+            class="modal fade"
+            :class="{ show: showCopyrightModal }"
+            v-if="showCopyrightModal"
+            style="display: block; background-color: rgba(0, 0, 0, 0.5)"
+        >
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content border-0 shadow-lg">
+                    <div class="modal-header bg-danger text-white">
+                        <h5 class="modal-title">
+                            <i class="fas fa-flag me-2"></i> Report Copyright Violation
+                        </h5>
+                        <button
+                            type="button"
+                            class="btn-close btn-close-white"
+                            @click="showCopyrightModal = false"
+                        ></button>
+                    </div>
+                    <div class="modal-body">
+                        <form @submit.prevent="submitCopyrightReport">
+                            <div class="mb-3">
+                                <label for="reason" class="form-label">Reason for report</label>
+                                <select
+                                    class="form-select"
+                                    id="reason"
+                                    v-model="report.reason"
+                                    required
+                                >
+                                    <option value="" disabled>Select a reason</option>
+                                    <option value="copyright">Copyright infringement</option>
+                                    <option value="plagiarism">Plagiarism</option>
+                                    <option value="unauthorized">Unauthorized distribution</option>
+                                    <option value="other">Other</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label for="details" class="form-label">Additional details</label>
+                                <textarea
+                                    class="form-control"
+                                    id="details"
+                                    rows="4"
+                                    v-model="report.details"
+                                    placeholder="Please provide any additional information that might help us investigate..."
+                                    required
+                                ></textarea>
+                            </div>
+                            <div class="mb-3">
+                                <label for="contact" class="form-label"
+                                    >Your email (optional)</label
+                                >
+                                <input
+                                    type="email"
+                                    class="form-control"
+                                    id="contact"
+                                    v-model="report.contact_email"
+                                    placeholder="Enter your email if you'd like to be contacted"
+                                />
+                            </div>
+                            <div class="d-flex justify-content-end gap-2">
+                                <button
+                                    type="button"
+                                    class="btn btn-secondary"
+                                    @click="showCopyrightModal = false"
+                                >
+                                    Cancel
+                                </button>
+                                <button type="submit" class="btn btn-danger" @click="submitReport">
+                                    <i class="fas fa-paper-plane me-2"></i> Submit Report
+                                </button>
+                            </div>
+                        </form>
                     </div>
                 </div>
             </div>
@@ -379,6 +461,13 @@ export default {
             showDescriptionModal: false,
             userDetails: null,
             showChatModal: false,
+            showCopyrightModal: false,
+            report: {
+                reason: '',
+                details: '',
+                contact_email: '',
+                paper_id: null,
+            },
         };
     },
 
@@ -397,6 +486,7 @@ export default {
     methods: {
         ...mapActions('papers', ['fetchPaperById']),
         ...mapActions('authentication', ['fetchCurrentUserDetails']),
+        ...mapActions('communications', ['submitCopyrightReport']),
         async fetchPaperDetails() {
             try {
                 const paperId = this.$route.params.id;
@@ -446,6 +536,37 @@ export default {
         handleContinueShopping() {
             this.checkoutModalVisible = false;
             this.$router.push('/papers');
+        },
+
+        async submitReport() {
+            try {
+                const reportData = {
+                    paper_id: this.paperDetails.id,
+                    reason: this.report.reason,
+                    details: this.report.details,
+                    contact_email: this.report.contact_email,
+                };
+
+                await this.submitCopyrightReport(reportData);
+
+                toast.success('Thank you for your report. We will investigate this matter.');
+                this.showCopyrightModal = false;
+                this.resetReportForm();
+            } catch (error) {
+                console.error('Error submitting copyright report:', error);
+                toast.error(
+                    error.response?.data?.message ||
+                        'Failed to submit report. Please try again later.',
+                );
+            }
+        },
+        resetReportForm() {
+            this.report = {
+                reason: '',
+                details: '',
+                contact_email: '',
+                paper_id: null,
+            };
         },
     },
 };
@@ -510,6 +631,35 @@ export default {
     color: #e74c3c; /* Red color similar to PDF icons */
     margin: 0 auto;
     width: fit-content;
+}
+
+/* Add to your existing styles */
+.btn-danger {
+    background-color: #dc3545;
+    border-color: #dc3545;
+}
+
+.btn-danger:hover {
+    background-color: #bb2d3b;
+    border-color: #b02a37;
+}
+
+.copyright-report-form .form-label {
+    font-weight: 500;
+    color: #495057;
+}
+
+.copyright-report-form .form-control,
+.copyright-report-form .form-select {
+    border-radius: 0.5rem;
+    padding: 0.75rem 1rem;
+    border: 1px solid #ced4da;
+}
+
+.copyright-report-form .form-control:focus,
+.copyright-report-form .form-select:focus {
+    border-color: #dc3545;
+    box-shadow: 0 0 0 0.25rem rgba(220, 53, 69, 0.25);
 }
 
 .table td {

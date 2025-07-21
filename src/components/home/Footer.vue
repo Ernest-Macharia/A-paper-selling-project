@@ -167,14 +167,37 @@
 
                     <div class="newsletter">
                         <h6 class="footer-subheading mb-2">Stay Updated</h6>
-                        <div class="input-group">
+                        <div v-if="!isSubscribed" class="input-group">
                             <input
                                 type="email"
+                                v-model="email"
                                 class="form-control form-control-sm"
                                 placeholder="Your email"
                                 aria-label="Email newsletter"
+                                :disabled="isLoading"
                             />
-                            <button class="btn btn-light btn-sm" type="button">Subscribe</button>
+                            <button
+                                class="btn btn-light btn-sm"
+                                type="button"
+                                @click="handleSubscribe"
+                                :disabled="isLoading || !isValidEmail"
+                            >
+                                <span v-if="isLoading">
+                                    <span
+                                        class="spinner-border spinner-border-sm"
+                                        role="status"
+                                        aria-hidden="true"
+                                    ></span>
+                                    Subscribing...
+                                </span>
+                                <span v-else>Subscribe</span>
+                            </button>
+                        </div>
+                        <div v-else class="alert alert-success mt-2 mb-0 py-1 small">
+                            Thank you for subscribing!
+                        </div>
+                        <div v-if="error" class="alert alert-danger mt-2 mb-0 py-1 small">
+                            {{ error }}
                         </div>
                     </div>
                 </div>
@@ -196,8 +219,44 @@
 </template>
 
 <script>
+import { mapGetters, mapActions } from 'vuex';
+import { toast } from 'vue3-toastify';
 export default {
-    name: 'AppFooter',
+    data() {
+        return {
+            email: '',
+        };
+    },
+    computed: {
+        ...mapGetters('communications', ['isLoading', 'isNewsletterSubscribed', 'newsletterError']),
+        isValidEmail() {
+            const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return re.test(this.email);
+        },
+        isSubscribed() {
+            return this.isNewsletterSubscribed;
+        },
+        error() {
+            return this.newsletterError;
+        },
+    },
+    methods: {
+        ...mapActions('communications', ['subscribeToNewsletter']),
+
+        async handleSubscribe() {
+            if (!this.isValidEmail) {
+                toast.error('Please enter a valid email address');
+                return;
+            }
+
+            try {
+                await this.subscribeToNewsletter(this.email);
+                toast.success('You have been subscribed to our newsletter!');
+            } catch {
+                toast.error('Failed to subscribe to newsletter');
+            }
+        },
+    },
 };
 </script>
 

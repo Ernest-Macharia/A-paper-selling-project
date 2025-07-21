@@ -29,6 +29,8 @@ const state = {
     loading: false,
     orders: [],
     orderDetails: null,
+    currentEditingPaper: null,
+    deletingPapers: [],
 };
 
 const mutations = {
@@ -88,6 +90,80 @@ const mutations = {
     },
     SET_ORDER_DETAILS(state, order) {
         state.orderDetails = order;
+    },
+    SET_CURRENT_EDITING_PAPER(state, paper) {
+        state.currentEditingPaper = paper;
+    },
+
+    UPDATE_PAPER_IN_STATE(state, updatedPaper) {
+        state.allPapers = state.allPapers.map((p) => (p.id === updatedPaper.id ? updatedPaper : p));
+        if (state.uploadedPapers.results) {
+            state.uploadedPapers.results = state.uploadedPapers.results.map((p) =>
+                p.id === updatedPaper.id ? updatedPaper : p,
+            );
+        }
+        state.mostViewedPapers = state.mostViewedPapers.map((p) =>
+            p.id === updatedPaper.id ? updatedPaper : p,
+        );
+
+        state.latestUserPapers = state.latestUserPapers.map((p) =>
+            p.id === updatedPaper.id ? updatedPaper : p,
+        );
+
+        if (state.paperDetails?.id === updatedPaper.id) {
+            state.paperDetails = updatedPaper;
+        }
+    },
+
+    ADD_DELETING_PAPER(state, paperId) {
+        if (!state.deletingPapers.includes(paperId)) {
+            state.deletingPapers.push(paperId);
+        }
+    },
+
+    REMOVE_DELETING_PAPER(state, paperId) {
+        state.deletingPapers = state.deletingPapers.filter((id) => id !== paperId);
+    },
+
+    REMOVE_PAPER_FROM_STATE(state, paperId) {
+        // Remove from allPapers array
+        if (state.allPapers && Array.isArray(state.allPapers)) {
+            state.allPapers = state.allPapers.filter((p) => p.id !== paperId);
+        }
+
+        // Remove from uploadedPapers (handling both array and paginated response)
+        if (state.uploadedPapers) {
+            if (Array.isArray(state.uploadedPapers)) {
+                state.uploadedPapers = state.uploadedPapers.filter((p) => p.id !== paperId);
+            } else if (state.uploadedPapers.results) {
+                state.uploadedPapers.results = state.uploadedPapers.results.filter(
+                    (p) => p.id !== paperId,
+                );
+                // Update count if exists
+                if (state.uploadedPapers.count !== undefined) {
+                    state.uploadedPapers.count--;
+                }
+            }
+        }
+
+        // Remove from other lists
+        if (state.mostViewedPapers && Array.isArray(state.mostViewedPapers)) {
+            state.mostViewedPapers = state.mostViewedPapers.filter((p) => p.id !== paperId);
+        }
+
+        if (state.latestUserPapers && Array.isArray(state.latestUserPapers)) {
+            state.latestUserPapers = state.latestUserPapers.filter((p) => p.id !== paperId);
+        }
+
+        // Clear current editing paper if it's the one being deleted
+        if (state.currentEditingPaper?.id === paperId) {
+            state.currentEditingPaper = null;
+        }
+
+        // Clear paperDetails if it's the current paper
+        if (state.paperDetails?.id === paperId) {
+            state.paperDetails = null;
+        }
     },
 };
 
@@ -350,6 +426,74 @@ const actions = {
         }
     },
 
+    async fetchPaperForEdit({ commit }, paperId) {
+        try {
+            commit('SET_LOADING', true);
+            const response = await api.get(`/exampapers/papers/${paperId}/`);
+            commit('SET_CURRENT_EDITING_PAPER', response.data);
+            return response.data;
+        } catch (error) {
+            console.error('Error fetching paper for edit:', error);
+            throw error;
+        } finally {
+            commit('SET_LOADING', false);
+        }
+    },
+
+    async updatePaper({ commit }, { paperId, formData }) {
+        try {
+            commit('SET_LOADING', true);
+            const config = {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+            };
+
+            const response = await api.put(`/exampapers/papers/${paperId}/`, formData, config);
+
+            commit('UPDATE_PAPER_IN_STATE', response.data);
+            return response.data;
+        } catch (error) {
+            console.error('Error updating paper:', error);
+
+            // Format validation errors for display
+            if (error.response?.status === 400) {
+                const errors = error.response.data;
+                const formattedErrors = {};
+
+                for (const [field, messages] of Object.entries(errors)) {
+                    formattedErrors[field] = Array.isArray(messages)
+                        ? messages.join(', ')
+                        : messages;
+                }
+
+                throw { ...error, formattedErrors };
+            }
+
+            throw error;
+        } finally {
+            commit('SET_LOADING', false);
+        }
+    },
+
+    async deletePaper({ commit }, paperId) {
+        try {
+            commit('SET_LOADING', true);
+            await api.delete(`/exampapers/papers/${paperId}/delete/`);
+            commit('REMOVE_PAPER_FROM_STATE', paperId);
+            return true;
+        } catch (error) {
+            console.error('Error deleting paper:', error);
+            throw error;
+        } finally {
+            commit('SET_LOADING', false);
+        }
+    },
+
+    clearEditingPaper({ commit }) {
+        commit('SET_CURRENT_EDITING_PAPER', null);
+    },
+
     async fetchOrders({ commit }) {
         const { data } = await api.get('/exampapers/orders/');
         commit('SET_ORDERS', data);
@@ -384,6 +528,15 @@ const getters = {
     reviewsGiven: (state) => state.reviewsGiven.results || [],
     reviewsReceived: (state) => state.reviewsReceived.results || [],
     isLoading: (state) => state.isLoading,
+    currentEditingPaper: (state) => state.currentEditingPaper,
+    getPaperById: (state) => (id) => {
+        return (
+            state.allPapers.find((p) => p.id === id) ||
+            (state.uploadedPapers.results || []).find((p) => p.id === id) ||
+            (state.paperDetails?.id === id ? state.paperDetails : null) ||
+            (state.currentEditingPaper?.id === id ? state.currentEditingPaper : null)
+        );
+    },
 };
 
 export default {

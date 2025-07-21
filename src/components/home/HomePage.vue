@@ -400,7 +400,7 @@
                                                 </div>
                                             </div>
                                         </li>
-                                        <li class="mb-3">
+                                        <!-- <li class="mb-3">
                                             <div class="d-flex">
                                                 <div class="me-3 text-primary">
                                                     <i class="bi bi-telephone fs-4"></i>
@@ -412,7 +412,7 @@
                                                     </p>
                                                 </div>
                                             </div>
-                                        </li>
+                                        </li> -->
                                     </ul>
 
                                     <div class="mt-5">
