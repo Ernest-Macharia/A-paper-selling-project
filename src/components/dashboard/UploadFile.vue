@@ -247,7 +247,9 @@
                             </div>
 
                             <div class="mb-4">
-                                <label class="form-label fw-semibold">Academic Year</label>
+                                <label class="form-label fw-semibold"
+                                    >Academic Year <span class="text-danger">*</span></label
+                                >
                                 <select
                                     v-model="paper.year"
                                     class="form-select"
