@@ -102,13 +102,7 @@
                                             class="fas"
                                             :class="hasPreview ? 'fa-eye' : 'fa-ban'"
                                         ></i>
-                                        {{
-                                            hasPreview
-                                                ? windowWidth < 768
-                                                    ? 'Preview'
-                                                    : 'View Preview'
-                                                : 'Preview Not Available'
-                                        }}
+                                        {{ hasPreview ? 'Preview' : 'View Preview' }}
                                     </button>
 
                                     <!-- Watermark notice -->
