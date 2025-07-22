@@ -108,6 +108,46 @@
                         </div>
                     </button>
 
+                    <!-- Paystack Payment -->
+                    <button class="payment-btn paystack-btn" @click="handlePaystackPayment">
+                        <div class="btn-icon">
+                            <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                viewBox="0 0 512 512"
+                                width="38"
+                                height="24"
+                            >
+                                <path
+                                    fill="#0A0A0A"
+                                    d="M256 0C114.6 0 0 114.6 0 256s114.6 256 256 256 256-114.6 256-256S397.4 0 256 0zm0 448c-105.9 0-192-86.1-192-192S150.1 64 256 64s192 86.1 192 192-86.1 192-192 192z"
+                                />
+                                <path
+                                    fill="#0A0A0A"
+                                    d="M256 128c-70.7 0-128 57.3-128 128s57.3 128 128 128 128-57.3 128-128-57.3-128-128-128zm0 208c-44.2 0-80-35.8-80-80s35.8-80 80-80 80 35.8 80 80-35.8 80-80 80z"
+                                />
+                            </svg>
+                        </div>
+                        <div class="btn-content">
+                            <span class="btn-title">Paystack</span>
+                            <span class="btn-subtitle">Cards, Bank Transfer, USSD</span>
+                        </div>
+                        <div class="btn-arrow">
+                            <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                width="16"
+                                height="16"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="2"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                            >
+                                <path d="M5 12h14M12 5l7 7-7 7"></path>
+                            </svg>
+                        </div>
+                    </button>
+
                     <!-- PayPal Payment -->
                     <button class="payment-btn paypal-btn" @click="handlePaypalPayment">
                         <div class="btn-icon">
@@ -218,6 +258,7 @@ export default {
             'initiateMpesaPayment',
             'createStripeSession',
             'createPaypalSession',
+            'createPaystackSession',
         ]),
 
         selectPaymentMethod(method) {
@@ -276,6 +317,22 @@ export default {
             } catch (err) {
                 this.paymentError = 'PayPal payment failed.';
                 toast.error('PayPal payment failed.');
+            } finally {
+                this.isProcessing = false;
+            }
+        },
+
+        async handlePaystackPayment() {
+            this.isProcessing = true;
+            try {
+                const checkoutUrl = await this.createPaystackSession({
+                    paperIds: this.selectedPaperIds,
+                });
+                window.location.href = checkoutUrl;
+            } catch (err) {
+                console.error('Paystack error:', err);
+                this.paymentError = 'Paystack payment failed.';
+                toast.error('Paystack payment failed.');
             } finally {
                 this.isProcessing = false;
             }
@@ -439,6 +496,14 @@ export default {
 
 .stripe-btn:hover {
     border-color: #6772e5;
+}
+
+.paystack-btn {
+    border-left: 4px solid #0a0a0a;
+}
+
+.paystack-btn:hover {
+    border-color: #0a0a0a;
 }
 
 .paypal-btn {

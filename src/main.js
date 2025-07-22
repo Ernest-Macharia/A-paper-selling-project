@@ -12,17 +12,49 @@ import App from '@/App.vue';
 import router from '@/router';
 import store from '@/store';
 import api from '@/api';
+import { toast } from 'vue3-toastify';
 
-// --- Initialize AOS ---
+// Initialize AOS
 AOS.init({ duration: 800, once: false });
 router.afterEach(() => setTimeout(() => AOS.refresh(), 500));
 
-// --- Create Vue App ---
+// Create Vue App
 const app = createApp(App);
 
-// --- Load access token and fetch user ---
-const token = localStorage.getItem('access');
+// Validate environment variables
+const requiredEnvVars = ['VITE_AUTH0_DOMAIN', 'VITE_AUTH0_CLIENT_ID', 'VITE_AUTH0_AUDIENCE'];
 
+if (import.meta.env.DEV) {
+    localStorage.removeItem('auth0.is.authenticated');
+    localStorage.removeItem('auth0.cache');
+}
+
+for (const envVar of requiredEnvVars) {
+    if (!import.meta.env[envVar]) {
+        console.error(`Missing required environment variable: ${envVar}`);
+    }
+}
+
+// Initialize Auth0
+const auth0 = createAuth0({
+    domain: import.meta.env.VITE_AUTH0_DOMAIN,
+    clientId: import.meta.env.VITE_AUTH0_CLIENT_ID,
+    authorizationParams: {
+        audience: import.meta.env.VITE_AUTH0_AUDIENCE,
+        redirect_uri: window.location.origin,
+        scope: 'openid profile email offline_access',
+    },
+    cacheLocation: 'localstorage',
+    useRefreshTokens: true,
+    useCookiesForTransactions: true,
+    cookieDomain: window.location.hostname,
+});
+
+app.config.globalProperties.$auth0 = auth0;
+app.use(auth0);
+
+// Handle existing token
+const token = localStorage.getItem('access');
 function isTokenExpired(token) {
     try {
         const payload = JSON.parse(atob(token.split('.')[1]));
@@ -41,69 +73,46 @@ if (token && !isTokenExpired(token)) {
     store.commit('authentication/LOGOUT');
 }
 
-// --- Add Tawk.to live chat widget ---
-// const tawkSrc = import.meta.env.VITE_TAWKTO_SRC;
-// if (tawkSrc) {
-//     const s1 = document.createElement('script');
-//     s1.async = true;
-//     s1.src = tawkSrc;
-//     s1.charset = 'UTF-8';
-//     s1.setAttribute('crossorigin', '*');
-
-//     const s0 = document.getElementsByTagName('script')[0];
-//     s0.parentNode.insertBefore(s1, s0);
-// }
-
-// --- Axios base URL ---
-api.defaults.baseURL = import.meta.env.VITE_API_BASE_URL || 'https://gradesworld.com/api';
-
-// --- Auth0 (Optional) ---
-
-app.use(
-    createAuth0({
-        domain: import.meta.env.VITE_AUTH0_DOMAIN,
-        clientId: import.meta.env.VITE_AUTH0_CLIENT_ID,
-        authorizationParams: {
-            audience: import.meta.env.VITE_AUTH0_AUDIENCE,
-            redirect_uri: window.location.origin,
-        },
-        cacheLocation: 'localstorage',
-        useRefreshTokens: true,
-    }),
-);
-
-const auth0 = app.config.globalProperties.$auth0;
-
-// Handle callback if returning from Auth0
+// Handle Auth0 callback
 if (window.location.search.includes('code=')) {
+    // Clear existing auth state
+    localStorage.removeItem('auth0.is.authenticated');
+
     auth0
         .handleRedirectCallback()
-        .then(() => {
-            const returnTo = localStorage.getItem('returnTo') || '/';
+        .then(({ appState }) => {
+            const returnTo = appState?.target || localStorage.getItem('returnTo') || '/';
             localStorage.removeItem('returnTo');
-            router.push(returnTo);
+
+            // Force token refresh
+            return auth0.getAccessTokenSilently().then(() => {
+                router.push(returnTo);
+            });
         })
-        .catch((err) => {
-            console.error('Auth0 callback error:', err);
-            router.push('/login?error=auth_failed');
+        .catch((error) => {
+            console.error('Auth0 callback error:', error);
+
+            if (error.error === 'invalid_state') {
+                // Clear auth state and restart flow
+                localStorage.removeItem('auth0.is.authenticated');
+                auth0.loginWithRedirect({
+                    authorizationParams: {
+                        prompt: 'login', // Force fresh login
+                    },
+                });
+            } else {
+                router.push('/login?error=auth_failed');
+            }
         });
 }
 
-(async () => {
-    if (auth0.isAuthenticated) {
-        try {
-            const token = await auth0.getAccessTokenSilently();
-            // Use this token with your backend
-        } catch (error) {
-            console.error('Token refresh failed:', error);
-        }
-    }
-})();
+// Set base API URL
+api.defaults.baseURL = import.meta.env.VITE_API_BASE_URL || 'https://gradesworld.com/api';
 
-// --- Use plugins ---
+// Use plugins
 app.use(router);
 app.use(store);
 app.use(Toastify, { autoClose: 3000 });
 
-// --- Mount App ---
+// Mount app
 app.mount('#app');

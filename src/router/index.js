@@ -141,4 +141,19 @@ router.beforeEach((to, from, next) => {
     }
 });
 
+router.beforeEach(async (to) => {
+    if (to.meta.requiresAuth) {
+        if (auth0.isAuthenticated) return true;
+
+        await auth0.loginWithRedirect({
+            appState: { target: to.fullPath },
+            authorizationParams: {
+                scope: 'openid profile email offline_access',
+                audience: import.meta.env.VITE_AUTH0_AUDIENCE,
+            },
+        });
+        return false;
+    }
+});
+
 export default router;

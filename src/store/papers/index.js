@@ -204,7 +204,6 @@ const actions = {
             }
 
             const response = await api.get('/exampapers/courses/', { params });
-            console.log('Fetched courses response:', response);
             commit('SET_COURSES', response.data);
             return response.data;
         } catch (error) {
@@ -348,7 +347,6 @@ const actions = {
         try {
             const response = await api.get('/exampapers/dashboard-stats/');
             return response.data;
-            console.log('dashboard stats', response.data);
         } catch (error) {
             throw error;
         }

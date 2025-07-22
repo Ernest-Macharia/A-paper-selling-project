@@ -133,6 +133,7 @@
 <script>
 import { mapActions } from 'vuex';
 import { useAuth0 } from '@auth0/auth0-vue';
+import { toast } from 'vue3-toastify';
 
 export default {
     name: 'Login',
@@ -223,21 +224,28 @@ export default {
         },
 
         async loginWithAuth0() {
-            this.auth0Loading = true;
+            this.loading = true;
             try {
-                localStorage.setItem('returnTo', this.$route.query.redirect || '/dashboard');
+                localStorage.removeItem('auth0.is.authenticated');
+
                 await this.auth0.loginWithRedirect({
                     authorizationParams: {
                         redirect_uri: window.location.origin,
-                        scope: 'openid profile email',
+                        audience: import.meta.env.VITE_AUTH0_AUDIENCE,
+                        scope: 'openid profile email offline_access',
+                        prompt: 'select_account',
+                    },
+                    appState: {
+                        target: this.$route.path,
                     },
                 });
             } catch (error) {
-                toast.error('Auth0 login failed');
-                console.error(error);
-                localStorage.removeItem('returnTo');
+                if (error.error !== 'popup_closed') {
+                    toast.error('Login failed. Please try again.');
+                    console.error('Auth0 error:', error);
+                }
             } finally {
-                this.auth0Loading = false;
+                this.loading = false;
             }
         },
 

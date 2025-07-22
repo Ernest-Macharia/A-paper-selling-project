@@ -125,9 +125,9 @@
                     <button
                         type="submit"
                         class="btn btn-primary btn-lg w-100 mb-3"
-                        :disabled="auth0Loading"
+                        :disabled="loading"
                     >
-                        <span v-if="!auth0Loading">Create Account</span>
+                        <span v-if="!loading">Create Account</span>
                         <span
                             v-else
                             class="spinner-border spinner-border-sm"
@@ -147,8 +147,8 @@
 
                 <button
                     class="btn btn-outline-primary w-100 d-flex align-items-center justify-content-center gap-2 py-2 mb-3"
-                    @click="handleSignup"
-                    :disabled="auth0Loading"
+                    @click="signUpWithGoogle"
+                    :disabled="loading"
                 >
                     <img
                         src="https://fonts.gstatic.com/s/i/productlogos/googleg/v6/24px.svg"
@@ -156,7 +156,7 @@
                         height="20"
                         alt="Google"
                     />
-                    <span>Google</span>
+                    <span>Continue with Google</span>
                 </button>
 
                 <div class="auth-footer text-center mt-4">
@@ -194,7 +194,7 @@ export default {
             passwordError: '',
             serverError: '',
             showPassword: false,
-            auth0Loading: false,
+            loading: false,
         };
     },
     setup() {
@@ -253,20 +253,10 @@ export default {
         },
 
         async handleRegister() {
-            this.validateFirstName();
-            this.validateLastName();
-            this.validateEmail();
-            this.validatePassword();
+            this.validateAllFields();
+            if (this.hasErrors()) return;
 
-            if (
-                this.firstNameError ||
-                this.lastNameError ||
-                this.emailError ||
-                this.passwordError
-            ) {
-                return;
-            }
-
+            this.loading = true;
             try {
                 await this.register({
                     first_name: this.firstName,
@@ -274,33 +264,70 @@ export default {
                     email: this.email,
                     password: this.password,
                 });
-                this.$router.push('/activation-sent');
+
                 toast.success('Account created! Please check your email to activate.');
+                this.$router.push('/activation-sent');
             } catch (error) {
-                this.serverError =
-                    error.response?.data?.detail ||
-                    (error.response?.data?.email
-                        ? 'Email already exists.'
-                        : 'Registration failed. Please try again.');
-                toast.error(this.serverError);
+                this.handleRegistrationError(error);
+            } finally {
+                this.loading = false;
             }
         },
 
-        async handleSignup() {
-            this.auth0Loading = true;
+        validateAllFields() {
+            this.validateFirstName();
+            this.validateLastName();
+            this.validateEmail();
+            this.validatePassword();
+        },
+
+        hasErrors() {
+            return !!(
+                this.firstNameError ||
+                this.lastNameError ||
+                this.emailError ||
+                this.passwordError
+            );
+        },
+
+        handleRegistrationError(error) {
+            const responseData = error.response?.data;
+            this.serverError =
+                responseData?.detail ||
+                responseData?.email?.[0] ||
+                'Registration failed. Please try again.';
+
+            if (responseData?.email) {
+                this.emailError = responseData.email[0];
+            }
+
+            toast.error(this.serverError);
+        },
+
+        async signUpWithGoogle() {
+            this.loading = true;
             try {
+                localStorage.setItem('auth_flow', 'registration');
+
                 await this.auth0.loginWithRedirect({
                     authorizationParams: {
                         screen_hint: 'signup',
                         redirect_uri: window.location.origin,
                         scope: 'openid profile email',
+                        audience: import.meta.env.VITE_AUTH0_AUDIENCE,
+                        connection: 'google-oauth2',
                     },
                 });
             } catch (error) {
-                toast.error('Auth0 signup failed');
-                console.error(error);
+                if (error.error === 'cancelled') {
+                    // User closed the popup
+                    return;
+                }
+                console.error('Google signup error:', error);
+                toast.error('Failed to initiate Google signup');
+                localStorage.removeItem('auth_flow');
             } finally {
-                this.auth0Loading = false;
+                this.loading = false;
             }
         },
     },
