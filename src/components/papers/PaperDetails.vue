@@ -44,30 +44,77 @@
                                     <i class="fas fa-file-pdf me-2"></i>Paper Preview
                                 </h4>
                                 <div class="preview-thumbnail mb-3 text-center">
+                                    <!-- PDF icon with responsive sizing -->
                                     <div class="pdf-icon-placeholder mb-3">
                                         <i
                                             class="fas fa-file-pdf text-danger"
-                                            style="font-size: 5rem"
+                                            style="font-size: clamp(3rem, 8vw, 5rem)"
                                         ></i>
                                     </div>
+
+                                    <!-- Preview container with multiple fallback options -->
+                                    <div
+                                        class="preview-content mb-2"
+                                        v-if="paperDetails.preview_url"
+                                    >
+                                        <!-- Try PDF first -->
+                                        <object
+                                            :data="paperDetails.preview_url"
+                                            type="application/pdf"
+                                            class="preview-object"
+                                            @error="handlePdfError"
+                                        >
+                                            <!-- Fallback to image if PDF doesn't work -->
+                                            <img
+                                                v-if="paperDetails.preview_image"
+                                                :src="paperDetails.preview_image"
+                                                alt="Document preview"
+                                                class="img-fluid preview-image"
+                                            />
+                                            <!-- Final fallback message -->
+                                            <!-- <div class="preview-fallback" v-else>
+                                                <i class="fas fa-exclamation-triangle text-warning me-2"></i>
+                                                <span>Preview not available on your device</span>
+                                            </div> -->
+                                        </object>
+                                    </div>
+
+                                    <!-- Preview button with enhanced states -->
                                     <button
-                                        class="btn w-100 d-flex justify-content-center align-items-center gap-2"
+                                        class="btn w-100 d-flex justify-content-center align-items-center gap-2 preview-btn"
                                         @click="
                                             paperDetails.preview_url && (showPreviewModal = true)
                                         "
                                         :disabled="!paperDetails.preview_url"
                                         :class="{
                                             'btn-primary': paperDetails.preview_url,
-                                            'btn-secondary': !paperDetails.preview_url,
+                                            'btn-outline-secondary': !paperDetails.preview_url,
+                                            'btn-sm': windowWidth < 768,
                                         }"
                                     >
-                                        <i class="fas fa-eye"></i>
+                                        <i
+                                            class="fas"
+                                            :class="{
+                                                'fa-eye': paperDetails.preview_url,
+                                                'fa-ban': !paperDetails.preview_url,
+                                            }"
+                                        ></i>
                                         {{
                                             paperDetails.preview_url
-                                                ? 'View Preview'
+                                                ? windowWidth < 768
+                                                    ? 'Preview'
+                                                    : 'View Preview'
                                                 : 'Preview Not Available'
                                         }}
+                                        <!-- <span v-if="paperDetails.page_count" class="badge bg-light text-dark ms-2">
+                                            {{ paperDetails.page_count }} {{ paperDetails.page_count === 1 ? 'page' : 'pages' }}
+                                        </span> -->
                                     </button>
+
+                                    <!-- Watermark notice -->
+                                    <!-- <div v-if="paperDetails.preview_url" class="text-muted small mt-2">
+                                        <i class="fas fa-water me-1"></i> Preview contains watermark
+                                    </div> -->
                                 </div>
                             </div>
 
@@ -468,6 +515,7 @@ export default {
                 contact_email: '',
                 paper_id: null,
             },
+            windowWidth: window.innerWidth,
         };
     },
 

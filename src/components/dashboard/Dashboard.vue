@@ -319,7 +319,7 @@
                                                     </span>
                                                     <span class="stat-item">
                                                         <i class="bi bi-cash-coin me-1"></i>
-                                                        ${{ paper.earnings?.toFixed(2) || '0.00' }}
+                                                        ${{ paper.price || '0.00' }}
                                                     </span>
                                                 </div>
                                             </div>

@@ -246,6 +246,43 @@
                                 </div>
                             </div>
 
+                            <div class="mb-4">
+                                <label class="form-label fw-semibold">Academic Year</label>
+                                <select
+                                    v-model="paper.year"
+                                    class="form-select"
+                                    :disabled="isLoading"
+                                >
+                                    <option value="" disabled selected>Select academic year</option>
+                                    <option v-for="year in academicYears" :value="year" :key="year">
+                                        {{ year }}
+                                    </option>
+                                    <option value="other">Other (specify)</option>
+                                </select>
+
+                                <!-- Additional input for custom year if "Other" is selected -->
+                                <div v-if="paper.year === 'other'" class="mt-2">
+                                    <div class="input-group">
+                                        <span class="input-group-text">
+                                            <i class="bi bi-calendar"></i>
+                                        </span>
+                                        <input
+                                            v-model="customYear"
+                                            type="text"
+                                            class="form-control"
+                                            placeholder="Enter custom year (YYYY/YYYY)"
+                                            pattern="\d{4}/\d{4}"
+                                            title="Please use format: YYYY/YYYY"
+                                            :disabled="isLoading"
+                                            @blur="validateCustomYear"
+                                        />
+                                    </div>
+                                    <small class="text-muted"
+                                        >Format: YYYY/YYYY (e.g., 2023/2024)</small
+                                    >
+                                </div>
+                            </div>
+
                             <!-- File Upload with Enhanced Dropzone -->
                             <div class="mb-4">
                                 <label class="form-label fw-semibold"
@@ -377,6 +414,7 @@ export default {
                 price: 5.0,
                 file: null,
                 preview_url: null,
+                year: '',
                 category: '',
                 course: '',
                 school: '',
@@ -393,6 +431,8 @@ export default {
             categorySearch: '',
             courseSearch: '',
             schoolSearch: '',
+            academicYears: this.generateAcademicYears(10),
+            customYear: '',
             showCategoryDropdown: false,
             showCourseDropdown: false,
             showSchoolDropdown: false,
@@ -513,6 +553,7 @@ export default {
             formData.append('title', this.paper.title);
             formData.append('description', this.paper.description);
             formData.append('price', this.paper.price);
+            formData.append('year', this.paper.year);
             formData.append('category_id', this.paper.category);
             formData.append('course_id', this.paper.course);
             formData.append('school_id', this.paper.school);
@@ -536,6 +577,7 @@ export default {
                 this.paper.title &&
                 this.paper.description &&
                 this.paper.price !== '' &&
+                this.paper.year !== '' &&
                 this.paper.price >= 0 &&
                 this.paper?.category &&
                 this.paper?.course &&
@@ -554,13 +596,38 @@ export default {
                 category: '',
                 course: '',
                 school: '',
+                year: '',
             };
             this.categorySearch = '';
             this.courseSearch = '';
             this.schoolSearch = '';
+            this.customYear = '';
             this.selectedCategory = null;
             this.selectedCourse = null;
             this.selectedSchool = null;
+        },
+
+        generateAcademicYears(range) {
+            const years = [];
+            const currentYear = new Date().getFullYear();
+
+            // Generate years from currentYear-range to currentYear+range
+            for (let i = -range; i <= range; i++) {
+                const startYear = currentYear + i;
+                const endYear = startYear + 1;
+                years.push(`${startYear}/${endYear}`);
+            }
+
+            return years;
+        },
+
+        validateCustomYear() {
+            if (this.customYear && !/^\d{4}\/\d{4}$/.test(this.customYear)) {
+                toast.error('Please use format: YYYY/YYYY');
+                this.customYear = '';
+            } else if (this.customYear) {
+                this.paper.year = this.customYear;
+            }
         },
 
         async loadCategories() {
@@ -678,6 +745,7 @@ export default {
 }
 
 .input-group-text {
+    background-color: #f8f9fa;
     border-radius: 8px 0 0 8px !important;
 }
 
