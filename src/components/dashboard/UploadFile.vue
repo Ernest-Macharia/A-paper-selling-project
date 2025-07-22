@@ -107,64 +107,142 @@
                                     <label class="form-label fw-semibold"
                                         >Category <span class="text-danger">*</span></label
                                     >
-                                    <select
-                                        v-model="paper.category"
-                                        class="form-select"
-                                        :class="{ 'is-invalid': submitted && !paper.category }"
-                                        :disabled="isLoading"
-                                    >
-                                        <option value="" disabled>Select Category</option>
-                                        <option
-                                            v-for="cat in categories"
-                                            :key="cat.id"
-                                            :value="cat.id"
+                                    <div class="dropdown-search">
+                                        <input
+                                            type="text"
+                                            v-model="categorySearch"
+                                            @focus="showCategoryDropdown = true"
+                                            @blur="onBlur('category')"
+                                            placeholder="Search categories..."
+                                            class="form-control"
+                                            :class="{ 'is-invalid': submitted && !paper.category }"
+                                        />
+                                        <div
+                                            class="dropdown-menu w-100 show"
+                                            v-if="showCategoryDropdown"
                                         >
-                                            {{ cat.name }}
-                                        </option>
-                                    </select>
+                                            <div class="dropdown-search-list">
+                                                <div
+                                                    v-for="cat in filteredCategories"
+                                                    :key="cat.id"
+                                                    class="dropdown-item"
+                                                    @mousedown.prevent="selectCategory(cat)"
+                                                >
+                                                    {{ cat.name }}
+                                                </div>
+                                                <div
+                                                    v-if="filteredCategories.length === 0"
+                                                    class="dropdown-item text-muted"
+                                                >
+                                                    No categories found
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
                                     <div class="invalid-feedback">Please select a category</div>
                                 </div>
                                 <div class="col-md-4">
                                     <label class="form-label fw-semibold"
                                         >Course <span class="text-danger">*</span></label
                                     >
-                                    <select
-                                        v-model="paper.course"
-                                        class="form-select"
-                                        :class="{ 'is-invalid': submitted && !paper.course }"
-                                        :disabled="isLoading"
-                                    >
-                                        <option value="" disabled>Select Course</option>
-                                        <option
-                                            v-for="course in courses"
-                                            :key="course.id"
-                                            :value="course.id"
+                                    <div class="dropdown-search">
+                                        <input
+                                            type="text"
+                                            v-model="courseSearch"
+                                            @focus="showCourseDropdown = true"
+                                            @blur="onBlur('course')"
+                                            placeholder="Search courses..."
+                                            class="form-control"
+                                            :class="{ 'is-invalid': submitted && !paper.course }"
+                                        />
+                                        <div
+                                            class="dropdown-menu w-100 show"
+                                            v-if="showCourseDropdown"
                                         >
-                                            {{ course.name }}
-                                        </option>
-                                    </select>
+                                            <div class="dropdown-search-list">
+                                                <div
+                                                    v-for="course in filteredCourses"
+                                                    :key="course.id"
+                                                    class="dropdown-item"
+                                                    @mousedown.prevent="selectCourse(course)"
+                                                >
+                                                    {{ course.name }}
+                                                    <small class="text-muted ms-2">{{
+                                                        course.category
+                                                    }}</small>
+                                                </div>
+                                                <div
+                                                    v-if="filteredCourses.length === 0"
+                                                    class="dropdown-item text-muted"
+                                                >
+                                                    No courses found
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
                                     <div class="invalid-feedback">Please select a course</div>
                                 </div>
                                 <div class="col-md-4">
                                     <label class="form-label fw-semibold"
                                         >Institution <span class="text-danger">*</span></label
                                     >
-                                    <select
-                                        v-model="paper.school"
-                                        class="form-select"
-                                        :class="{ 'is-invalid': submitted && !paper.school }"
-                                        :disabled="isLoading"
-                                    >
-                                        <option value="" disabled>Select University</option>
-                                        <option
-                                            v-for="school in schools"
-                                            :key="school.id"
-                                            :value="school.id"
+                                    <div class="dropdown-search">
+                                        <input
+                                            type="text"
+                                            v-model="schoolSearch"
+                                            @focus="showSchoolDropdown = true"
+                                            @blur="onBlur('school')"
+                                            placeholder="Search universities..."
+                                            class="form-control"
+                                            :class="{ 'is-invalid': submitted && !paper.school }"
+                                        />
+                                        <div
+                                            class="dropdown-menu w-100 show"
+                                            v-if="showSchoolDropdown"
                                         >
-                                            {{ school.name }}
-                                        </option>
-                                    </select>
+                                            <div class="dropdown-search-list">
+                                                <div
+                                                    v-for="school in filteredSchools"
+                                                    :key="school.id"
+                                                    class="dropdown-item"
+                                                    @mousedown.prevent="selectSchool(school)"
+                                                >
+                                                    {{ school.name }}
+                                                </div>
+                                                <div
+                                                    v-if="filteredSchools.length === 0"
+                                                    class="dropdown-item text-muted"
+                                                >
+                                                    No institutions found
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
                                     <div class="invalid-feedback">Please select an institution</div>
+                                </div>
+                            </div>
+
+                            <!-- Selected values display (optional) -->
+                            <div
+                                class="row g-3 mb-4"
+                                v-if="selectedCategory || selectedCourse || selectedSchool"
+                            >
+                                <div class="col-md-4" v-if="selectedCategory">
+                                    <div class="selected-value">
+                                        <strong>Selected Category:</strong>
+                                        {{ selectedCategory.name }}
+                                    </div>
+                                </div>
+                                <div class="col-md-4" v-if="selectedCourse">
+                                    <div class="selected-value">
+                                        <strong>Selected Course:</strong> {{ selectedCourse.name }}
+                                    </div>
+                                </div>
+                                <div class="col-md-4" v-if="selectedSchool">
+                                    <div class="selected-value">
+                                        <strong>Selected Institution:</strong>
+                                        {{ selectedSchool.name }}
+                                    </div>
                                 </div>
                             </div>
 
@@ -310,6 +388,17 @@ export default {
             successVisible: false,
             submitted: false,
             isDragging: false,
+
+            // Search and dropdown state
+            categorySearch: '',
+            courseSearch: '',
+            schoolSearch: '',
+            showCategoryDropdown: false,
+            showCourseDropdown: false,
+            showSchoolDropdown: false,
+            selectedCategory: null,
+            selectedCourse: null,
+            selectedSchool: null,
         };
     },
 
@@ -326,6 +415,28 @@ export default {
             if (name.match(/\.(zip|rar|7z)$/)) return 'bi-file-zip text-secondary';
 
             return 'bi-file-earmark-text text-muted';
+        },
+
+        filteredCategories() {
+            if (!this.categorySearch) return this.categories;
+            const searchTerm = this.categorySearch.toLowerCase();
+            return this.categories.filter((cat) => cat.name.toLowerCase().includes(searchTerm));
+        },
+
+        filteredCourses() {
+            if (!this.courseSearch) return this.courses;
+            const searchTerm = this.courseSearch.toLowerCase();
+            return this.courses.filter(
+                (course) =>
+                    course.name.toLowerCase().includes(searchTerm) ||
+                    (course.category && course.category.toLowerCase().includes(searchTerm)),
+            );
+        },
+
+        filteredSchools() {
+            if (!this.schoolSearch) return this.schools;
+            const searchTerm = this.schoolSearch.toLowerCase();
+            return this.schools.filter((school) => school.name.toLowerCase().includes(searchTerm));
         },
     },
 
@@ -444,12 +555,18 @@ export default {
                 course: '',
                 school: '',
             };
+            this.categorySearch = '';
+            this.courseSearch = '';
+            this.schoolSearch = '';
+            this.selectedCategory = null;
+            this.selectedCourse = null;
+            this.selectedSchool = null;
         },
 
         async loadCategories() {
             try {
                 const data = await this.fetchCategories();
-                this.categories = data.results;
+                this.categories = data.results || data;
             } catch {
                 this.categories = [];
             }
@@ -458,7 +575,7 @@ export default {
         async loadCourses() {
             try {
                 const data = await this.fetchCourses();
-                this.courses = data.results;
+                this.courses = data.results || data;
             } catch {
                 this.courses = [];
             }
@@ -467,7 +584,7 @@ export default {
         async loadSchools() {
             try {
                 const data = await this.fetchSchools();
-                this.schools = data.results;
+                this.schools = data.results || data;
             } catch {
                 this.schools = [];
             }
@@ -487,6 +604,50 @@ export default {
             } else {
                 this.paper.price = parseFloat((this.paper.price - 0.5).toFixed(2));
             }
+        },
+
+        // Dropdown selection methods
+        selectCategory(category) {
+            this.paper.category = category.id;
+            this.selectedCategory = category;
+            this.categorySearch = category.name;
+            this.showCategoryDropdown = false;
+        },
+
+        selectCourse(course) {
+            this.paper.course = course.id;
+            this.selectedCourse = course;
+            this.courseSearch = course.name;
+            this.showCourseDropdown = false;
+        },
+
+        selectSchool(school) {
+            this.paper.school = school.id;
+            this.selectedSchool = school;
+            this.schoolSearch = school.name;
+            this.showSchoolDropdown = false;
+        },
+
+        onBlur(type) {
+            // Small timeout to allow click events to fire before hiding
+            setTimeout(() => {
+                if (type === 'category') {
+                    this.showCategoryDropdown = false;
+                    if (this.selectedCategory) {
+                        this.categorySearch = this.selectedCategory.name;
+                    }
+                } else if (type === 'course') {
+                    this.showCourseDropdown = false;
+                    if (this.selectedCourse) {
+                        this.courseSearch = this.selectedCourse.name;
+                    }
+                } else if (type === 'school') {
+                    this.showSchoolDropdown = false;
+                    if (this.selectedSchool) {
+                        this.schoolSearch = this.selectedSchool.name;
+                    }
+                }
+            }, 200);
         },
     },
 };
@@ -535,5 +696,44 @@ export default {
 
 .progress-bar {
     transition: width 0.6s ease;
+}
+
+/* Dropdown search styles */
+.dropdown-search {
+    position: relative;
+}
+
+.dropdown-menu {
+    display: block;
+    max-height: 300px;
+    overflow-y: auto;
+    margin-top: 2px;
+    border: 1px solid rgba(0, 0, 0, 0.15);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.175);
+}
+
+.dropdown-search-list {
+    padding: 0;
+}
+
+.dropdown-item {
+    padding: 8px 16px;
+    cursor: pointer;
+    white-space: normal;
+}
+
+.dropdown-item:hover {
+    background-color: #f8f9fa;
+}
+
+.dropdown-item small {
+    opacity: 0.7;
+}
+
+.selected-value {
+    background-color: #f8f9fa;
+    padding: 8px 12px;
+    border-radius: 4px;
+    font-size: 14px;
 }
 </style>

@@ -37,9 +37,15 @@ const mutations = {
     SET_CATEGORIES(state, categories) {
         state.categories = categories;
     },
-    SET_COURSES(state, courses) {
-        state.courses = courses;
+    SET_COURSES(state, data) {
+        state.courses = data.results || data;
+        state.coursePagination = {
+            count: data.count,
+            next: data.next,
+            previous: data.previous,
+        };
     },
+
     SET_POPULAR_COURSES(state, popularCourses) {
         state.popularCourses = popularCourses;
     },
@@ -168,36 +174,42 @@ const mutations = {
 };
 
 const actions = {
-    async fetchCategories({ commit }, { search = '', page = 1 } = {}) {
+    async fetchCategories({ commit }) {
         try {
             const response = await api.get('/exampapers/categories/', {
                 params: {
-                    search,
-                    page,
                     ordering: '-paper_count',
+                    page_size: 1000,
                 },
             });
-            commit('SET_CATEGORIES', response.data);
+            commit('SET_CATEGORIES', response.data.results);
             return response.data;
         } catch (error) {
             console.error('Error fetching categories:', error);
-            throw error;
         }
     },
 
-    async fetchCourses({ commit }, { search = '', page = 1 } = {}) {
+    async fetchCourses({ commit }, { search = '', page, schoolId = null } = {}) {
         try {
-            const response = await api.get('/exampapers/courses/', {
-                params: { search, page },
-            });
+            const params = { search };
+
+            if (page) {
+                params.page = page;
+            } else {
+                params.all = true;
+            }
+
+            if (schoolId) {
+                params.school_id = schoolId;
+            }
+
+            const response = await api.get('/exampapers/courses/', { params });
+            console.log('Fetched courses response:', response);
             commit('SET_COURSES', response.data);
             return response.data;
         } catch (error) {
-            if (error.response && error.response.status === 401) {
-                console.error('Unauthorized - Please log in again.');
-            } else {
-                console.error('Error fetching courses:', error);
-            }
+            console.error('Error fetching courses:', error);
+            throw error;
         }
     },
 
@@ -245,17 +257,17 @@ const actions = {
         }
     },
 
-    async fetchSchools({ commit, rootState }) {
+    async fetchSchools({ commit }) {
         try {
-            const response = await api.get('/exampapers/schools/');
-            commit('SET_SCHOOLS', response.data);
+            const response = await api.get('/exampapers/schools/', {
+                params: {
+                    page_size: 1000,
+                },
+            });
+            commit('SET_SCHOOLS', response.data.results);
             return response.data;
         } catch (error) {
-            if (error.response && error.response.status === 401) {
-                console.error('Unauthorized - Please log in again.');
-            } else {
-                console.error('Error fetching schools:', error);
-            }
+            console.error('Error fetching schools:', error);
         }
     },
 
@@ -280,7 +292,7 @@ const actions = {
         }
     },
 
-    async fetchUploadedPapers({ commit }, { search = '', page = 1 } = {}) {
+    async fetchUploadedPapers({ commit }, { search = '', page } = {}) {
         try {
             const response = await api.get('/exampapers/my-uploads/', {
                 params: {
@@ -296,7 +308,7 @@ const actions = {
         }
     },
 
-    async fetchDownloadedPapers({ commit }, { search = '', page = 1 } = {}) {
+    async fetchDownloadedPapers({ commit }, { search = '', page } = {}) {
         try {
             const response = await api.get('/exampapers/my-downloads/', {
                 params: {
@@ -336,6 +348,7 @@ const actions = {
         try {
             const response = await api.get('/exampapers/dashboard-stats/');
             return response.data;
+            console.log('dashboard stats', response.data);
         } catch (error) {
             throw error;
         }

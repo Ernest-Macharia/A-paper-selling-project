@@ -41,7 +41,23 @@
                                             field.label
                                         }}</label>
                                         <p class="mb-0 fw-semibold">
-                                            {{ userDetails[field.key] || 'Not specified' }}
+                                            <template
+                                                v-if="
+                                                    field.key === 'country' &&
+                                                    userDetails.country_code
+                                                "
+                                            >
+                                                <span
+                                                    class="country-flag me-2"
+                                                    v-html="
+                                                        getCountryFlag(userDetails.country_code)
+                                                    "
+                                                ></span>
+                                                {{ userDetails[field.key] || 'Not specified' }}
+                                            </template>
+                                            <template v-else>
+                                                {{ userDetails[field.key] || 'Not specified' }}
+                                            </template>
                                         </p>
                                     </div>
                                 </div>
@@ -161,11 +177,32 @@
                                 </div>
                                 <div class="col-md-6">
                                     <label class="form-label">Country</label>
-                                    <input
-                                        v-model="form.country"
-                                        type="text"
-                                        class="form-control"
-                                    />
+                                    <div class="input-group">
+                                        <span
+                                            class="input-group-text p-0 border-end-0 overflow-hidden"
+                                            style="width: 40px"
+                                        >
+                                            <span
+                                                class="country-flag"
+                                                v-if="form.country_code"
+                                                v-html="getCountryFlag(form.country_code)"
+                                            ></span>
+                                        </span>
+                                        <select
+                                            v-model="form.country_code"
+                                            class="form-select"
+                                            @change="updateCountryName"
+                                        >
+                                            <option value="" disabled>Select Country</option>
+                                            <option
+                                                v-for="country in countries"
+                                                :key="country.code"
+                                                :value="country.code"
+                                            >
+                                                {{ country.name }}
+                                            </option>
+                                        </select>
+                                    </div>
                                 </div>
                                 <div class="col-md-6">
                                     <label class="form-label">Course</label>
@@ -264,6 +301,8 @@
 <script>
 import { mapActions } from 'vuex';
 import { toast } from 'vue3-toastify';
+import countries from '@/data/countries'; // You'll need to create this file
+import { getCountryFlag } from '@/utils/countryFlags'; // You'll need to create this utility
 
 export default {
     name: 'ProfilePage',
@@ -282,6 +321,7 @@ export default {
                 email: '',
                 school: '',
                 country: '',
+                country_code: '',
                 course: '',
                 gender: '',
                 birth_year: '',
@@ -328,17 +368,27 @@ export default {
                     icon: 'bi-lightbulb',
                 },
             ],
+            countries: [], // Will be populated from the countries data file
         };
     },
     async created() {
         await this.loadUserDetails();
+        this.countries = countries; // Imported from your countries data file
     },
     methods: {
         ...mapActions('authentication', ['fetchCurrentUserDetails', 'updateCurrentUserDetails']),
+        getCountryFlag,
         async loadUserDetails() {
             try {
                 const user = await this.fetchCurrentUserDetails();
                 this.userDetails = user;
+                // Ensure country_code is set if country exists
+                if (user.country && !user.country_code) {
+                    const country = this.countries.find((c) => c.name === user.country);
+                    if (country) {
+                        this.userDetails.country_code = country.code;
+                    }
+                }
             } catch {
                 toast.error('Error fetching user details.');
             }
@@ -354,11 +404,18 @@ export default {
                 email: this.userDetails.email || '',
                 school: this.userDetails.school || '',
                 country: this.userDetails.country || '',
+                country_code: this.userDetails.country_code || '',
                 course: this.userDetails.course || '',
                 gender: this.userDetails.gender || '',
                 birth_year: this.userDetails.birth_year || '',
                 school_type: this.userDetails.school_type || '',
             };
+        },
+        updateCountryName() {
+            const selectedCountry = this.countries.find((c) => c.code === this.form.country_code);
+            if (selectedCountry) {
+                this.form.country = selectedCountry.name;
+            }
         },
         closeModal() {
             this.showModal = false;
@@ -502,6 +559,15 @@ export default {
 
 .modal-backdrop.show {
     opacity: 0.5;
+}
+
+.country-flag {
+    display: inline-block;
+    width: 24px;
+    height: 16px;
+    vertical-align: middle;
+    background-size: cover;
+    margin-right: 8px;
 }
 
 @media (max-width: 768px) {

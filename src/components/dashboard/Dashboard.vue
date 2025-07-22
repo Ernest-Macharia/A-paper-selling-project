@@ -48,12 +48,12 @@
                     <div class="col-lg-6">
                         <div class="papers-section card border-0 h-100">
                             <div class="card-header bg-transparent border-0 pb-0">
-                                <div class="d-flex justify-content-between align-items-center">
+                                <div class="d-flex justify-content-between align-items-center mb-3">
                                     <h3 class="section-title mb-0">
                                         <i class="bi bi-fire me-2 text-danger"></i>Most Viewed
                                         Papers
                                     </h3>
-                                    <div class="section-actions">
+                                    <div class="section-actions d-flex align-items-center">
                                         <button
                                             class="btn btn-sm btn-outline-secondary"
                                             :disabled="viewedPage === 1"
@@ -61,14 +61,54 @@
                                         >
                                             <i class="bi bi-chevron-left"></i>
                                         </button>
+                                        <span class="mx-2 text-muted small">
+                                            Page {{ viewedPage }}
+                                        </span>
                                         <button
-                                            class="btn btn-sm btn-outline-secondary ms-2"
+                                            class="btn btn-sm btn-outline-secondary"
                                             :disabled="!mostViewedHasNext"
                                             @click="changeViewedPage(viewedPage + 1)"
                                         >
                                             <i class="bi bi-chevron-right"></i>
                                         </button>
                                     </div>
+                                </div>
+                                <div class="filter-controls d-flex align-items-center">
+                                    <div
+                                        class="input-group input-group-sm me-2"
+                                        style="width: 150px"
+                                    >
+                                        <span class="input-group-text"
+                                            ><i class="bi bi-search"></i
+                                        ></span>
+                                        <input
+                                            type="text"
+                                            class="form-control"
+                                            placeholder="Search..."
+                                            v-model="viewedSearchQuery"
+                                            @input="debounceFetchMostViewedPapers"
+                                        />
+                                    </div>
+                                    <select
+                                        class="form-select form-select-sm me-2"
+                                        style="width: 120px"
+                                        v-model="viewedSortBy"
+                                        @change="fetchMostViewedPapersHandler(1)"
+                                    >
+                                        <option value="views">Most Viewed</option>
+                                        <option value="downloads">Most Downloads</option>
+                                        <option value="recent">Most Recent</option>
+                                    </select>
+                                    <select
+                                        class="form-select form-select-sm"
+                                        style="width: 100px"
+                                        v-model="viewedPriceFilter"
+                                        @change="fetchMostViewedPapersHandler(1)"
+                                    >
+                                        <option value="all">All</option>
+                                        <option value="free">Free</option>
+                                        <option value="paid">Paid</option>
+                                    </select>
                                 </div>
                             </div>
 
@@ -106,12 +146,12 @@
 
                                                 <p class="paper-meta text-muted small mb-2">
                                                     <span class="me-2">
-                                                        <i class="bi bi-book me-1"></i
-                                                        >{{ paper.course.name }}
+                                                        <i class="bi bi-book me-1"></i>
+                                                        {{ paper.course?.name || 'N/A' }}
                                                     </span>
                                                     <span>
-                                                        <i class="bi bi-tag me-1"></i
-                                                        >{{ paper.category.name }}
+                                                        <i class="bi bi-tag me-1"></i>
+                                                        {{ paper.category?.name || 'N/A' }}
                                                     </span>
                                                 </p>
 
@@ -119,16 +159,16 @@
                                                     class="paper-stats d-flex justify-content-between"
                                                 >
                                                     <span class="stat-item">
-                                                        <i class="bi bi-eye me-1"></i
-                                                        >{{ paper.views }} views
+                                                        <i class="bi bi-eye me-1"></i>
+                                                        {{ paper.views || 0 }} views
                                                     </span>
                                                     <span class="stat-item">
-                                                        <i class="bi bi-download me-1"></i
-                                                        >{{ paper.download_count }} downloads
+                                                        <i class="bi bi-download me-1"></i>
+                                                        {{ paper.download_count || 0 }} downloads
                                                     </span>
                                                     <span class="stat-item">
-                                                        <i class="bi bi-star me-1"></i
-                                                        >{{ paper.reviews?.length || 0 }} reviews
+                                                        <i class="bi bi-star me-1"></i>
+                                                        {{ paper.reviews?.length || 0 }} reviews
                                                     </span>
                                                 </div>
                                             </div>
@@ -138,7 +178,13 @@
 
                                 <div v-else class="empty-state text-center py-4">
                                     <i class="bi bi-file-earmark-x display-5 text-muted mb-3"></i>
-                                    <p class="text-muted">No viewed papers yet</p>
+                                    <p class="text-muted">No papers found matching your criteria</p>
+                                    <button
+                                        class="btn btn-sm btn-outline-primary mt-2"
+                                        @click="resetViewedFilters"
+                                    >
+                                        Reset Filters
+                                    </button>
                                 </div>
                             </div>
                         </div>
@@ -148,12 +194,12 @@
                     <div class="col-lg-6">
                         <div class="papers-section card border-0 h-100">
                             <div class="card-header bg-transparent border-0 pb-0">
-                                <div class="d-flex justify-content-between align-items-center">
+                                <div class="d-flex justify-content-between align-items-center mb-3">
                                     <h3 class="section-title mb-0">
                                         <i class="bi bi-cloud-arrow-up me-2 text-primary"></i>Your
                                         Latest Uploads
                                     </h3>
-                                    <div class="section-actions">
+                                    <div class="section-actions d-flex align-items-center">
                                         <button
                                             class="btn btn-sm btn-outline-secondary"
                                             :disabled="uploadPage === 1"
@@ -161,14 +207,55 @@
                                         >
                                             <i class="bi bi-chevron-left"></i>
                                         </button>
+                                        <span class="mx-2 text-muted small">
+                                            Page {{ uploadPage }}
+                                        </span>
                                         <button
-                                            class="btn btn-sm btn-outline-secondary ms-2"
+                                            class="btn btn-sm btn-outline-secondary"
                                             :disabled="!latestHasNext"
                                             @click="changeUploadPage(uploadPage + 1)"
                                         >
                                             <i class="bi bi-chevron-right"></i>
                                         </button>
                                     </div>
+                                </div>
+                                <div class="filter-controls d-flex align-items-center">
+                                    <div
+                                        class="input-group input-group-sm me-2"
+                                        style="width: 150px"
+                                    >
+                                        <span class="input-group-text"
+                                            ><i class="bi bi-search"></i
+                                        ></span>
+                                        <input
+                                            type="text"
+                                            class="form-control"
+                                            placeholder="Search..."
+                                            v-model="uploadSearchQuery"
+                                            @input="debounceFetchLatestUserPapers"
+                                        />
+                                    </div>
+                                    <select
+                                        class="form-select form-select-sm me-2"
+                                        style="width: 120px"
+                                        v-model="uploadSortBy"
+                                        @change="fetchLatestUserPapersHandler(1)"
+                                    >
+                                        <option value="recent">Most Recent</option>
+                                        <option value="views">Most Viewed</option>
+                                        <option value="downloads">Most Downloads</option>
+                                    </select>
+                                    <select
+                                        class="form-select form-select-sm"
+                                        style="width: 100px"
+                                        v-model="uploadStatusFilter"
+                                        @change="fetchLatestUserPapersHandler(1)"
+                                    >
+                                        <option value="all">All</option>
+                                        <option value="published">Published</option>
+                                        <option value="pending">Pending</option>
+                                        <option value="rejected">Rejected</option>
+                                    </select>
                                 </div>
                             </div>
 
@@ -194,24 +281,28 @@
                                                         {{ paper.title }}
                                                     </h6>
                                                     <span
-                                                        class="badge bg-primary-light text-primary rounded-pill"
+                                                        class="badge rounded-pill"
+                                                        :class="{
+                                                            'bg-success-light text-success':
+                                                                paper.status === 'published',
+                                                            'bg-warning-light text-warning':
+                                                                paper.status === 'pending',
+                                                            'bg-danger-light text-danger':
+                                                                paper.status === 'rejected',
+                                                        }"
                                                     >
-                                                        {{
-                                                            new Date(
-                                                                paper.upload_date,
-                                                            ).toLocaleDateString()
-                                                        }}
+                                                        {{ paper.status || 'N/A' }}
                                                     </span>
                                                 </div>
 
                                                 <p class="paper-meta text-muted small mb-2">
                                                     <span class="me-2">
-                                                        <i class="bi bi-book me-1"></i
-                                                        >{{ paper.course.name }}
+                                                        <i class="bi bi-book me-1"></i>
+                                                        {{ paper.course?.name || 'N/A' }}
                                                     </span>
                                                     <span>
-                                                        <i class="bi bi-tag me-1"></i
-                                                        >{{ paper.category.name }}
+                                                        <i class="bi bi-tag me-1"></i>
+                                                        {{ paper.category?.name || 'N/A' }}
                                                     </span>
                                                 </p>
 
@@ -219,12 +310,16 @@
                                                     class="paper-stats d-flex justify-content-between"
                                                 >
                                                     <span class="stat-item">
-                                                        <i class="bi bi-eye me-1"></i
-                                                        >{{ paper.views }} views
+                                                        <i class="bi bi-eye me-1"></i>
+                                                        {{ paper.views || 0 }} views
                                                     </span>
                                                     <span class="stat-item">
-                                                        <i class="bi bi-download me-1"></i
-                                                        >{{ paper.download_count }} downloads
+                                                        <i class="bi bi-download me-1"></i>
+                                                        {{ paper.download_count || 0 }} downloads
+                                                    </span>
+                                                    <span class="stat-item">
+                                                        <i class="bi bi-cash-coin me-1"></i>
+                                                        ${{ paper.earnings?.toFixed(2) || '0.00' }}
                                                     </span>
                                                 </div>
                                             </div>
@@ -234,10 +329,21 @@
 
                                 <div v-else class="empty-state text-center py-4">
                                     <i class="bi bi-cloud-arrow-up display-5 text-muted mb-3"></i>
-                                    <p class="text-muted">You haven't uploaded any papers yet</p>
-                                    <router-link to="/upload" class="btn btn-sm btn-primary mt-2">
-                                        Upload Your First Paper
-                                    </router-link>
+                                    <p class="text-muted">No papers found matching your criteria</p>
+                                    <div>
+                                        <button
+                                            class="btn btn-sm btn-outline-primary mt-2 me-2"
+                                            @click="resetUploadFilters"
+                                        >
+                                            Reset Filters
+                                        </button>
+                                        <router-link
+                                            to="/upload"
+                                            class="btn btn-sm btn-primary mt-2"
+                                        >
+                                            Upload New Paper
+                                        </router-link>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -250,19 +356,30 @@
 
 <script>
 import { mapActions } from 'vuex';
+import { debounce } from 'lodash';
 
 export default {
     name: 'Dashboard',
     data() {
         return {
-            statistics: [],
+            statistics: {},
             mostViewedPapers: [],
             latestUserPapers: [],
             viewedPage: 1,
             uploadPage: 1,
             mostViewedHasNext: false,
             latestHasNext: false,
-            isLoading: true,
+            isLoading: false,
+
+            // Filter states for Most Viewed Papers
+            viewedSearchQuery: '',
+            viewedSortBy: 'views',
+            viewedPriceFilter: 'all',
+
+            // Filter states for Latest Uploads
+            uploadSearchQuery: '',
+            uploadSortBy: 'recent',
+            uploadStatusFilter: 'all',
         };
     },
     computed: {
@@ -272,87 +389,85 @@ export default {
             return [
                 {
                     title: 'Uploads',
-                    value: stats.user_papers_uploaded,
+                    value: stats?.user_papers_uploaded,
                     display:
-                        stats.user_papers_uploaded > 0
-                            ? `${stats.user_papers_uploaded} ${stats.user_papers_uploaded === 1 ? 'paper' : 'papers'}`
+                        stats?.user_papers_uploaded > 0
+                            ? `${stats?.user_papers_uploaded} ${stats?.user_papers_uploaded === 1 ? 'paper' : 'papers'}`
                             : 'No uploads',
                     icon: '📄',
                     color: 'text-primary',
                 },
                 {
                     title: 'Downloads',
-                    value: stats.user_total_downloads,
+                    value: stats?.user_total_downloads,
                     display:
-                        stats.user_total_downloads > 0
-                            ? `${stats.user_total_downloads}`
+                        stats?.user_total_downloads > 0
+                            ? `${stats?.user_total_downloads}`
                             : 'None yet',
                     icon: '📥',
                     color: 'text-success',
                 },
                 {
                     title: 'Orders',
-                    value: stats.user_orders,
-                    display: stats.user_orders > 0 ? stats.user_orders : 'No orders',
+                    value: stats?.user_orders,
+                    display: stats?.user_orders > 0 ? stats?.user_orders : 'No orders',
                     icon: '🛒',
                     color: 'text-danger',
                 },
-
                 {
                     title: 'Views',
-                    value: stats.user_total_views,
-                    display: stats.user_total_views > 0 ? stats.user_total_views : 'No views',
+                    value: stats?.user_total_views,
+                    display: stats?.user_total_views > 0 ? stats?.user_total_views : 'No views',
                     icon: '👁️',
                     color: 'text-info',
                 },
-
                 {
                     title: 'Earnings',
-                    value: stats.wallet_total_earned,
+                    value: stats?.wallet_total_earned,
                     display:
-                        stats.wallet_total_earned > 0
-                            ? `$${stats.wallet_total_earned.toFixed(2)}`
+                        stats?.wallet_total_earned > 0
+                            ? `$${stats?.wallet_total_earned?.toFixed(2)}`
                             : '$0.00',
                     icon: '💰',
                     color: 'text-warning',
                 },
                 {
                     title: 'Balance',
-                    value: stats.wallet_available_balance,
+                    value: stats?.wallet_available_balance,
                     display:
-                        stats.wallet_available_balance > 0
-                            ? `$${stats.wallet_available_balance.toFixed(2)}`
+                        stats?.wallet_available_balance > 0
+                            ? `$${stats?.wallet_available_balance?.toFixed(2)}`
                             : '$0.00',
                     icon: '💳',
                     color: 'text-info',
                 },
                 {
                     title: 'Withdrawn',
-                    value: stats.wallet_total_withdrawn,
+                    value: stats?.wallet_total_withdrawn,
                     display:
-                        stats.wallet_total_withdrawn > 0
-                            ? `$${stats.wallet_total_withdrawn.toFixed(2)}`
+                        stats?.wallet_total_withdrawn > 0
+                            ? `$${stats?.wallet_total_withdrawn?.toFixed(2)}`
                             : 'No withdrawals',
                     icon: '🏦',
                     color: 'text-danger',
                 },
                 {
                     title: 'Reviews',
-                    value: stats.user_review_count,
-                    display: stats.user_review_count > 0 ? stats.user_review_count : 'No reviews',
+                    value: stats?.user_review_count,
+                    display: stats?.user_review_count > 0 ? stats?.user_review_count : 'No reviews',
                     icon: '⭐',
                     color: 'text-warning',
                 },
-            ].filter(Boolean); // Filter out any undefined metrics
+            ].filter(Boolean);
         },
     },
-    async created() {
-        await Promise.all([
-            this.fetchDashboardStatisticsHandler(),
-            this.fetchMostViewedPapersHandler(),
-            this.fetchLatestUserPapersHandler(),
-        ]);
-        this.isLoading = false;
+    created() {
+        // Initialize debounced functions
+        this.debounceFetchMostViewedPapers = debounce(this.fetchMostViewedPapersHandler, 500);
+        this.debounceFetchLatestUserPapers = debounce(this.fetchLatestUserPapersHandler, 500);
+
+        // Load initial data
+        this.fetchDashboardData();
     },
     methods: {
         ...mapActions('papers', [
@@ -360,6 +475,21 @@ export default {
             'fetchMostViewedPapers',
             'fetchLatestUserPapers',
         ]),
+
+        async fetchDashboardData() {
+            this.isLoading = true;
+            try {
+                await Promise.all([
+                    this.fetchDashboardStatisticsHandler(),
+                    this.fetchMostViewedPapersHandler(),
+                    this.fetchLatestUserPapersHandler(),
+                ]);
+            } catch (error) {
+                console.error('Error loading dashboard data:', error);
+            } finally {
+                this.isLoading = false;
+            }
+        },
 
         async fetchDashboardStatisticsHandler() {
             try {
@@ -370,22 +500,44 @@ export default {
             }
         },
 
-        async fetchMostViewedPapersHandler(page = this.viewedPage) {
+        async fetchMostViewedPapersHandler(page = 1) {
             try {
-                const response = await this.fetchMostViewedPapers({ page });
-                this.mostViewedPapers = response.results;
-                this.mostViewedHasNext = !!response.next;
+                const response = await this.fetchMostViewedPapers({
+                    page,
+                    search: this.viewedSearchQuery,
+                    sort: this.viewedSortBy,
+                    price: this.viewedPriceFilter,
+                });
+
+                // Handle different possible response structures
+                const responseData = response?.data || response;
+                this.mostViewedPapers =
+                    responseData?.results || responseData?.items || responseData || [];
+                this.mostViewedHasNext =
+                    !!responseData?.next || responseData?.pagination?.has_next || false;
+                this.viewedPage = page;
             } catch {
                 this.mostViewedPapers = [];
                 this.mostViewedHasNext = false;
             }
         },
 
-        async fetchLatestUserPapersHandler(page = this.uploadPage) {
+        async fetchLatestUserPapersHandler(page = 1) {
             try {
-                const response = await this.fetchLatestUserPapers({ page });
-                this.latestUserPapers = response.results;
-                this.latestHasNext = !!response.next;
+                const response = await this.fetchLatestUserPapers({
+                    page,
+                    search: this.uploadSearchQuery,
+                    sort: this.uploadSortBy,
+                    status: this.uploadStatusFilter,
+                });
+
+                // Handle different possible response structures
+                const responseData = response?.data || response;
+                this.latestUserPapers =
+                    responseData?.results || responseData?.items || responseData || [];
+                this.latestHasNext =
+                    !!responseData?.next || responseData?.pagination?.has_next || false;
+                this.uploadPage = page;
             } catch {
                 this.latestUserPapers = [];
                 this.latestHasNext = false;
@@ -393,13 +545,25 @@ export default {
         },
 
         async changeViewedPage(newPage) {
-            this.viewedPage = newPage;
             await this.fetchMostViewedPapersHandler(newPage);
         },
 
         async changeUploadPage(newPage) {
-            this.uploadPage = newPage;
             await this.fetchLatestUserPapersHandler(newPage);
+        },
+
+        resetViewedFilters() {
+            this.viewedSearchQuery = '';
+            this.viewedSortBy = 'views';
+            this.viewedPriceFilter = 'all';
+            this.fetchMostViewedPapersHandler(1);
+        },
+
+        resetUploadFilters() {
+            this.uploadSearchQuery = '';
+            this.uploadSortBy = 'recent';
+            this.uploadStatusFilter = 'all';
+            this.fetchLatestUserPapersHandler(1);
         },
     },
 };
@@ -475,6 +639,10 @@ export default {
     color: #1e293b;
 }
 
+.filter-controls {
+    padding: 0.5rem 0;
+}
+
 .paper-item {
     margin-bottom: 1rem;
     border-radius: 8px;
@@ -542,6 +710,21 @@ export default {
     padding: 0.35em 0.65em;
 }
 
+.bg-success-light {
+    background-color: #d1fae5;
+    color: #065f46;
+}
+
+.bg-warning-light {
+    background-color: #fef3c7;
+    color: #92400e;
+}
+
+.bg-danger-light {
+    background-color: #fee2e2;
+    color: #b91c1c;
+}
+
 /* Responsive Adjustments */
 @media (max-width: 767.98px) {
     .dashboard-header h1 {
@@ -550,6 +733,16 @@ export default {
 
     .metric-value {
         font-size: 1.5rem;
+    }
+
+    .filter-controls {
+        flex-wrap: wrap;
+    }
+
+    .filter-controls .input-group,
+    .filter-controls .form-select {
+        margin-bottom: 0.5rem;
+        width: 100% !important;
     }
 }
 
