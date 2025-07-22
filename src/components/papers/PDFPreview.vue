@@ -195,13 +195,20 @@ let isRendering = false;
 
 // Computed properties
 const contentWidth = computed(() => {
-    if (pageDimensions.value.length === 0) return 'auto';
-    const maxWidth = Math.max(...pageDimensions.value.map((p) => p.width));
+    if (pageDimensions.value.length === 0 || !pageDimensions.value[0]) return 'auto';
+
+    // Filter out null values in case some pages haven't loaded yet
+    const validDimensions = pageDimensions.value.filter((dim) => dim !== null);
+    if (validDimensions.length === 0) return 'auto';
+
+    const maxWidth = Math.max(...validDimensions.map((p) => p.width));
     return `${maxWidth}px`;
 });
 
 const visiblePages = computed(() => {
-    if (pageDimensions.value.length === 0) return [];
+    if (pageDimensions.value.length === 0 || pageDimensions.value.some((dim) => dim === null)) {
+        return [];
+    }
 
     // Calculate the range of pages that should be visible based on scroll position
     const container = pdfContainer.value;
