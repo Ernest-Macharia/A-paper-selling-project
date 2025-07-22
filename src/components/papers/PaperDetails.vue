@@ -70,12 +70,12 @@
                                                 class="img-fluid preview-image"
                                             />
                                             <!-- Final fallback message -->
-                                            <div class="preview-fallback" v-else>
+                                            <!-- <div class="preview-fallback" v-else>
                                                 <i
                                                     class="fas fa-exclamation-triangle text-warning me-2"
                                                 ></i>
                                                 <span>Preview not available</span>
-                                            </div>
+                                            </div> -->
                                         </object>
 
                                         <!-- Show image directly if no PDF preview -->
@@ -102,7 +102,13 @@
                                             class="fas"
                                             :class="hasPreview ? 'fa-eye' : 'fa-ban'"
                                         ></i>
-                                        {{ hasPreview ? 'Preview' : 'View Preview' }}
+                                        {{
+                                            hasPreview
+                                                ? windowWidth < 768
+                                                    ? 'Preview'
+                                                    : 'View Preview'
+                                                : 'Preview Not Available'
+                                        }}
                                     </button>
 
                                     <!-- Watermark notice -->
