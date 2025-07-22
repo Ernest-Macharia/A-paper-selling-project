@@ -415,7 +415,8 @@ export default {
                 description: '',
                 price: 5.0,
                 file: null,
-                preview_url: null,
+                // preview_url: null,
+                // preview_image: null,
                 year: '',
                 category: '',
                 course: '',
@@ -559,7 +560,8 @@ export default {
             formData.append('category_id', this.paper.category);
             formData.append('course_id', this.paper.course);
             formData.append('school_id', this.paper.school);
-            formData.append('preview_url', this.paper.preview_url);
+            // formData.append('preview_url', this.paper.preview_url);
+            // formData.append('preview_image', this.paper.preview_image);
             if (this.paper.file) formData.append('file', this.paper.file);
 
             try {

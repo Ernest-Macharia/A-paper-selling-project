@@ -53,12 +53,10 @@
                                     </div>
 
                                     <!-- Preview container with multiple fallback options -->
-                                    <div
-                                        class="preview-content mb-2"
-                                        v-if="paperDetails.preview_url"
-                                    >
-                                        <!-- Try PDF first -->
+                                    <div class="preview-content mb-2">
+                                        <!-- Try PDF first if available -->
                                         <object
+                                            v-if="paperDetails.preview_url"
                                             :data="paperDetails.preview_url"
                                             type="application/pdf"
                                             class="preview-object"
@@ -72,43 +70,45 @@
                                                 class="img-fluid preview-image"
                                             />
                                             <!-- Final fallback message -->
-                                            <!-- <div class="preview-fallback" v-else>
-                                                <i class="fas fa-exclamation-triangle text-warning me-2"></i>
-                                                <span>Preview not available on your device</span>
-                                            </div> -->
+                                            <div class="preview-fallback" v-else>
+                                                <i
+                                                    class="fas fa-exclamation-triangle text-warning me-2"
+                                                ></i>
+                                                <span>Preview not available</span>
+                                            </div>
                                         </object>
+
+                                        <!-- Show image directly if no PDF preview -->
+                                        <img
+                                            v-else-if="paperDetails.preview_image"
+                                            :src="paperDetails.preview_image"
+                                            alt="Document preview"
+                                            class="img-fluid preview-image"
+                                        />
                                     </div>
 
                                     <!-- Preview button with enhanced states -->
                                     <button
                                         class="btn w-100 d-flex justify-content-center align-items-center gap-2 preview-btn"
-                                        @click="
-                                            paperDetails.preview_url && (showPreviewModal = true)
-                                        "
-                                        :disabled="!paperDetails.preview_url"
+                                        @click="showPreviewModal = true"
+                                        :disabled="!hasPreview"
                                         :class="{
-                                            'btn-primary': paperDetails.preview_url,
-                                            'btn-outline-secondary': !paperDetails.preview_url,
+                                            'btn-primary': hasPreview,
+                                            'btn-outline-secondary': !hasPreview,
                                             'btn-sm': windowWidth < 768,
                                         }"
                                     >
                                         <i
                                             class="fas"
-                                            :class="{
-                                                'fa-eye': paperDetails.preview_url,
-                                                'fa-ban': !paperDetails.preview_url,
-                                            }"
+                                            :class="hasPreview ? 'fa-eye' : 'fa-ban'"
                                         ></i>
                                         {{
-                                            paperDetails.preview_url
+                                            hasPreview
                                                 ? windowWidth < 768
                                                     ? 'Preview'
                                                     : 'View Preview'
                                                 : 'Preview Not Available'
                                         }}
-                                        <!-- <span v-if="paperDetails.page_count" class="badge bg-light text-dark ms-2">
-                                            {{ paperDetails.page_count }} {{ paperDetails.page_count === 1 ? 'page' : 'pages' }}
-                                        </span> -->
                                     </button>
 
                                     <!-- Watermark notice -->
@@ -437,7 +437,18 @@
                         ></button>
                     </div>
                     <div class="modal-body p-0" style="height: 80vh">
-                        <PDFPreview :src="paperDetails.preview_url" :visible="showPreviewModal" />
+                        <PDFPreview
+                            v-if="paperDetails.preview_url"
+                            :src="paperDetails.preview_url"
+                            :visible="showPreviewModal"
+                        />
+                        <img
+                            v-else-if="paperDetails.preview_image"
+                            :src="paperDetails.preview_image"
+                            alt="Document preview"
+                            class="img-fluid h-100 w-100"
+                            style="object-fit: contain"
+                        />
                     </div>
                     <div class="modal-footer bg-light">
                         <button class="btn btn-secondary" @click="showPreviewModal = false">
@@ -528,6 +539,9 @@ export default {
         trimmedDescription() {
             const desc = this.paperDetails?.description || '';
             return desc.length > 300 ? desc.slice(0, 300) + '…' : desc;
+        },
+        hasPreview() {
+            return this.paperDetails?.preview_url || this.paperDetails?.preview_image;
         },
     },
 
@@ -662,6 +676,26 @@ export default {
     display: flex;
     align-items: center;
     justify-content: center;
+}
+
+.preview-object {
+    width: 100%;
+    height: 400px;
+    border: 1px solid #dee2e6;
+    border-radius: 0.5rem;
+}
+
+.preview-image {
+    max-height: 400px;
+    width: auto;
+    border: 1px solid #dee2e6;
+    border-radius: 0.5rem;
+}
+
+.preview-fallback {
+    padding: 2rem;
+    text-align: center;
+    color: #6c757d;
 }
 
 .preview-thumbnail {
