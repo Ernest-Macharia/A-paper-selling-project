@@ -75,7 +75,7 @@
                                         />
 
                                         <!-- Desktop devices try PDF first -->
-                                        <!-- <template v-else>
+                                        <template v-else>
                                             <iframe
                                                 v-if="!previewLoading"
                                                 :src="pdfViewerUrl"
@@ -93,7 +93,7 @@
                                                 class="img-fluid preview-image"
                                                 alt="Document preview"
                                             />
-                                        </template> -->
+                                        </template>
 
                                         <!-- Final fallback -->
                                         <div
