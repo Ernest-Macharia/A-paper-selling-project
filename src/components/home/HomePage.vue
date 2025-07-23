@@ -159,14 +159,15 @@
         </section>
 
         <!-- Featured Papers -->
-        <section class="featured-papers py-8">
+
+        <section class="featured-papers py-8 bg-light">
             <div class="container">
                 <div class="d-flex justify-content-between align-items-end mb-6">
                     <div>
                         <h2 class="display-5 fw-bold mb-2">Featured Academic Papers</h2>
                         <p class="text-muted">Recently added premium resources</p>
                     </div>
-                    <router-link to="/papers" class="btn btn-outline-primary">
+                    <router-link to="/papers" class="btn btn-outline-primary btn-hover-scale">
                         View All Papers <i class="bi bi-arrow-right ms-2"></i>
                     </router-link>
                 </div>
@@ -177,34 +178,58 @@
                         v-for="(paper, index) in latestPapers"
                         :key="index"
                     >
-                        <div class="paper-card card border-0 shadow-sm h-100 overflow-hidden">
+                        <div
+                            class="paper-card card border-0 shadow-sm h-100 overflow-hidden transition-all hover-scale"
+                        >
                             <div
                                 class="card-img-top position-relative overflow-hidden"
-                                style="height: 160px; background-color: #f8f9fa"
+                                style="height: 160px"
                             >
-                                <div class="position-absolute w-100" style="top: 20%">
+                                <!-- Dynamic gradient background based on subject -->
+                                <div
+                                    class="position-absolute w-100 h-100"
+                                    :style="{
+                                        background: getSubjectGradient(
+                                            paper.course?.name || 'General',
+                                        ),
+                                    }"
+                                ></div>
+
+                                <!-- Abstract document lines with animation -->
+                                <div
+                                    class="position-absolute w-100 document-preview"
+                                    style="top: 20%"
+                                >
                                     <div
-                                        class="bg-white mx-auto"
+                                        class="bg-white mx-auto slide-in"
                                         style="height: 8px; width: 90%"
                                     ></div>
                                     <div
-                                        class="bg-white mx-auto mt-2"
+                                        class="bg-white mx-auto mt-2 slide-in"
                                         style="height: 8px; width: 95%"
                                     ></div>
                                     <div
-                                        class="bg-white mx-auto mt-2"
+                                        class="bg-white mx-auto mt-2 slide-in"
                                         style="height: 8px; width: 85%"
                                     ></div>
                                     <div
-                                        class="bg-white mx-auto mt-2"
+                                        class="bg-white mx-auto mt-2 slide-in"
                                         style="height: 8px; width: 92%"
                                     ></div>
                                 </div>
-                                <!-- <div class="position-absolute bottom-0 start-0 end-0 text-center pb-2">
-                                    <span class="badge bg-primary">PDF</span>
-                                </div> -->
+
+                                <!-- Popular badge if downloads exceed threshold -->
+                                <div
+                                    v-if="paper.download_count > 100"
+                                    class="position-absolute top-0 end-0 m-2"
+                                >
+                                    <span class="badge bg-danger bg-opacity-90 rounded-pill pulse">
+                                        <i class="bi bi-star-fill me-1"></i> Popular
+                                    </span>
+                                </div>
                             </div>
-                            <div class="card-body">
+
+                            <div class="card-body position-relative">
                                 <div class="d-flex justify-content-between align-items-start mb-3">
                                     <span
                                         class="badge bg-primary bg-opacity-10 text-primary rounded-pill"
@@ -215,11 +240,16 @@
                                         {{ paper.price > 0 ? `$${paper.price}` : 'FREE' }}
                                     </span>
                                 </div>
-                                <h5 class="card-title mb-2">{{ paper.title }}</h5>
+
+                                <h5 class="card-title mb-2 clamp-2-lines" :title="paper.title">
+                                    {{ paper.title }}
+                                </h5>
+
                                 <p class="text-muted small mb-3">
                                     <i class="bi bi-tag me-1"></i>
                                     {{ paper.category?.name || 'Uncategorized' }}
                                 </p>
+
                                 <div class="d-flex justify-content-between align-items-center">
                                     <span class="text-muted small">
                                         <i class="bi bi-calendar me-1"></i>
@@ -227,10 +257,29 @@
                                     </span>
                                     <span class="text-muted small">
                                         <i class="bi bi-download me-1"></i>
-                                        {{ paper.download_count || 0 }}
+                                        {{ formatNumber(paper.download_count || 0) }}
                                     </span>
                                 </div>
+
+                                <!-- Quick action buttons that appear on hover -->
+                                <div
+                                    class="quick-actions position-absolute bottom-0 end-0 p-3 opacity-0 transition-all"
+                                >
+                                    <button
+                                        class="btn btn-sm btn-primary rounded-circle me-1"
+                                        title="Quick view"
+                                    >
+                                        <i class="bi bi-eye"></i>
+                                    </button>
+                                    <button
+                                        class="btn btn-sm btn-success rounded-circle"
+                                        title="Download"
+                                    >
+                                        <i class="bi bi-download"></i>
+                                    </button>
+                                </div>
                             </div>
+
                             <router-link
                                 :to="{ name: 'paper-details', params: { id: paper.id } }"
                                 class="stretched-link"
@@ -579,6 +628,75 @@ export default {
                 day: 'numeric',
             });
         },
+
+        formatNumber(num) {
+            // Format large numbers with K/M suffixes
+            if (num >= 1000000) {
+                return (num / 1000000).toFixed(1) + 'M';
+            }
+            if (num >= 1000) {
+                return (num / 1000).toFixed(1) + 'K';
+            }
+            return num.toString();
+        },
+        getSubjectGradient(subject) {
+            // Return different gradients based on subject
+            const gradients = {
+                'Computer Science': 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+                Mathematics: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
+                Business: 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)',
+                default: 'linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%)',
+            };
+            return gradients[subject] || gradients.default;
+        },
+
+        getSubjectClass(subject) {
+            // Return CSS class based on subject
+            if (!subject) return 'general';
+
+            const subjectMap = {
+                'Computer Science': 'cs',
+                Math: 'math',
+                Mathematics: 'math',
+                Business: 'business',
+            };
+
+            return subjectMap[subject] || 'general';
+        },
+
+        getSubjectSlug(subject) {
+            if (!subject) return 'general';
+            return subject.toLowerCase().replace(/\s+/g, '-');
+        },
+
+        getInitials(name) {
+            return name
+                .split(' ')
+                .map((n) => n[0])
+                .join('')
+                .toUpperCase();
+        },
+
+        stringToColor(str) {
+            // Generate a color from a string
+            let hash = 0;
+            for (let i = 0; i < str.length; i++) {
+                hash = str.charCodeAt(i) + ((hash << 5) - hash);
+            }
+            const color = Math.floor(Math.abs(((Math.sin(hash) * 10000) % 1) * 16777216)).toString(
+                16,
+            );
+            return '#' + Array(6 - color.length + 1).join('0') + color;
+        },
+
+        toggleSave(paper) {
+            // Implement save functionality
+        },
+
+        isSaved(paper) {
+            // Check if paper is saved
+            return false;
+        },
     },
 };
 </script>
@@ -669,19 +787,72 @@ export default {
 }
 
 /* Featured Papers */
-.paper-card {
+.hover-scale:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1) !important;
+}
+
+.btn-hover-scale:hover {
+    transform: scale(1.05);
+}
+
+.transition-all {
     transition: all 0.3s ease;
-    border-radius: 12px;
+}
+
+.clamp-2-lines {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
     overflow: hidden;
 }
 
-.paper-card:hover {
-    transform: translateY(-5px);
-    box-shadow:
-        0 10px 15px -3px rgba(0, 0, 0, 0.1),
-        0 4px 6px -2px rgba(0, 0, 0, 0.05);
+.document-preview .slide-in {
+    animation: slideIn 0.5s ease-out forwards;
+    opacity: 0;
+    transform: translateX(-10px);
 }
 
+.document-preview .slide-in:nth-child(1) {
+    animation-delay: 0.1s;
+}
+.document-preview .slide-in:nth-child(2) {
+    animation-delay: 0.2s;
+}
+.document-preview .slide-in:nth-child(3) {
+    animation-delay: 0.3s;
+}
+.document-preview .slide-in:nth-child(4) {
+    animation-delay: 0.4s;
+}
+
+@keyframes slideIn {
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.pulse {
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.05);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+.paper-card:hover .quick-actions {
+    opacity: 1;
+    transform: translateY(-10px);
+}
 /* Popular Courses */
 .course-card {
     transition: all 0.3s ease;

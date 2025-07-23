@@ -141,7 +141,7 @@
                     </div>
                 </form>
 
-                <div class="auth-divider my-4">
+                <!-- <div class="auth-divider my-4">
                     <span class="text-muted">OR SIGN UP WITH</span>
                 </div>
 
@@ -157,7 +157,7 @@
                         alt="Google"
                     />
                     <span>Continue with Google</span>
-                </button>
+                </button> -->
 
                 <div class="auth-footer text-center mt-4">
                     <p class="text-muted">

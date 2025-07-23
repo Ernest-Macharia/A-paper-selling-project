@@ -82,6 +82,7 @@
                                                     (paper.price === '' || paper.price < 0),
                                             }"
                                             :disabled="isLoading"
+                                            @input="calculateEarnings"
                                         />
                                     </div>
                                     <button
@@ -98,6 +99,40 @@
                                     v-if="submitted && (paper.price === '' || paper.price < 0)"
                                 >
                                     Please set a valid price
+                                </div>
+
+                                <!-- Earnings Calculator -->
+                                <div class="earnings-calculator mt-3" v-if="paper.price > 0">
+                                    <div class="card border-0 shadow-none bg-light">
+                                        <div class="card-body p-3">
+                                            <h6 class="mb-3 text-center fw-semibold">
+                                                Earnings Breakdown
+                                            </h6>
+                                            <div class="d-flex justify-content-between mb-2">
+                                                <span>Your Earnings (65%):</span>
+                                                <span class="fw-semibold text-success"
+                                                    >${{ userEarnings.toFixed(2) }}</span
+                                                >
+                                            </div>
+                                            <div class="d-flex justify-content-between mb-2">
+                                                <span>Platform Fee (35%):</span>
+                                                <span class="fw-semibold text-primary"
+                                                    >${{ platformEarnings.toFixed(2) }}</span
+                                                >
+                                            </div>
+                                            <hr class="my-2" />
+                                            <div class="d-flex justify-content-between">
+                                                <span class="fw-semibold">Total Price:</span>
+                                                <span class="fw-semibold"
+                                                    >${{ paper.price.toFixed(2) }}</span
+                                                >
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <small class="text-muted d-block mt-2">
+                                        You'll receive 65% of each sale after payment processing
+                                        fees.
+                                    </small>
                                 </div>
                             </div>
 
@@ -434,7 +469,7 @@ export default {
             categorySearch: '',
             courseSearch: '',
             schoolSearch: '',
-            academicYears: this.generateAcademicYears(10),
+            academicYears: this.generateAcademicYears(2),
             customYear: '',
             showCategoryDropdown: false,
             showCourseDropdown: false,
@@ -442,6 +477,8 @@ export default {
             selectedCategory: null,
             selectedCourse: null,
             selectedSchool: null,
+            userEarnings: 0,
+            platformEarnings: 0,
         };
     },
 
@@ -661,12 +698,19 @@ export default {
             }
         },
 
+        calculateEarnings() {
+            const price = parseFloat(this.paper.price) || 0;
+            this.userEarnings = price * 0.65;
+            this.platformEarnings = price * 0.35;
+        },
+
         increasePrice() {
             if (this.paper.price === '' || this.paper.price === null) {
                 this.paper.price = 5.0;
             } else {
                 this.paper.price = parseFloat((this.paper.price + 0.5).toFixed(2));
             }
+            this.calculateEarnings();
         },
 
         decreasePrice() {
@@ -675,6 +719,7 @@ export default {
             } else {
                 this.paper.price = parseFloat((this.paper.price - 0.5).toFixed(2));
             }
+            this.calculateEarnings();
         },
 
         // Dropdown selection methods
@@ -807,5 +852,24 @@ export default {
     padding: 8px 12px;
     border-radius: 4px;
     font-size: 14px;
+}
+
+.earnings-calculator {
+    transition: all 0.3s ease;
+}
+
+.earnings-calculator .card {
+    border-radius: 8px;
+    background-color: rgba(248, 249, 250, 0.8);
+}
+@media (max-width: 576px) {
+    .earnings-calculator .d-flex {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .earnings-calculator .d-flex span:last-child {
+        margin-top: 2px;
+    }
 }
 </style>

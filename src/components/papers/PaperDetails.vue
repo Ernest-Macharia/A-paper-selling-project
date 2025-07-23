@@ -41,13 +41,13 @@
                             <!-- Paper Preview Section -->
                             <div class="mb-4">
                                 <h4 class="section-title text-primary mb-3">
-                                    <i class="fas fa-file-pdf me-2"></i>Paper Preview
+                                    <i class="fas fa-file me-2"></i>Paper Preview
                                 </h4>
                                 <div class="preview-thumbnail mb-3 text-center">
                                     <!-- PDF icon with responsive sizing -->
                                     <div class="pdf-icon-placeholder mb-3">
                                         <i
-                                            class="fas fa-file-pdf text-danger"
+                                            class="fas fa-file text-danger"
                                             style="font-size: clamp(3rem, 8vw, 5rem)"
                                         ></i>
                                     </div>
@@ -55,36 +55,27 @@
                                     <!-- Preview container with multiple fallback options -->
                                     <div class="preview-content mb-2">
                                         <!-- Try PDF first if available -->
+                                        <img
+                                            v-if="isMobileDevice || !paperDetails.preview_url"
+                                            :src="paperDetails.preview_image"
+                                            alt="Document preview"
+                                            class="img-fluid preview-image"
+                                        />
+
+                                        <!-- Desktop with PDF viewer -->
                                         <object
-                                            v-if="paperDetails.preview_url"
+                                            v-else
                                             :data="paperDetails.preview_url"
                                             type="application/pdf"
                                             class="preview-object"
-                                            @error="handlePdfError"
                                         >
-                                            <!-- Fallback to image if PDF doesn't work -->
                                             <img
                                                 v-if="paperDetails.preview_image"
                                                 :src="paperDetails.preview_image"
                                                 alt="Document preview"
                                                 class="img-fluid preview-image"
                                             />
-                                            <!-- Final fallback message -->
-                                            <!-- <div class="preview-fallback" v-else>
-                                                <i
-                                                    class="fas fa-exclamation-triangle text-warning me-2"
-                                                ></i>
-                                                <span>Preview not available</span>
-                                            </div> -->
                                         </object>
-
-                                        <!-- Show image directly if no PDF preview -->
-                                        <img
-                                            v-else-if="paperDetails.preview_image"
-                                            :src="paperDetails.preview_image"
-                                            alt="Document preview"
-                                            class="img-fluid preview-image"
-                                        />
                                     </div>
 
                                     <!-- Preview button with enhanced states -->
@@ -438,7 +429,7 @@
                     </div>
                     <div class="modal-body p-0" style="height: 80vh">
                         <PDFPreview
-                            v-if="paperDetails.preview_url"
+                            v-if="!isMobileDevice && paperDetails.preview_url"
                             :src="paperDetails.preview_url"
                             :visible="showPreviewModal"
                         />
@@ -542,6 +533,9 @@ export default {
         },
         hasPreview() {
             return this.paperDetails?.preview_url || this.paperDetails?.preview_image;
+        },
+        isMobileDevice() {
+            return /Mobi|Android|iPhone|iPad|iPod|Opera Mini|IEMobile/i.test(navigator.userAgent);
         },
     },
 

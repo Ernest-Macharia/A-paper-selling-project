@@ -96,7 +96,7 @@
                     </div>
                 </form>
 
-                <div class="auth-divider my-4">
+                <!-- <div class="auth-divider my-4">
                     <span class="text-muted">OR CONTINUE WITH</span>
                 </div>
 
@@ -112,7 +112,7 @@
                         alt="Google"
                     />
                     <span>Google</span>
-                </button>
+                </button> -->
 
                 <div class="auth-footer text-center mt-4">
                     <p class="text-muted">
