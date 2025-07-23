@@ -64,32 +64,9 @@
                                             <p>Loading preview...</p>
                                         </div>
 
-                                        <!-- 1. First try PDF on ALL devices -->
-                                        <object
-                                            v-if="hasPreview && !previewLoading"
-                                            :data="
-                                                paperDetails.preview_url +
-                                                '#toolbar=0&navpanes=0&zoom=fit'
-                                            "
-                                            type="application/pdf"
-                                            class="preview-object"
-                                            @load="previewLoading = false"
-                                            @error="fallbackToImage"
-                                        >
-                                            <!-- PDF fallback content -->
-                                            <img
-                                                v-if="paperDetails.preview_image"
-                                                :src="paperDetails.preview_image"
-                                                class="img-fluid preview-image"
-                                                alt="Document preview"
-                                            />
-                                        </object>
-
-                                        <!-- 2. Fallback to image if PDF fails -->
+                                        <!-- Mobile devices always get image preview -->
                                         <img
-                                            v-else-if="
-                                                paperDetails.preview_image && !previewLoading
-                                            "
+                                            v-if="paperDetails.preview_image"
                                             :src="paperDetails.preview_image"
                                             class="img-fluid preview-image"
                                             alt="Document preview"
@@ -97,8 +74,32 @@
                                             @error="handlePreviewError"
                                         />
 
-                                        <!-- 3. Final fallback -->
-                                        <div v-else-if="!previewLoading" class="preview-fallback">
+                                        <!-- Desktop devices try PDF first -->
+                                        <template v-else>
+                                            <iframe
+                                                v-if="!previewLoading"
+                                                :src="pdfViewerUrl"
+                                                class="preview-object"
+                                                @load="previewLoading = false"
+                                                @error="fallbackToImage"
+                                            >
+                                            </iframe>
+
+                                            <img
+                                                v-else-if="
+                                                    paperDetails.preview_image && !previewLoading
+                                                "
+                                                :src="paperDetails.preview_image"
+                                                class="img-fluid preview-image"
+                                                alt="Document preview"
+                                            />
+                                        </template>
+
+                                        <!-- Final fallback -->
+                                        <div
+                                            v-if="(!hasPreview || previewError) && !previewLoading"
+                                            class="preview-fallback"
+                                        >
                                             <i class="fas fa-file-pdf fa-3x"></i>
                                             <p>Preview unavailable</p>
                                         </div>
@@ -477,7 +478,7 @@
 
                         <!-- Desktop PDF Viewer -->
                         <PDFPreview
-                            v-else-if="!isMobileDevice && paperDetails.preview_url"
+                            v-else-if="paperDetails.preview_url"
                             :src="paperDetails.preview_url"
                             :visible="showPreviewModal"
                             @loaded="previewLoading = false"
@@ -485,7 +486,7 @@
                         />
 
                         <!-- Mobile Image Fallback -->
-                        <img
+                        <!-- <img
                             v-else-if="paperDetails.preview_image"
                             :src="paperDetails.preview_image"
                             alt="Document preview"
@@ -493,7 +494,7 @@
                             style="object-fit: contain"
                             @load="previewLoading = false"
                             @error="handleImageError"
-                        />
+                        /> -->
 
                         <!-- Error state -->
                         <div
