@@ -51,70 +51,15 @@
                                             style="font-size: clamp(3rem, 8vw, 5rem)"
                                         ></i>
                                     </div>
-
-                                    <!-- Preview container with multiple fallback options -->
-
-                                    <!-- Preview container with loading state -->
-                                    <div class="preview-content mb-2 position-relative">
-                                        <div v-if="previewLoading" class="preview-loading-overlay">
-                                            <div
-                                                class="spinner-border text-primary"
-                                                role="status"
-                                            ></div>
-                                            <p>Loading preview...</p>
-                                        </div>
-
-                                        <!-- Mobile devices always get image preview -->
-                                        <img
-                                            v-if="paperDetails.preview_image"
-                                            :src="paperDetails.preview_image"
-                                            class="img-fluid preview-image"
-                                            alt="Document preview"
-                                            @load="previewLoading = false"
-                                            @error="handlePreviewError"
-                                        />
-
-                                        <!-- Desktop devices try PDF first -->
-                                        <template v-else>
-                                            <iframe
-                                                v-if="!previewLoading"
-                                                :src="pdfViewerUrl"
-                                                class="preview-object"
-                                                @load="previewLoading = false"
-                                                @error="fallbackToImage"
-                                            >
-                                            </iframe>
-
-                                            <img
-                                                v-else-if="
-                                                    paperDetails.preview_image && !previewLoading
-                                                "
-                                                :src="paperDetails.preview_image"
-                                                class="img-fluid preview-image"
-                                                alt="Document preview"
-                                            />
-                                        </template>
-
-                                        <!-- Final fallback -->
-                                        <div
-                                            v-if="(!hasPreview || previewError) && !previewLoading"
-                                            class="preview-fallback"
-                                        >
-                                            <i class="fas fa-file-pdf fa-3x"></i>
-                                            <p>Preview unavailable</p>
-                                        </div>
-                                    </div>
-
-                                    <!-- Preview button with loading state -->
                                     <button
                                         class="btn w-100 d-flex justify-content-center align-items-center gap-2 preview-btn"
                                         aria-label="View document preview"
                                         aria-busy="previewLoading"
                                         :aria-disabled="!hasPreview"
                                         @click="openPreview"
-                                        :disabled="!hasPreview || previewLoading"
+                                        :disabled="previewLoading"
                                         :class="{
-                                            'btn-primary': hasPreview && !previewLoading,
+                                            'btn-primary': !previewLoading,
                                             'btn-outline-secondary': !hasPreview,
                                             'btn-sm': windowWidth < 768,
                                         }"
@@ -127,10 +72,7 @@
                                             Loading...
                                         </template>
                                         <template v-else>
-                                            <i
-                                                class="fas"
-                                                :class="hasPreview ? 'fa-eye' : 'fa-ban'"
-                                            ></i>
+                                            <i class="fas"></i>
                                             {{ previewButtonText }}
                                         </template>
                                     </button>
