@@ -75,7 +75,7 @@
                                         />
 
                                         <!-- Desktop devices try PDF first -->
-                                        <template v-else>
+                                        <!-- <template v-else>
                                             <iframe
                                                 v-if="!previewLoading"
                                                 :src="pdfViewerUrl"
@@ -93,7 +93,7 @@
                                                 class="img-fluid preview-image"
                                                 alt="Document preview"
                                             />
-                                        </template>
+                                        </template> -->
 
                                         <!-- Final fallback -->
                                         <div
@@ -478,8 +478,8 @@
 
                         <!-- Desktop PDF Viewer -->
                         <PDFPreview
-                            v-else-if="paperDetails.preview_url"
-                            :src="paperDetails.preview_url"
+                            v-else-if="paperDetails.preview_url || paperDetails.preview_image"
+                            :src="paperDetails.preview_url || paperDetails.preview_image"
                             :visible="showPreviewModal"
                             @loaded="previewLoading = false"
                             @error="handlePdfError"
