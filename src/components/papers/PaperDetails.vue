@@ -57,53 +57,51 @@
                                     <!-- Preview container with loading state -->
                                     <div class="preview-content mb-2 position-relative">
                                         <div v-if="previewLoading" class="preview-loading-overlay">
-                                            <div class="spinner-border text-primary" role="status">
-                                                <span class="visually-hidden">Loading...</span>
-                                            </div>
-                                            <p class="mt-2">Loading preview...</p>
+                                            <div
+                                                class="spinner-border text-primary"
+                                                role="status"
+                                            ></div>
+                                            <p>Loading preview...</p>
                                         </div>
 
-                                        <!-- Try PDF first if available -->
+                                        <!-- 1. First try PDF on ALL devices -->
                                         <object
-                                            v-if="
-                                                !isMobileDevice &&
-                                                paperDetails.preview_url &&
-                                                !previewLoading
-                                            "
+                                            v-if="hasPreview && !previewLoading"
                                             :data="
-                                                paperDetails.preview_url + '#toolbar=0&navpanes=0'
+                                                paperDetails.preview_url +
+                                                '#toolbar=0&navpanes=0&zoom=fit'
                                             "
                                             type="application/pdf"
                                             class="preview-object"
                                             @load="previewLoading = false"
-                                            @error="handlePdfError"
+                                            @error="fallbackToImage"
                                         >
-                                            <!-- Fallback content -->
+                                            <!-- PDF fallback content -->
                                             <img
                                                 v-if="paperDetails.preview_image"
                                                 :src="paperDetails.preview_image"
-                                                alt="Document preview"
                                                 class="img-fluid preview-image"
+                                                alt="Document preview"
                                             />
-                                            <div v-else class="preview-fallback">
-                                                <i class="fas fa-file-pdf fa-3x mb-3"></i>
-                                                <p>Preview not available</p>
-                                            </div>
                                         </object>
 
-                                        <!-- Mobile fallback - always use image -->
+                                        <!-- 2. Fallback to image if PDF fails -->
                                         <img
                                             v-else-if="
-                                                isMobileDevice &&
-                                                paperDetails.preview_image &&
-                                                !previewLoading
+                                                paperDetails.preview_image && !previewLoading
                                             "
                                             :src="paperDetails.preview_image"
-                                            alt="Document preview"
                                             class="img-fluid preview-image"
+                                            alt="Document preview"
                                             @load="previewLoading = false"
-                                            @error="handleImageError"
+                                            @error="handlePreviewError"
                                         />
+
+                                        <!-- 3. Final fallback -->
+                                        <div v-else-if="!previewLoading" class="preview-fallback">
+                                            <i class="fas fa-file-pdf fa-3x"></i>
+                                            <p>Preview unavailable</p>
+                                        </div>
                                     </div>
 
                                     <!-- Preview button with loading state -->
@@ -736,6 +734,16 @@ export default {
             this.previewError = true;
             this.previewLoading = false;
             console.error('Preview image failed to load');
+        },
+        fallbackToImage() {
+            this.previewLoading = false;
+            console.log('PDF failed, falling back to image');
+            // Force update to trigger image display
+            this.$forceUpdate();
+        },
+        handlePreviewError() {
+            this.previewLoading = false;
+            console.error('Both PDF and image preview failed');
         },
     },
 };
