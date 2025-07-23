@@ -53,53 +53,87 @@
                                     </div>
 
                                     <!-- Preview container with multiple fallback options -->
-                                    <div class="preview-content mb-2">
+
+                                    <!-- Preview container with loading state -->
+                                    <div class="preview-content mb-2 position-relative">
+                                        <div v-if="previewLoading" class="preview-loading-overlay">
+                                            <div class="spinner-border text-primary" role="status">
+                                                <span class="visually-hidden">Loading...</span>
+                                            </div>
+                                            <p class="mt-2">Loading preview...</p>
+                                        </div>
+
                                         <!-- Try PDF first if available -->
                                         <object
-                                            v-if="paperDetails.preview_url"
-                                            :data="paperDetails.preview_url"
+                                            v-if="
+                                                !isMobileDevice &&
+                                                paperDetails.preview_url &&
+                                                !previewLoading
+                                            "
+                                            :data="
+                                                paperDetails.preview_url + '#toolbar=0&navpanes=0'
+                                            "
                                             type="application/pdf"
                                             class="preview-object"
+                                            @load="previewLoading = false"
                                             @error="handlePdfError"
                                         >
+                                            <!-- Fallback content -->
                                             <img
                                                 v-if="paperDetails.preview_image"
                                                 :src="paperDetails.preview_image"
                                                 alt="Document preview"
                                                 class="img-fluid preview-image"
                                             />
+                                            <div v-else class="preview-fallback">
+                                                <i class="fas fa-file-pdf fa-3x mb-3"></i>
+                                                <p>Preview not available</p>
+                                            </div>
                                         </object>
 
+                                        <!-- Mobile fallback - always use image -->
                                         <img
-                                            v-else-if="paperDetails.preview_image"
+                                            v-else-if="
+                                                isMobileDevice &&
+                                                paperDetails.preview_image &&
+                                                !previewLoading
+                                            "
                                             :src="paperDetails.preview_image"
                                             alt="Document preview"
                                             class="img-fluid preview-image"
+                                            @load="previewLoading = false"
+                                            @error="handleImageError"
                                         />
                                     </div>
 
-                                    <!-- Preview button with enhanced states -->
+                                    <!-- Preview button with loading state -->
                                     <button
                                         class="btn w-100 d-flex justify-content-center align-items-center gap-2 preview-btn"
-                                        @click="showPreviewModal = true"
-                                        :disabled="!hasPreview"
+                                        aria-label="View document preview"
+                                        aria-busy="previewLoading"
+                                        :aria-disabled="!hasPreview"
+                                        @click="openPreview"
+                                        :disabled="!hasPreview || previewLoading"
                                         :class="{
-                                            'btn-primary': hasPreview,
+                                            'btn-primary': hasPreview && !previewLoading,
                                             'btn-outline-secondary': !hasPreview,
                                             'btn-sm': windowWidth < 768,
                                         }"
                                     >
-                                        <i
-                                            class="fas"
-                                            :class="hasPreview ? 'fa-eye' : 'fa-ban'"
-                                        ></i>
-                                        {{
-                                            hasPreview
-                                                ? windowWidth < 768
-                                                    ? 'Preview'
-                                                    : 'View Preview'
-                                                : 'Preview Not Available'
-                                        }}
+                                        <template v-if="previewLoading">
+                                            <span
+                                                class="spinner-border spinner-border-sm"
+                                                role="status"
+                                            ></span>
+                                            Loading...
+                                        </template>
+                                        <template v-else>
+                                            <i
+                                                class="fas"
+                                                :class="hasPreview ? 'fa-eye' : 'fa-ban'"
+                                            ></i>
+                                            {{ previewButtonText }}
+                                        </template>
                                     </button>
 
                                     <!-- Watermark notice -->
@@ -428,18 +462,55 @@
                         ></button>
                     </div>
                     <div class="modal-body p-0" style="height: 80vh">
+                        <!-- Loading state -->
+                        <div
+                            v-if="previewLoading"
+                            class="h-100 d-flex flex-column align-items-center justify-content-center"
+                        >
+                            <div
+                                class="spinner-grow text-primary"
+                                style="width: 3rem; height: 3rem"
+                                role="status"
+                            >
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                            <p class="mt-3">Loading preview...</p>
+                        </div>
+
+                        <!-- Desktop PDF Viewer -->
                         <PDFPreview
-                            v-if="!isMobileDevice && paperDetails.preview_url"
+                            v-else-if="!isMobileDevice && paperDetails.preview_url"
                             :src="paperDetails.preview_url"
                             :visible="showPreviewModal"
+                            @loaded="previewLoading = false"
+                            @error="handlePdfError"
                         />
+
+                        <!-- Mobile Image Fallback -->
                         <img
                             v-else-if="paperDetails.preview_image"
                             :src="paperDetails.preview_image"
                             alt="Document preview"
                             class="img-fluid h-100 w-100"
                             style="object-fit: contain"
+                            @load="previewLoading = false"
+                            @error="handleImageError"
                         />
+
+                        <!-- Error state -->
+                        <div
+                            v-else
+                            class="h-100 d-flex flex-column align-items-center justify-content-center text-muted"
+                        >
+                            <i class="fas fa-exclamation-triangle fa-3x mb-3"></i>
+                            <p>Preview not available</p>
+                            <button
+                                class="btn btn-sm btn-outline-primary mt-2"
+                                @click="retryPreview"
+                            >
+                                <i class="fas fa-sync-alt me-2"></i>Retry
+                            </button>
+                        </div>
                     </div>
                     <div class="modal-footer bg-light">
                         <button class="btn btn-secondary" @click="showPreviewModal = false">
@@ -518,11 +589,22 @@ export default {
                 paper_id: null,
             },
             windowWidth: window.innerWidth,
+            previewLoading: false,
+            previewError: false,
         };
     },
 
     async created() {
         await Promise.all([this.fetchPaperDetails(), this.loadUserDetails()]);
+    },
+
+    beforeUnmount() {
+        if (this.loadingTimeout) {
+            clearTimeout(this.loadingTimeout);
+        }
+        if (this.previewTimeout) {
+            clearTimeout(this.previewTimeout);
+        }
     },
 
     computed: {
@@ -532,10 +614,17 @@ export default {
             return desc.length > 300 ? desc.slice(0, 300) + '…' : desc;
         },
         hasPreview() {
-            return this.paperDetails?.preview_url || this.paperDetails?.preview_image;
+            return Boolean(this.paperDetails?.preview_url || this.paperDetails?.preview_image);
+        },
+        previewButtonText() {
+            if (!this.hasPreview) return 'Preview Not Available';
+            return this.windowWidth < 768 ? 'Preview' : 'View Preview';
         },
         isMobileDevice() {
-            return /Mobi|Android|iPhone|iPad|iPod|Opera Mini|IEMobile/i.test(navigator.userAgent);
+            return (
+                /Mobi|Android|iPhone|iPad|iPod|Opera Mini|IEMobile/i.test(navigator.userAgent) ||
+                (this.windowWidth < 768 && this.windowHeight < 1024)
+            );
         },
     },
 
@@ -624,6 +713,30 @@ export default {
                 paper_id: null,
             };
         },
+        openPreview() {
+            this.previewLoading = true;
+            this.showPreviewModal = true;
+
+            // Only show loading if it takes more than 300ms
+            this.loadingTimeout = setTimeout(() => {
+                if (this.previewLoading) {
+                    // Still loading after 5 seconds
+                    setTimeout(() => {
+                        this.previewLoading = false;
+                    }, 5000);
+                }
+            }, 300);
+        },
+        handlePdfError() {
+            this.previewError = true;
+            this.previewLoading = false;
+            console.warn('PDF preview failed, falling back to image');
+        },
+        handleImageError() {
+            this.previewError = true;
+            this.previewLoading = false;
+            console.error('Preview image failed to load');
+        },
     },
 };
 </script>
@@ -672,20 +785,6 @@ export default {
     justify-content: center;
 }
 
-.preview-object {
-    width: 100%;
-    height: 400px;
-    border: 1px solid #dee2e6;
-    border-radius: 0.5rem;
-}
-
-.preview-image {
-    max-height: 400px;
-    width: auto;
-    border: 1px solid #dee2e6;
-    border-radius: 0.5rem;
-}
-
 .preview-fallback {
     padding: 2rem;
     text-align: center;
@@ -701,6 +800,52 @@ export default {
     display: flex;
     flex-direction: column;
     justify-content: center;
+}
+.preview-loading-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.8);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+}
+
+.preview-object {
+    width: 100%;
+    min-height: 400px;
+    height: 60vh;
+    max-height: 600px;
+    border: 1px solid #dee2e6;
+    border-radius: 0.5rem;
+}
+
+.preview-image {
+    max-height: 60vh;
+    width: auto;
+    max-width: 100%;
+    display: block;
+    margin: 0 auto;
+    border: 1px solid #dee2e6;
+    border-radius: 0.5rem;
+}
+
+@media (max-width: 768px) {
+    .preview-object,
+    .preview-image {
+        height: 50vh;
+        max-height: 400px;
+    }
+}
+.preview-content {
+    transition: opacity 0.3s ease;
+}
+.preview-content.loading {
+    opacity: 0.7;
 }
 
 .pdf-icon-placeholder {
