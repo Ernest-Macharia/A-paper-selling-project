@@ -1,9 +1,9 @@
 <template>
     <Navbar />
-    <div class="container py-4">
+    <div class="container py-3 py-md-4">
         <!-- Improved Breadcrumb -->
-        <nav aria-label="breadcrumb" class="mt-3">
-            <ol class="breadcrumb bg-light p-3 rounded-3">
+        <nav aria-label="breadcrumb" class="mt-2 mt-md-3">
+            <ol class="breadcrumb bg-light p-2 p-md-3 rounded-3">
                 <li class="breadcrumb-item">
                     <router-link to="/papers" class="text-decoration-none">
                         <i class="fas fa-chevron-left me-2"></i>All Papers
@@ -27,39 +27,40 @@
         <div v-else class="paper-details-container">
             <!-- Paper Card -->
             <div class="card shadow-lg border-primary mb-4">
-                <div class="card-header bg-primary text-white">
-                    <h3 class="mb-0">
+                <div class="card-header bg-primary text-white py-2 py-md-3">
+                    <h3 class="mb-0 h5 h4-md">
                         <i class="fas fa-file-alt me-2"></i>{{ paperDetails.title }}
                     </h3>
                 </div>
 
-                <div class="card-body">
+                <div class="card-body p-2 p-md-3">
                     <!-- Grid Layout -->
-                    <div class="row g-4">
+                    <div class="row g-3 g-md-4">
                         <!-- Left Column -->
                         <div class="col-lg-5">
                             <!-- Paper Preview Section -->
-                            <div class="mb-4">
-                                <h4 class="section-title text-primary mb-3">
+                            <div class="mb-3 mb-md-4">
+                                <h4 class="section-title text-primary mb-2 mb-md-3 h5">
                                     <i class="fas fa-file me-2"></i>Paper Preview
                                 </h4>
-                                <div class="preview-thumbnail mb-3 text-center">
+                                <div class="preview-thumbnail mb-2 mb-md-3 text-center">
                                     <!-- PDF icon with responsive sizing -->
-                                    <div class="pdf-icon-placeholder mb-3">
+                                    <div class="pdf-icon-placeholder mb-2 mb-md-3">
                                         <i
                                             class="fas fa-file text-danger"
-                                            style="font-size: clamp(3rem, 8vw, 5rem)"
+                                            style="font-size: clamp(2rem, 8vw, 5rem)"
                                         ></i>
                                     </div>
 
                                     <!-- Preview container with multiple fallback options -->
-                                    <div class="preview-content mb-2">
+                                    <div class="preview-content mb-1 mb-md-2">
                                         <!-- Try PDF first if available -->
                                         <img
                                             v-if="isMobileDevice || !paperDetails.preview_url"
                                             :src="paperDetails.preview_image"
                                             alt="Document preview"
                                             class="img-fluid preview-image"
+                                            style="max-height: 300px"
                                         />
 
                                         <!-- Desktop with PDF viewer -->
@@ -67,26 +68,27 @@
                                             v-else
                                             :data="paperDetails.preview_url"
                                             type="application/pdf"
-                                            class="preview-object"
+                                            class="preview-object w-100"
+                                            style="height: 300px"
                                         >
                                             <img
                                                 v-if="paperDetails.preview_image"
                                                 :src="paperDetails.preview_image"
                                                 alt="Document preview"
                                                 class="img-fluid preview-image"
+                                                style="max-height: 300px"
                                             />
                                         </object>
                                     </div>
 
                                     <!-- Preview button with enhanced states -->
                                     <button
-                                        class="btn w-100 d-flex justify-content-center align-items-center gap-2 preview-btn"
+                                        class="btn w-100 d-flex justify-content-center align-items-center gap-1 gap-md-2 preview-btn py-2"
                                         @click="showPreviewModal = true"
                                         :disabled="!hasPreview"
                                         :class="{
                                             'btn-primary': hasPreview,
                                             'btn-outline-secondary': !hasPreview,
-                                            'btn-sm': windowWidth < 768,
                                         }"
                                     >
                                         <i
@@ -101,26 +103,24 @@
                                                 : 'Preview Not Available'
                                         }}
                                     </button>
-
-                                    <!-- Watermark notice -->
-                                    <!-- <div v-if="paperDetails.preview_url" class="text-muted small mt-2">
-                                        <i class="fas fa-water me-1"></i> Preview contains watermark
-                                    </div> -->
                                 </div>
                             </div>
 
                             <!-- Uploader Info -->
-                            <div class="uploader-info card mb-4">
-                                <div class="card-body">
-                                    <h5 class="card-title text-secondary mb-3">
+                            <div class="uploader-info card mb-3 mb-md-4">
+                                <div class="card-body p-2 p-md-3">
+                                    <h5 class="card-title text-secondary mb-2 mb-md-3 h6">
                                         <i class="fas fa-user-circle me-2"></i> Uploaded By
                                     </h5>
-                                    <div class="d-flex align-items-center mb-3">
-                                        <div class="avatar me-3">
-                                            <i class="fas fa-user fa-2x text-primary"></i>
+                                    <div class="d-flex align-items-center mb-2 mb-md-3">
+                                        <div class="avatar me-2 me-md-3">
+                                            <i
+                                                class="fas fa-user text-primary"
+                                                style="font-size: 1.5rem"
+                                            ></i>
                                         </div>
                                         <div>
-                                            <h6 class="mb-0">
+                                            <h6 class="mb-0 small">
                                                 {{ paperDetails.author_info?.name || 'Unknown' }}
                                             </h6>
                                             <small class="text-muted"
@@ -139,7 +139,7 @@
                                         "
                                     >
                                         <button
-                                            class="btn btn-outline-primary w-100"
+                                            class="btn btn-outline-primary w-100 py-2"
                                             @click="showChatModal = true"
                                         >
                                             <i class="fas fa-comments me-2"></i> Message Author
@@ -153,12 +153,12 @@
                         <div class="col-lg-7">
                             <!-- Paper Details -->
                             <div class="paper-details">
-                                <h4 class="section-title text-primary mb-3">
+                                <h4 class="section-title text-primary mb-2 mb-md-3 h5">
                                     <i class="fas fa-info-circle me-2"></i> Paper Details
                                 </h4>
 
                                 <div class="table-responsive">
-                                    <table class="table table-borderless">
+                                    <table class="table table-borderless mb-0">
                                         <tbody>
                                             <tr>
                                                 <td class="text-muted" width="30%">
@@ -166,9 +166,11 @@
                                                     >Description:
                                                 </td>
                                                 <td>
-                                                    {{ trimmedDescription }}
+                                                    <span class="small">{{
+                                                        trimmedDescription
+                                                    }}</span>
                                                     <button
-                                                        class="btn btn-link p-0 ps-2 text-primary"
+                                                        class="btn btn-link p-0 ps-2 text-primary small"
                                                         @click="showDescriptionModal = true"
                                                     >
                                                         Read More
@@ -176,44 +178,52 @@
                                                 </td>
                                             </tr>
                                             <tr>
-                                                <td class="text-muted">
+                                                <td class="text-muted small">
                                                     <i class="fas fa-dollar-sign me-2"></i>Price:
                                                 </td>
-                                                <td>
+                                                <td class="small">
                                                     <span class="badge bg-success"
                                                         >${{ paperDetails?.price }}</span
                                                     >
                                                 </td>
                                             </tr>
                                             <tr>
-                                                <td class="text-muted">
+                                                <td class="text-muted small">
                                                     <i class="fas fa-book me-2"></i>Course:
                                                 </td>
-                                                <td>{{ paperDetails.course?.name || 'N/A' }}</td>
+                                                <td class="small">
+                                                    {{ paperDetails.course?.name || 'N/A' }}
+                                                </td>
                                             </tr>
                                             <tr>
-                                                <td class="text-muted">
+                                                <td class="text-muted small">
                                                     <i class="fas fa-tags me-2"></i>Category:
                                                 </td>
-                                                <td>{{ paperDetails.category?.name || 'N/A' }}</td>
+                                                <td class="small">
+                                                    {{ paperDetails.category?.name || 'N/A' }}
+                                                </td>
                                             </tr>
                                             <tr>
-                                                <td class="text-muted">
+                                                <td class="text-muted small">
                                                     <i class="fas fa-file-word me-2"></i>Pages:
                                                 </td>
-                                                <td>{{ paperDetails.pages || 'N/A' }}</td>
+                                                <td class="small">
+                                                    {{ paperDetails.pages || 'N/A' }}
+                                                </td>
                                             </tr>
                                             <tr>
-                                                <td class="text-muted">
+                                                <td class="text-muted small">
                                                     <i class="fas fa-download me-2"></i>Downloads:
                                                 </td>
-                                                <td>{{ paperDetails.download_count || 'N/A' }}</td>
+                                                <td class="small">
+                                                    {{ paperDetails.download_count || 'N/A' }}
+                                                </td>
                                             </tr>
                                             <tr>
-                                                <td class="text-muted">
+                                                <td class="text-muted small">
                                                     <i class="fas fa-star me-2"></i>Rating:
                                                 </td>
-                                                <td>
+                                                <td class="small">
                                                     <div class="d-flex align-items-center">
                                                         <div class="rating me-2">
                                                             <i
@@ -246,10 +256,10 @@
                                                 </td>
                                             </tr>
                                             <tr>
-                                                <td class="text-muted">
+                                                <td class="text-muted small">
                                                     <i class="fas fa-clock me-2"></i>Last Updated:
                                                 </td>
-                                                <td>
+                                                <td class="small">
                                                     {{
                                                         formatDate(
                                                             paperDetails.updated_at ||
@@ -266,15 +276,16 @@
                     </div>
 
                     <!-- Action Buttons -->
-                    <div class="action-buttons d-flex gap-3 mt-4">
+                    <div class="action-buttons d-flex flex-wrap gap-2 gap-md-3 mt-3 mt-md-4">
                         <button
-                            class="btn btn-primary flex-grow-1 d-flex justify-content-center align-items-center gap-2 py-2"
+                            class="btn btn-primary flex-grow-1 d-flex justify-content-center align-items-center gap-1 gap-md-2 py-2"
                             @click="addToCheckout"
                         >
-                            <i class="fas fa-cart-plus"></i> Add to Cart
+                            <i class="fas fa-cart-plus"></i>
+                            <span class="d-none d-sm-inline">Add to Cart</span>
                         </button>
                         <button
-                            class="btn btn-success flex-grow-1 d-flex justify-content-center align-items-center gap-2 py-2"
+                            class="btn btn-success flex-grow-1 d-flex justify-content-center align-items-center gap-1 gap-md-2 py-2"
                             @click="openCheckoutModal"
                             :disabled="cartCount === 0"
                         >
@@ -283,10 +294,11 @@
                             <span>({{ cartCount }})</span>
                         </button>
                         <button
-                            class="btn btn-danger flex-grow-1 d-flex justify-content-center align-items-center gap-2 py-2"
+                            class="btn btn-danger flex-grow-1 d-flex justify-content-center align-items-center gap-1 gap-md-2 py-2"
                             @click="showCopyrightModal = true"
                         >
-                            <i class="fas fa-flag"></i> Report Copyright
+                            <i class="fas fa-flag"></i>
+                            <span class="d-none d-sm-inline">Report</span>
                         </button>
                     </div>
                 </div>
@@ -303,7 +315,7 @@
         >
             <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
                 <div class="modal-content border-0 shadow-lg">
-                    <div class="modal-header bg-primary text-white">
+                    <div class="modal-header bg-primary text-white py-2 py-md-3">
                         <button
                             type="button"
                             class="btn-close btn-close-white"
@@ -330,8 +342,8 @@
         >
             <div class="modal-dialog modal-dialog-centered">
                 <div class="modal-content border-0 shadow-lg">
-                    <div class="modal-header bg-danger text-white">
-                        <h5 class="modal-title">
+                    <div class="modal-header bg-danger text-white py-2 py-md-3">
+                        <h5 class="modal-title h6 h5-md">
                             <i class="fas fa-flag me-2"></i> Report Copyright Violation
                         </h5>
                         <button
@@ -340,12 +352,14 @@
                             @click="showCopyrightModal = false"
                         ></button>
                     </div>
-                    <div class="modal-body">
+                    <div class="modal-body p-2 p-md-3">
                         <form @submit.prevent="submitCopyrightReport">
-                            <div class="mb-3">
-                                <label for="reason" class="form-label">Reason for report</label>
+                            <div class="mb-2 mb-md-3">
+                                <label for="reason" class="form-label small"
+                                    >Reason for report</label
+                                >
                                 <select
-                                    class="form-select"
+                                    class="form-select form-select-sm"
                                     id="reason"
                                     v-model="report.reason"
                                     required
@@ -357,39 +371,45 @@
                                     <option value="other">Other</option>
                                 </select>
                             </div>
-                            <div class="mb-3">
-                                <label for="details" class="form-label">Additional details</label>
+                            <div class="mb-2 mb-md-3">
+                                <label for="details" class="form-label small"
+                                    >Additional details</label
+                                >
                                 <textarea
-                                    class="form-control"
+                                    class="form-control form-control-sm"
                                     id="details"
-                                    rows="4"
+                                    rows="3"
                                     v-model="report.details"
                                     placeholder="Please provide any additional information that might help us investigate..."
                                     required
                                 ></textarea>
                             </div>
-                            <div class="mb-3">
-                                <label for="contact" class="form-label"
+                            <div class="mb-2 mb-md-3">
+                                <label for="contact" class="form-label small"
                                     >Your email (optional)</label
                                 >
                                 <input
                                     type="email"
-                                    class="form-control"
+                                    class="form-control form-control-sm"
                                     id="contact"
                                     v-model="report.contact_email"
                                     placeholder="Enter your email if you'd like to be contacted"
                                 />
                             </div>
-                            <div class="d-flex justify-content-end gap-2">
+                            <div class="d-flex justify-content-end gap-1 gap-md-2">
                                 <button
                                     type="button"
-                                    class="btn btn-secondary"
+                                    class="btn btn-secondary btn-sm"
                                     @click="showCopyrightModal = false"
                                 >
                                     Cancel
                                 </button>
-                                <button type="submit" class="btn btn-danger" @click="submitReport">
-                                    <i class="fas fa-paper-plane me-2"></i> Submit Report
+                                <button
+                                    type="submit"
+                                    class="btn btn-danger btn-sm"
+                                    @click="submitReport"
+                                >
+                                    <i class="fas fa-paper-plane me-1 me-md-2"></i> Submit
                                 </button>
                             </div>
                         </form>
@@ -417,8 +437,8 @@
         >
             <div class="modal-dialog modal-xl modal-dialog-centered">
                 <div class="modal-content border-0 shadow-lg">
-                    <div class="modal-header bg-primary text-white">
-                        <h5 class="modal-title">
+                    <div class="modal-header bg-primary text-white py-2 py-md-3">
+                        <h5 class="modal-title h6 h5-md">
                             <i class="fas fa-file-pdf me-2"></i> Paper Preview
                         </h5>
                         <button
@@ -427,7 +447,7 @@
                             @click="showPreviewModal = false"
                         ></button>
                     </div>
-                    <div class="modal-body p-0" style="height: 80vh">
+                    <div class="modal-body p-0" style="height: 70vh">
                         <PDFPreview
                             v-if="!isMobileDevice && paperDetails.preview_url"
                             :src="paperDetails.preview_url"
@@ -441,9 +461,9 @@
                             style="object-fit: contain"
                         />
                     </div>
-                    <div class="modal-footer bg-light">
-                        <button class="btn btn-secondary" @click="showPreviewModal = false">
-                            <i class="fas fa-times me-2"></i>Close
+                    <div class="modal-footer bg-light py-2">
+                        <button class="btn btn-secondary btn-sm" @click="showPreviewModal = false">
+                            <i class="fas fa-times me-1 me-md-2"></i>Close
                         </button>
                     </div>
                 </div>
@@ -459,8 +479,8 @@
         >
             <div class="modal-dialog modal-lg modal-dialog-centered">
                 <div class="modal-content border-0 shadow-lg">
-                    <div class="modal-header bg-primary text-white">
-                        <h5 class="modal-title">
+                    <div class="modal-header bg-primary text-white py-2 py-md-3">
+                        <h5 class="modal-title h6 h5-md">
                             <i class="fas fa-align-left me-2"></i> Full Description
                         </h5>
                         <button
@@ -470,13 +490,18 @@
                         ></button>
                     </div>
                     <div class="modal-body" style="max-height: 60vh; overflow-y: auto">
-                        <div class="description-content p-3">
-                            <p style="white-space: pre-line">{{ paperDetails.description }}</p>
+                        <div class="description-content p-2 p-md-3">
+                            <p style="white-space: pre-line" class="small">
+                                {{ paperDetails.description }}
+                            </p>
                         </div>
                     </div>
-                    <div class="modal-footer bg-light">
-                        <button class="btn btn-secondary" @click="showDescriptionModal = false">
-                            <i class="fas fa-times me-2"></i>Close
+                    <div class="modal-footer bg-light py-2">
+                        <button
+                            class="btn btn-secondary btn-sm"
+                            @click="showDescriptionModal = false"
+                        >
+                            <i class="fas fa-times me-1 me-md-2"></i>Close
                         </button>
                     </div>
                 </div>
@@ -523,13 +548,18 @@ export default {
 
     async created() {
         await Promise.all([this.fetchPaperDetails(), this.loadUserDetails()]);
+        window.addEventListener('resize', this.handleResize);
+    },
+
+    beforeDestroy() {
+        window.removeEventListener('resize', this.handleResize);
     },
 
     computed: {
         ...mapGetters('payment', ['cartItems', 'cartCount']),
         trimmedDescription() {
             const desc = this.paperDetails?.description || '';
-            return desc.length > 300 ? desc.slice(0, 300) + '…' : desc;
+            return desc.length > 200 ? desc.slice(0, 200) + '…' : desc;
         },
         hasPreview() {
             return this.paperDetails?.preview_url || this.paperDetails?.preview_image;
@@ -543,6 +573,11 @@ export default {
         ...mapActions('papers', ['fetchPaperById']),
         ...mapActions('authentication', ['fetchCurrentUserDetails']),
         ...mapActions('communications', ['submitCopyrightReport']),
+
+        handleResize() {
+            this.windowWidth = window.innerWidth;
+        },
+
         async fetchPaperDetails() {
             try {
                 const paperId = this.$route.params.id;
@@ -616,6 +651,7 @@ export default {
                 );
             }
         },
+
         resetReportForm() {
             this.report = {
                 reason: '',
@@ -635,22 +671,22 @@ export default {
 }
 
 .card {
-    border-radius: 0.75rem;
+    border-radius: 0.5rem;
     overflow: hidden;
     border: none;
 }
 
 .card-header {
-    padding: 1.5rem;
+    padding: 0.75rem 1rem;
     border-bottom: none;
 }
 
 .card-body {
-    padding: 2rem;
+    padding: 1rem;
 }
 
 .section-title {
-    font-size: 1.25rem;
+    font-size: 1.1rem;
     font-weight: 600;
     padding-bottom: 0.5rem;
     border-bottom: 2px solid rgba(13, 110, 253, 0.2);
@@ -663,8 +699,8 @@ export default {
 }
 
 .avatar {
-    width: 50px;
-    height: 50px;
+    width: 40px;
+    height: 40px;
     background-color: #e9f5ff;
     border-radius: 50%;
     display: flex;
@@ -674,72 +710,37 @@ export default {
 
 .preview-object {
     width: 100%;
-    height: 400px;
+    height: 300px;
     border: 1px solid #dee2e6;
     border-radius: 0.5rem;
 }
 
 .preview-image {
-    max-height: 400px;
+    max-height: 300px;
     width: auto;
     border: 1px solid #dee2e6;
     border-radius: 0.5rem;
 }
 
-.preview-fallback {
-    padding: 2rem;
-    text-align: center;
-    color: #6c757d;
-}
-
 .preview-thumbnail {
     background-color: #f8f9fa;
-    padding: 1.5rem;
+    padding: 1rem;
     border-radius: 0.5rem;
-    border: 2px dashed #dee2e6;
-    min-height: 200px;
+    border: 1px dashed #dee2e6;
+    min-height: 150px;
     display: flex;
     flex-direction: column;
     justify-content: center;
 }
 
 .pdf-icon-placeholder {
-    color: #e74c3c; /* Red color similar to PDF icons */
+    color: #e74c3c;
     margin: 0 auto;
     width: fit-content;
 }
 
-/* Add to your existing styles */
-.btn-danger {
-    background-color: #dc3545;
-    border-color: #dc3545;
-}
-
-.btn-danger:hover {
-    background-color: #bb2d3b;
-    border-color: #b02a37;
-}
-
-.copyright-report-form .form-label {
-    font-weight: 500;
-    color: #495057;
-}
-
-.copyright-report-form .form-control,
-.copyright-report-form .form-select {
-    border-radius: 0.5rem;
-    padding: 0.75rem 1rem;
-    border: 1px solid #ced4da;
-}
-
-.copyright-report-form .form-control:focus,
-.copyright-report-form .form-select:focus {
-    border-color: #dc3545;
-    box-shadow: 0 0 0 0.25rem rgba(220, 53, 69, 0.25);
-}
-
 .table td {
-    padding: 0.75rem 0.5rem;
+    padding: 0.5rem;
     vertical-align: middle;
 }
 
@@ -756,69 +757,81 @@ export default {
     border-radius: 0.5rem;
 }
 
-.action-buttons {
-    max-width: 600px;
-    margin: 0 auto;
-}
-
-.btn {
-    font-size: 1rem;
+.action-buttons .btn {
+    font-size: 0.9rem;
     font-weight: 500;
-    border-radius: 8px;
+    border-radius: 6px;
     transition: all 0.2s ease;
-    min-height: 48px;
+    min-height: 40px;
+    padding: 0.5rem;
+    flex: 1 0 120px;
 }
 
 .btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-.btn:active {
-    transform: translateY(0);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .btn i {
-    font-size: 1.1rem;
+    font-size: 0.9rem;
 }
 
-/* Modal animations */
-.modal.fade {
-    transition: opacity 0.3s linear;
-}
-
-.modal.fade:not(.show) {
-    opacity: 0;
-}
-
-.modal.fade .modal-dialog {
-    transition: transform 0.3s ease-out;
-    transform: translate(0, -50px);
-}
-
-.modal.fade.show .modal-dialog {
-    transform: none;
-}
-
-@media (max-width: 768px) {
-    .action-buttons {
-        flex-direction: column;
-        gap: 1rem;
+/* Responsive adjustments */
+@media (min-width: 768px) {
+    .card-header {
+        padding: 1rem 1.5rem;
     }
 
-    .btn {
-        width: 100%;
+    .card-body {
+        padding: 1.5rem;
     }
-}
 
-@media (max-width: 576px) {
-    .btn {
-        font-size: 0.9rem;
-        padding: 0.5rem 1rem;
+    .section-title {
+        font-size: 1.25rem;
+    }
+
+    .action-buttons .btn {
+        font-size: 1rem;
+        min-height: 48px;
+        padding: 0.75rem;
     }
 
     .btn i {
         font-size: 1rem;
+    }
+
+    .avatar {
+        width: 50px;
+        height: 50px;
+    }
+}
+
+@media (min-width: 992px) {
+    .preview-object,
+    .preview-image {
+        height: 350px;
+        max-height: 350px;
+    }
+}
+
+/* Modal adjustments for mobile */
+.modal-body {
+    padding: 1rem;
+}
+
+.modal-header,
+.modal-footer {
+    padding: 0.75rem 1rem;
+}
+
+@media (min-width: 768px) {
+    .modal-body {
+        padding: 1.5rem;
+    }
+
+    .modal-header,
+    .modal-footer {
+        padding: 1rem 1.5rem;
     }
 }
 </style>
