@@ -63,28 +63,28 @@
                                             @error="handlePdfError"
                                         >
                                             <!-- Fallback to image if PDF doesn't work -->
-                                            <img
+                                            <!-- <img
                                                 v-if="paperDetails.preview_image"
                                                 :src="paperDetails.preview_image"
                                                 alt="Document preview"
                                                 class="img-fluid preview-image"
-                                            />
+                                            /> -->
                                             <!-- Final fallback message -->
-                                            <div class="preview-fallback" v-else>
+                                            <!-- <div class="preview-fallback" v-else>
                                                 <i
                                                     class="fas fa-exclamation-triangle text-warning me-2"
                                                 ></i>
                                                 <span>Preview not available</span>
-                                            </div>
+                                            </div> -->
                                         </object>
 
                                         <!-- Show image directly if no PDF preview -->
-                                        <img
+                                        <!-- <img
                                             v-else-if="paperDetails.preview_image"
                                             :src="paperDetails.preview_image"
                                             alt="Document preview"
                                             class="img-fluid preview-image"
-                                        />
+                                        /> -->
                                     </div>
 
                                     <!-- Preview button with enhanced states -->
@@ -442,13 +442,13 @@
                             :src="paperDetails.preview_url"
                             :visible="showPreviewModal"
                         />
-                        <img
+                        <!-- <img
                             v-else-if="paperDetails.preview_image"
                             :src="paperDetails.preview_image"
                             alt="Document preview"
                             class="img-fluid h-100 w-100"
                             style="object-fit: contain"
-                        />
+                        /> -->
                     </div>
                     <div class="modal-footer bg-light">
                         <button class="btn btn-secondary" @click="showPreviewModal = false">

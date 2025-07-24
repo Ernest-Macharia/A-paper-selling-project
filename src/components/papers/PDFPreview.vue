@@ -239,24 +239,57 @@ let isRendering = false;
 
 // Computed properties
 const visiblePages = computed(() => {
-    if (pageDimensions.value.length === 0 || pageDimensions.value.some((dim) => dim === null)) {
+    // Return empty array if no page dimensions
+    if (!pageDimensions.value || pageDimensions.value.length === 0) {
+        console.warn('No page dimensions available');
         return [];
     }
 
-    const container = pdfContainer.value;
-    if (!container) return [];
+    // Show all pages if less than 5 (with null checks)
+    if (numPages.value <= 4) {
+        return pageDimensions.value.map((page, i) => {
+            if (!page) {
+                console.warn(`Page ${i + 1} dimensions are null`);
+                return {
+                    number: i + 1,
+                    width: 0,
+                    height: 0,
+                };
+            }
+            return {
+                number: i + 1,
+                width: page.width,
+                height: page.height,
+            };
+        });
+    }
 
-    const containerHeight = container.clientHeight;
+    // Virtual scrolling for more than 4 pages
+    const container = pdfContainer.value;
+    if (!container) {
+        console.warn('PDF container not available');
+        return pageDimensions.value.map((page, i) => ({
+            number: i + 1,
+            width: page?.width || 0,
+            height: page?.height || 0,
+        }));
+    }
+
+    const buffer = container.clientHeight * 2;
     const scrollTop = container.scrollTop;
-    const buffer = containerHeight * 2;
     const startPos = Math.max(0, scrollTop - buffer);
-    const endPos = scrollTop + containerHeight + buffer;
+    const endPos = scrollTop + container.clientHeight + buffer;
 
     let cumulativeHeight = 0;
     const visible = [];
 
     for (let i = 0; i < pageDimensions.value.length; i++) {
         const page = pageDimensions.value[i];
+        if (!page) {
+            console.warn(`Page ${i + 1} dimensions are null`);
+            continue;
+        }
+
         const pageHeight = page.height + pageGap.value;
 
         if (cumulativeHeight + pageHeight > startPos && cumulativeHeight < endPos) {
@@ -270,7 +303,6 @@ const visiblePages = computed(() => {
         cumulativeHeight += pageHeight;
         if (cumulativeHeight > endPos) break;
     }
-
     return visible;
 });
 
@@ -290,21 +322,27 @@ const loadPdf = async () => {
         pdfDoc = await loadingTask.promise;
         numPages.value = pdfDoc.numPages;
 
-        // Get document metadata
-        const metadata = await pdfDoc.getMetadata();
-        if (metadata?.info?.Title) {
-            documentTitle.value = metadata.info.Title;
-        }
-
-        // Initialize arrays
+        // Initialize with correct length
         pageDimensions.value = Array(numPages.value).fill(null);
         pageCanvases.value = Array(numPages.value).fill(null);
 
         await calculateAllPageDimensions();
         updateContentHeight();
-        renderVisiblePages();
+
+        // Force render first 4 pages immediately
+        for (let i = 1; i <= Math.min(4, numPages.value); i++) {
+            addToRenderQueue(i);
+        }
+        processRenderQueue();
+
+        // Set initial scroll position
+        nextTick(() => {
+            if (pdfContainer.value) {
+                pdfContainer.value.scrollTop = 0;
+            }
+        });
     } catch (err) {
-        console.error('Failed to load PDF:', err);
+        console.error('PDF loading error:', err);
         error.value = err;
     } finally {
         loading.value.pdf = false;
@@ -312,19 +350,30 @@ const loadPdf = async () => {
 };
 
 const calculateAllPageDimensions = async () => {
+    const newDimensions = [];
     for (let i = 1; i <= numPages.value; i++) {
-        const page = await pdfDoc.getPage(i);
-        const viewport = page.getViewport({
-            scale: scale.value,
-            rotation: rotation.value,
-        });
-
-        pageDimensions.value[i - 1] = {
-            width: viewport.width,
-            height: viewport.height,
-            viewport: viewport,
-        };
+        try {
+            const page = await pdfDoc.getPage(i);
+            const viewport = page.getViewport({
+                scale: scale.value,
+                rotation: rotation.value,
+            });
+            newDimensions.push({
+                width: viewport.width,
+                height: viewport.height,
+                viewport: viewport,
+            });
+        } catch (err) {
+            console.error(`Error getting dimensions for page ${i}:`, err);
+            // Provide fallback dimensions
+            newDimensions.push({
+                width: 595, // Standard A4 width in points
+                height: 842, // Standard A4 height in points
+                viewport: null,
+            });
+        }
     }
+    pageDimensions.value = newDimensions;
 };
 
 const updateContentHeight = () => {
@@ -405,30 +454,35 @@ const renderPage = async (pageNumber) => {
 };
 
 const handleScroll = debounce(() => {
-    if (!pdfContainer.value || pageDimensions.value.length === 0) return;
+    if (!pdfContainer.value) return;
 
     const scrollTop = pdfContainer.value.scrollTop;
     scrollPosition.value = scrollTop;
 
+    // Update current page number
     let cumulativeHeight = 0;
-    let currentPage = 1;
-
     for (let i = 0; i < pageDimensions.value.length; i++) {
-        const pageHeight = pageDimensions.value[i].height + pageGap.value;
+        const page = pageDimensions.value[i];
+        if (!page) continue;
+
+        const pageHeight = page.height + pageGap.value;
 
         if (scrollTop >= cumulativeHeight && scrollTop < cumulativeHeight + pageHeight) {
-            currentPage = i + 1;
+            if (pageNum.value !== i + 1) {
+                pageNum.value = i + 1;
+            }
             break;
         }
-
         cumulativeHeight += pageHeight;
     }
 
-    if (currentPage !== pageNum.value) {
-        pageNum.value = currentPage;
-    }
-
-    renderVisiblePages();
+    // Ensure all pages are in render queue
+    visiblePages.value.forEach((page) => {
+        if (!isPageRendered(page.number)) {
+            addToRenderQueue(page.number);
+        }
+    });
+    processRenderQueue();
 }, 100);
 
 const goToPage = (pageNumber) => {
@@ -672,35 +726,34 @@ watch(
 /* PDF Display Area */
 .pdf-viewport {
     width: 100%;
-    height: 70vh;
-    overflow: auto;
+    height: 80vh;
+    overflow-y: auto;
+    overflow-x: hidden;
     position: relative;
-    background-color: var(--page-bg);
-    border-radius: var(--border-radius);
-    border: 1px solid var(--page-border);
-    margin-bottom: 1rem;
+    scroll-behavior: smooth;
 }
 
 .pdf-content {
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 1rem 0;
+    width: 100%;
 }
 
 .pdf-page-wrapper {
-    position: relative;
-    margin-bottom: 1.25rem;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    background-color: white;
 }
 
 .pdf-page {
     display: block;
     max-width: 100%;
     height: auto;
+    border: 1px solid #eee;
 }
-
 .page-loading-overlay {
     position: absolute;
     top: 0;
