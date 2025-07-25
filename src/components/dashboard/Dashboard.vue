@@ -21,20 +21,42 @@
 
             <!-- Content -->
             <div v-else>
-                <!-- Metrics Cards Grid -->
-                <div class="row g-4 mb-5">
+                <!-- Metrics Cards Grid - Compact 2 rows of 4 cards -->
+                <div class="row g-2 mb-3">
+                    <!-- First Row -->
                     <div
-                        class="col-xxl-3 col-lg-4 col-md-6"
-                        v-for="(stat, index) in metrics"
-                        :key="index"
+                        class="col-xl-3 col-lg-4 col-md-6"
+                        v-for="(stat, index) in metrics.slice(0, 4)"
+                        :key="'first-' + index"
                     >
-                        <div class="metric-card card border-0 h-100 transition-all hover-lift">
-                            <div class="card-body text-center p-4">
-                                <div class="metric-icon mb-3">
-                                    <span class="display-4">{{ stat.icon }}</span>
+                        <div class="metric-card card border-0 h-100 transition-all hover-lift-sm">
+                            <div class="card-body text-center p-2">
+                                <div class="metric-icon mb-1">
+                                    <span class="fs-2">{{ stat.icon }}</span>
                                 </div>
-                                <h5 class="card-title fw-semibold mb-2">{{ stat.title }}</h5>
-                                <p class="metric-value display-6 fw-bold mb-0">
+                                <h6 class="card-title fw-semibold mb-1 small">{{ stat.title }}</h6>
+                                <p class="metric-value fs-4 fw-bold mb-0">
+                                    {{ stat.display }}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row g-2 mb-4">
+                    <!-- Second Row -->
+                    <div
+                        class="col-xl-3 col-lg-4 col-md-6"
+                        v-for="(stat, index) in metrics.slice(4)"
+                        :key="'second-' + index"
+                    >
+                        <div class="metric-card card border-0 h-100 transition-all hover-lift-sm">
+                            <div class="card-body text-center p-2">
+                                <div class="metric-icon mb-1">
+                                    <span class="fs-2">{{ stat.icon }}</span>
+                                </div>
+                                <h6 class="card-title fw-semibold mb-1 small">{{ stat.title }}</h6>
+                                <p class="metric-value fs-4 fw-bold mb-0">
                                     {{ stat.display }}
                                 </p>
                             </div>
@@ -467,11 +489,14 @@ export default {
         },
     },
     created() {
-        // Initialize debounced functions
-        this.debounceFetchMostViewedPapers = debounce(this.fetchMostViewedPapersHandler, 500);
-        this.debounceFetchLatestUserPapers = debounce(this.fetchLatestUserPapersHandler, 500);
+        this.debounceFetchMostViewedPapers = debounce(() => {
+            this.fetchMostViewedPapersHandler(1);
+        }, 500);
 
-        // Load initial data
+        this.debounceFetchLatestUserPapers = debounce(() => {
+            this.fetchLatestUserPapersHandler(1);
+        }, 500);
+
         this.fetchDashboardData();
     },
     methods: {
@@ -604,29 +629,24 @@ export default {
     justify-content: center;
 }
 
-/* Metrics Cards */
+/* Metrics Cards - Smaller size */
 .metric-card {
-    border-radius: 12px;
-    background: white;
-    box-shadow:
-        0 4px 6px -1px rgba(0, 0, 0, 0.05),
-        0 2px 4px -1px rgba(0, 0, 0, 0.05);
-    transition: all 0.2s ease;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
-.metric-card:hover {
-    transform: translateY(-5px);
-    box-shadow:
-        0 10px 15px -3px rgba(0, 0, 0, 0.1),
-        0 4px 6px -2px rgba(0, 0, 0, 0.05);
+.hover-lift-sm:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 .metric-icon {
-    opacity: 0.8;
+    opacity: 0.9;
 }
 
 .metric-value {
     color: #4f46e5;
+    line-height: 1.2;
 }
 
 /* Papers Sections */
@@ -757,6 +777,6 @@ export default {
 }
 
 .hover-lift:hover {
-    transform: translateY(-5px);
+    transform: translateY(-3px);
 }
 </style>

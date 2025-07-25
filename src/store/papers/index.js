@@ -323,20 +323,44 @@ const actions = {
         }
     },
 
-    async fetchMostViewedPapers({ commit }) {
+    async fetchMostViewedPapers(_, params = {}) {
         try {
-            const response = await api.get('/exampapers/papers/most-viewed/');
-            return response.data;
+            const response = await api.get('/exampapers/papers/most-viewed/', {
+                params: {
+                    page: params.page || 1,
+                    search: params.search || '',
+                    ordering:
+                        params.sort === 'views'
+                            ? '-views'
+                            : params.sort === 'downloads'
+                              ? '-download_count'
+                              : '-upload_date',
+                    price: params.price !== 'all' ? params.price : undefined,
+                },
+            });
+            return response;
         } catch (error) {
             console.error('Failed to fetch most viewed papers:', error);
             throw error;
         }
     },
 
-    async fetchLatestUserPapers({ commit }) {
+    async fetchLatestUserPapers(_, params = {}) {
         try {
-            const response = await api.get('/exampapers/dashboard/latest-papers/');
-            return response.data;
+            const response = await api.get('/exampapers/dashboard/latest-papers/', {
+                params: {
+                    page: params.page || 1,
+                    search: params.search || '',
+                    ordering:
+                        params.sort === 'views'
+                            ? '-views'
+                            : params.sort === 'downloads'
+                              ? '-download_count'
+                              : '-upload_date',
+                    status: params.status !== 'all' ? params.status : undefined,
+                },
+            });
+            return response;
         } catch (error) {
             console.error('Failed to fetch latest user papers:', error);
             throw error;
