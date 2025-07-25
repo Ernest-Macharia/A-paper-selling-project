@@ -36,7 +36,7 @@
                             />
                         </div>
                     </div>
-                    <!-- <div class="col-md-4">
+                    <div class="col-md-4">
                         <select
                             v-model="selectedCategory"
                             @change="filterPapers"
@@ -51,7 +51,7 @@
                                 {{ category.name }}
                             </option>
                         </select>
-                    </div> -->
+                    </div>
                     <div class="col-md-6">
                         <select v-model="sortKey" @change="toggleSort(sortKey)" class="form-select">
                             <option value="">Sort by</option>
@@ -280,7 +280,6 @@ export default {
         },
     },
     created() {
-        console.log('Author ID from route:', this.$route.params.authorId); // Add this
         this.uploaderId = parseInt(this.$route.params.authorId);
         this.loadUploaderPapers();
         this.loadCategories();
@@ -293,9 +292,7 @@ export default {
             try {
                 const response = await this.fetchPapersByAuthor(this.uploaderId);
                 this.papers = response.papers;
-                console.log('Papers:', this.papers);
                 this.filteredPapers = response.papers;
-                console.log('Filtered Papers:', this.filteredPapers);
                 this.uploaderName = response.author_name || 'Unknown Author';
             } catch {
                 this.papers = [];
@@ -308,7 +305,7 @@ export default {
                 const response = await this.fetchCategories();
                 this.categories = response.results;
             } catch (err) {
-                console.error('Error loading categories:', err);
+                this.categories = [];
             }
         },
         filterPapers() {
