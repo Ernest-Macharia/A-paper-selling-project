@@ -3,9 +3,15 @@
     <div class="container py-4">
         <!-- Hero Section -->
         <div class="hero-section text-center mb-5">
-            <h1 class="display-5 fw-bold text-dark mb-3">Discover Academic Excellence</h1>
+            <h1 class="display-5 fw-bold text-dark mb-3">
+                <template v-if="isCurrentUser"> Your Uploaded Papers </template>
+                <template v-else> Papers by {{ uploaderName }} </template>
+            </h1>
             <p class="lead text-muted mb-4">
-                Browse our curated collection of high-quality research papers and academic resources
+                <template v-if="isCurrentUser">
+                    Manage and showcase your academic contributions
+                </template>
+                <template v-else> Browse this author's collection of academic resources </template>
             </p>
 
             <!-- Search and Filter Bar -->
@@ -14,7 +20,7 @@
                 style="max-width: 800px"
             >
                 <div class="row g-3">
-                    <div class="col-md-5">
+                    <div class="col-md-6">
                         <div class="input-group">
                             <span class="input-group-text bg-transparent border-end-0">
                                 <i class="bi bi-search text-muted"></i>
@@ -24,11 +30,13 @@
                                 @input="filterPapers"
                                 type="text"
                                 class="form-control border-start-0 ps-0"
-                                placeholder="Search papers..."
+                                :placeholder="
+                                    isCurrentUser ? 'Search your papers...' : 'Search papers...'
+                                "
                             />
                         </div>
                     </div>
-                    <div class="col-md-4">
+                    <!-- <div class="col-md-4">
                         <select
                             v-model="selectedCategory"
                             @change="filterPapers"
@@ -43,14 +51,13 @@
                                 {{ category.name }}
                             </option>
                         </select>
-                    </div>
-                    <div class="col-md-3">
+                    </div> -->
+                    <div class="col-md-6">
                         <select v-model="sortKey" @change="toggleSort(sortKey)" class="form-select">
                             <option value="">Sort by</option>
                             <option value="title">Title</option>
                             <option value="price">Price</option>
                             <option value="upload_date">Date</option>
-                            <option value="school.name">School</option>
                         </select>
                     </div>
                 </div>
@@ -62,17 +69,33 @@
             <div class="spinner-grow text-primary" style="width: 3rem; height: 3rem" role="status">
                 <span class="visually-hidden">Loading...</span>
             </div>
-            <p class="mt-3 text-muted">Loading academic papers...</p>
+            <p class="mt-3 text-muted">
+                <template v-if="isCurrentUser"> Loading your papers... </template>
+                <template v-else> Loading papers by {{ uploaderName }}... </template>
+            </p>
         </div>
 
         <!-- Empty State -->
         <div v-else-if="filteredPapers.length === 0" class="empty-state text-center py-5 my-5">
             <i class="bi bi-file-earmark-x display-5 text-muted mb-4"></i>
-            <h4 class="text-dark mb-2">No papers found</h4>
-            <p class="text-muted">Try adjusting your search or filter criteria</p>
-            <button class="btn btn-outline-primary mt-3" @click="resetFilters">
-                <i class="bi bi-arrow-counterclockwise me-2"></i>Reset Filters
-            </button>
+            <h4 class="text-dark mb-2">
+                <template v-if="isCurrentUser"> You haven't uploaded any papers yet </template>
+                <template v-else> No papers found </template>
+            </h4>
+            <p class="text-muted">
+                <template v-if="isCurrentUser">
+                    Get started by uploading your first academic paper
+                </template>
+                <template v-else> This author hasn't shared any papers yet </template>
+            </p>
+            <template v-if="isCurrentUser">
+                <router-link to="/dashboard/upload-file" class="btn btn-primary mt-3">
+                    <i class="bi bi-upload me-2"></i>Upload Paper
+                </router-link>
+            </template>
+            <router-link to="/papers" class="btn btn-outline-primary mt-3 ms-2">
+                <i class="bi bi-arrow-left me-2"></i>Browse All Papers
+            </router-link>
         </div>
 
         <!-- Papers Grid -->
@@ -207,10 +230,10 @@
 
 <script>
 import Navbar from '@/components/home/Navbar.vue';
-import { mapActions } from 'vuex';
+import { mapActions, mapGetters } from 'vuex';
 
 export default {
-    name: 'Papers',
+    name: 'UploaderPapers',
     components: { Navbar },
     data() {
         return {
@@ -224,9 +247,15 @@ export default {
             isLoading: false,
             sortKey: '',
             sortAsc: true,
+            uploaderName: '',
+            uploaderId: null,
         };
     },
     computed: {
+        ...mapGetters('authentication', ['currentUser']),
+        isCurrentUser() {
+            return this.currentUser?.id === this.uploaderId;
+        },
         totalPages() {
             return Math.ceil(this.filteredPapers.length / this.pageSize);
         },
@@ -251,17 +280,23 @@ export default {
         },
     },
     created() {
-        this.loadPapers();
+        console.log('Author ID from route:', this.$route.params.authorId); // Add this
+        this.uploaderId = parseInt(this.$route.params.authorId);
+        this.loadUploaderPapers();
         this.loadCategories();
     },
+
     methods: {
-        ...mapActions('papers', ['fetchAllPapers', 'fetchCategories']),
-        async loadPapers() {
+        ...mapActions('papers', ['fetchPapersByAuthor', 'fetchCategories']),
+        async loadUploaderPapers() {
             this.isLoading = true;
             try {
-                const data = await this.fetchAllPapers();
-                this.papers = data.results;
-                this.filteredPapers = data.results;
+                const response = await this.fetchPapersByAuthor(this.uploaderId);
+                this.papers = response.papers;
+                console.log('Papers:', this.papers);
+                this.filteredPapers = response.papers;
+                console.log('Filtered Papers:', this.filteredPapers);
+                this.uploaderName = response.author_name || 'Unknown Author';
             } catch {
                 this.papers = [];
             } finally {
@@ -310,12 +345,8 @@ export default {
             const asc = this.sortAsc ? 1 : -1;
 
             this.filteredPapers.sort((a, b) => {
-                const getNestedValue = (obj, path) => {
-                    return path.split('.').reduce((o, p) => (o ? o[p] : ''), obj);
-                };
-
-                const valA = getNestedValue(a, key)?.toString().toLowerCase() || '';
-                const valB = getNestedValue(b, key)?.toString().toLowerCase() || '';
+                const valA = a[key]?.toString().toLowerCase?.() || '';
+                const valB = b[key]?.toString().toLowerCase?.() || '';
 
                 if (!isNaN(a[key]) && !isNaN(b[key])) {
                     return (a[key] - b[key]) * asc;
@@ -345,98 +376,3 @@ export default {
     },
 };
 </script>
-
-<style scoped>
-.hero-section {
-    padding: 2rem 0;
-    background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
-    border-radius: 1rem;
-    margin-bottom: 2rem;
-}
-
-.search-filter-container {
-    border: 1px solid rgba(0, 0, 0, 0.05);
-}
-
-.paper-card {
-    border-radius: 0.75rem;
-    transition: all 0.3s ease;
-    overflow: hidden;
-    height: 100%;
-}
-
-.paper-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-}
-
-.hover-lift:hover {
-    transform: translateY(-5px);
-}
-
-.line-clamp-2 {
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-}
-
-.empty-state {
-    background-color: #f8f9fa;
-    border-radius: 0.75rem;
-    padding: 3rem;
-}
-
-.page-link {
-    border: none;
-    color: #495057;
-    min-width: 40px;
-    text-align: center;
-    margin: 0 2px;
-    border-radius: 0.5rem !important;
-}
-
-.page-item.active .page-link {
-    background-color: #0d6efd;
-    color: white;
-}
-
-.page-item:not(.active):not(.disabled) .page-link:hover {
-    background-color: #e9ecef;
-}
-
-.input-group-text {
-    background-color: transparent;
-}
-
-.form-control:focus,
-.form-select:focus {
-    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.15);
-    border-color: #86b7fe;
-}
-
-.badge {
-    padding: 0.35em 0.65em;
-    font-weight: 500;
-}
-
-@media (max-width: 768px) {
-    .hero-section {
-        padding: 1.5rem 0;
-    }
-
-    .search-filter-container {
-        padding: 1rem !important;
-    }
-
-    .page-item {
-        display: none;
-    }
-
-    .page-item:first-child,
-    .page-item:last-child,
-    .page-item.active {
-        display: block;
-    }
-}
-</style>

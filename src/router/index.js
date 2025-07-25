@@ -11,6 +11,9 @@ import ResendActivation from '@/components/registration/ResendActivation.vue';
 import ActivateAccountPage from '@/components/registration/ActivateAccountPage.vue';
 import ActivationSent from '@/components/registration/ActivationSent.vue';
 import Papers from '@/components/papers/Papers.vue';
+import Schools from '../components/papers/Schools.vue';
+import SchoolDetail from '../components/papers/SchoolDetail.vue';
+import UploaderPapers from '@/components/papers/UploaderPapers.vue';
 import PaperDetails from '@/components/papers/PaperDetails.vue';
 import Dashboard from '@/components/dashboard/Dashboard.vue';
 import Uploads from '@/components/dashboard/Uploads.vue';
@@ -100,6 +103,25 @@ const routes = [
                 path: '/papers/download',
                 name: 'PaperDownloadView',
                 component: PaperDownloadView,
+            },
+            {
+                path: '/papers/author/:authorId',
+                name: 'uploader-papers',
+                component: UploaderPapers,
+                props: true,
+            },
+            {
+                path: '/schools',
+                name: 'schools',
+                component: Schools,
+                meta: { title: 'Schools' },
+            },
+            {
+                path: '/schools/:id',
+                name: 'school-detail',
+                component: SchoolDetail,
+                meta: { title: 'School Details' },
+                props: true,
             },
         ],
     },

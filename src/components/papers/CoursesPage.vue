@@ -29,13 +29,13 @@
                     <span class="text-muted small">Sort by:</span>
                     <select
                         v-model="sortKey"
-                        @change="toggleSort"
+                        @change="loadCourses"
                         class="form-select form-select-sm w-auto"
                     >
                         <option value="name">Name</option>
                         <option value="paper_count">Paper Count</option>
                     </select>
-                    <button @click="sortAsc = !sortAsc" class="btn btn-sm btn-outline-secondary">
+                    <button @click="toggleSortDirection" class="btn btn-sm btn-outline-secondary">
                         <i :class="sortAsc ? 'bi bi-sort-down' : 'bi bi-sort-up'"></i>
                     </button>
                 </div>
@@ -57,11 +57,7 @@
 
         <!-- Courses Grid -->
         <div v-else class="row g-4">
-            <div
-                v-for="course in sortedCourses"
-                :key="course.id"
-                class="col-md-6 col-lg-4 col-xl-3"
-            >
+            <div v-for="course in courses" :key="course.id" class="col-md-6 col-lg-4 col-xl-3">
                 <div class="course-card card h-100 border-0 shadow-sm transition-all">
                     <div class="card-body p-4">
                         <div
@@ -72,17 +68,15 @@
                         <h5 class="fw-bold mb-2">{{ course.name }}</h5>
 
                         <div class="d-flex justify-content-between align-items-center mb-3">
-                            <div>
-                                <span class="badge bg-primary bg-opacity-10 text-primary small">
-                                    {{ course.department || 'General' }}
-                                </span>
-                            </div>
                             <span class="text-primary fw-bold small">
                                 {{ course.paper_count || 0 }} Papers
                             </span>
                         </div>
+                        <span class="text-primary fw-bold small">
+                            {{ course.school_name }}
+                        </span>
 
-                        <div class="progress mb-2" style="height: 6px">
+                        <!-- <div class="progress mb-2" style="height: 6px">
                             <div
                                 class="progress-bar bg-primary"
                                 :style="{
@@ -90,7 +84,7 @@
                                         Math.min((course.paper_count / maxPapers) * 100, 100) + '%',
                                 }"
                             ></div>
-                        </div>
+                        </div> -->
                     </div>
 
                     <router-link :to="`/courses/${course.id}`" class="stretched-link"></router-link>
@@ -151,24 +145,12 @@ export default {
             searchQuery: '',
             currentPage: 1,
             totalPages: 1,
+            maxPapers: 0,
             isLoading: false,
             sortKey: 'name',
             sortAsc: true,
+            schoolFilter: '',
         };
-    },
-
-    computed: {
-        sortedCourses() {
-            return [...this.courses].sort((a, b) => {
-                const aVal = a[this.sortKey];
-                const bVal = b[this.sortKey];
-                if (typeof aVal === 'string') {
-                    return this.sortAsc ? aVal.localeCompare(bVal) : bVal.localeCompare(aVal);
-                } else {
-                    return this.sortAsc ? aVal - bVal : bVal - aVal;
-                }
-            });
-        },
     },
 
     async created() {
@@ -184,15 +166,28 @@ export default {
                 const response = await this.fetchCourses({
                     search: this.searchQuery,
                     page: this.currentPage,
+                    ordering: this.sortAsc ? this.sortKey : `-${this.sortKey}`,
+                    schoolName: this.schoolFilter || null,
                 });
+
                 this.courses = response.results;
                 const pageSize = 10;
                 this.totalPages = Math.ceil(response.count / pageSize);
-            } catch {
+
+                // Update maxPapers for the progress bar
+                this.maxPapers = Math.max(...this.courses.map((c) => c.paper_count || 0));
+            } catch (error) {
+                console.error('Failed to load courses:', error);
                 this.courses = [];
             } finally {
                 this.isLoading = false;
             }
+        },
+
+        filterBySchool(schoolName) {
+            this.schoolFilter = schoolName;
+            this.currentPage = 1;
+            this.loadCourses();
         },
 
         changePage(page) {
@@ -211,13 +206,10 @@ export default {
             this.loadCourses();
         },
 
-        toggleSort(key) {
-            if (this.sortKey === key) {
-                this.sortAsc = !this.sortAsc;
-            } else {
-                this.sortKey = key;
-                this.sortAsc = true;
-            }
+        toggleSortDirection() {
+            this.sortAsc = !this.sortAsc;
+            this.currentPage = 1;
+            this.loadCourses();
         },
     },
 };

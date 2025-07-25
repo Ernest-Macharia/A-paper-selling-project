@@ -6,6 +6,24 @@ const state = {
     popularCourses: [],
     popularCategories: [],
     schools: [],
+    schoolDetails: null,
+    schoolPapers: [],
+    schoolCourses: [],
+    schoolPagination: {
+        count: 0,
+        next: null,
+        previous: null,
+    },
+    schoolPapersPagination: {
+        count: 0,
+        next: null,
+        previous: null,
+    },
+    schoolCoursesPagination: {
+        count: 0,
+        next: null,
+        previous: null,
+    },
     allPapers: [],
     paperDetails: null,
     uploadedPapers: [],
@@ -58,6 +76,26 @@ const mutations = {
     SET_ALL_PAPERS(state, papers) {
         state.allPapers = papers;
     },
+    SET_SCHOOL_DETAILS(state, school) {
+        state.schoolDetails = school;
+    },
+    SET_SCHOOL_PAPERS(state, data) {
+        state.schoolPapers = data.results || data;
+        state.schoolPapersPagination = {
+            count: data.count,
+            next: data.next,
+            previous: data.previous,
+        };
+    },
+    SET_SCHOOL_COURSES(state, data) {
+        state.schoolCourses = data.results || data;
+        state.schoolCoursesPagination = {
+            count: data.count,
+            next: data.next,
+            previous: data.previous,
+        };
+    },
+
     SET_PAPER_DETAILS(state, paper) {
         state.paperDetails = paper;
     },
@@ -174,22 +212,24 @@ const mutations = {
 };
 
 const actions = {
-    async fetchCategories({ commit }) {
+    async fetchCategories({ commit }, params = {}) {
         try {
             const response = await api.get('/exampapers/categories/', {
                 params: {
                     ordering: '-paper_count',
-                    page_size: 1000,
+                    page_size: 12, // Adjust this if needed for pagination
+                    ...params, // Include search, page, etc.
                 },
             });
             commit('SET_CATEGORIES', response.data.results);
             return response.data;
         } catch (error) {
             console.error('Error fetching categories:', error);
+            throw error;
         }
     },
 
-    async fetchCourses({ commit }, { search = '', page, schoolId = null } = {}) {
+    async fetchCourses({ commit }, { search = '', page, ordering = null, schoolName = null } = {}) {
         try {
             const params = { search };
 
@@ -199,8 +239,12 @@ const actions = {
                 params.all = true;
             }
 
-            if (schoolId) {
-                params.school_id = schoolId;
+            if (ordering) {
+                params.ordering = ordering;
+            }
+
+            if (schoolName) {
+                params.school_name = schoolName;
             }
 
             const response = await api.get('/exampapers/courses/', { params });
@@ -256,17 +300,24 @@ const actions = {
         }
     },
 
-    async fetchSchools({ commit }) {
+    async fetchSchools({ commit }, params = {}) {
         try {
-            const response = await api.get('/exampapers/schools/', {
-                params: {
-                    page_size: 1000,
-                },
-            });
-            commit('SET_SCHOOLS', response.data.results);
+            const response = await api.get('/exampapers/schools/', { params });
             return response.data;
         } catch (error) {
             console.error('Error fetching schools:', error);
+            throw error;
+        }
+    },
+
+    async fetchSchoolDetails({ commit }, schoolId) {
+        try {
+            const response = await api.get(`/exampapers/schools/${schoolId}/`);
+            commit('SET_SCHOOL_DETAILS', response.data);
+            return response.data;
+        } catch (error) {
+            console.error('Error fetching school details:', error);
+            throw error;
         }
     },
 
@@ -287,6 +338,27 @@ const actions = {
             return response.data;
         } catch (error) {
             console.error('Error fetching paper by ID:', error);
+            throw error;
+        }
+    },
+
+    async fetchPapersByAuthor({ commit }, authorId) {
+        try {
+            const response = await api.get(`/exampapers/papers/author/${authorId}/`);
+            console.log('API Response:', response);
+            if (response.data) {
+                return {
+                    papers: response.data.papers,
+                    author_name: response.data.author_name,
+                };
+            }
+            throw new Error('Invalid response format');
+        } catch (error) {
+            console.error('API Error:', {
+                config: error.config,
+                response: error.response,
+                message: error.message,
+            });
             throw error;
         }
     },
@@ -555,6 +627,11 @@ const getters = {
     categories: (state) => state.categories,
     courses: (state) => state.courses,
     schools: (state) => state.schools,
+    schoolDetails: (state) => state.schoolDetails,
+    schoolPapers: (state) => state.schoolPapers,
+    schoolCourses: (state) => state.schoolCourses,
+    schoolPapersPagination: (state) => state.schoolPapersPagination,
+    schoolCoursesPagination: (state) => state.schoolCoursesPagination,
     paperDetails: (state) => state.paperDetails,
     mostViewedPapers: (state) => state.mostViewedPapers,
     latestUserPapers: (state) => state.latestUserPapers,

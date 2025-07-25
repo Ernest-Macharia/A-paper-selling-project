@@ -128,14 +128,36 @@
                                         <div class="avatar me-3">
                                             <i class="fas fa-user fa-2x text-primary"></i>
                                         </div>
-                                        <div>
-                                            <h6 class="mb-0">
+                                        <div class="flex-grow-1">
+                                            <h6 class="mb-1">
                                                 {{ paperDetails.author_info?.name || 'Unknown' }}
                                             </h6>
-                                            <small class="text-muted"
-                                                >Uploaded
-                                                {{ formatDate(paperDetails.upload_date) }}</small
+                                            <div
+                                                class="d-flex align-items-center flex-wrap gap-2 mb-1"
                                             >
+                                                <span class="text-muted small">
+                                                    <i class="fas fa-file-alt me-1"></i>
+                                                    {{
+                                                        paperDetails.author_info?.papers_count || 0
+                                                    }}
+                                                    papers uploaded
+                                                </span>
+                                                <span class="text-muted small">
+                                                    <i class="fas fa-calendar-alt me-1"></i>
+                                                    {{ formatDate(paperDetails.upload_date) }}
+                                                </span>
+                                            </div>
+                                            <router-link
+                                                :to="{
+                                                    name: 'uploader-papers',
+                                                    params: {
+                                                        authorId: paperDetails.author_info.id,
+                                                    },
+                                                }"
+                                                class="btn btn-sm btn-primary"
+                                            >
+                                                View Uploader Papers
+                                            </router-link>
                                         </div>
                                     </div>
 
@@ -189,41 +211,63 @@
                                                     <i class="fas fa-dollar-sign me-2"></i>Price:
                                                 </td>
                                                 <td>
-                                                    <span class="badge bg-success"
-                                                        >${{ paperDetails?.price }}</span
-                                                    >
+                                                    {{
+                                                        paperDetails.price
+                                                            ? `$${paperDetails.price}`
+                                                            : 'Free'
+                                                    }}
                                                 </td>
                                             </tr>
                                             <tr>
                                                 <td class="text-muted">
                                                     <i class="fas fa-book me-2"></i>Course:
                                                 </td>
-                                                <td>{{ paperDetails.course?.name || 'N/A' }}</td>
+                                                <td>
+                                                    {{ paperDetails.course?.name || 'No Course' }}
+                                                </td>
                                             </tr>
                                             <tr>
                                                 <td class="text-muted">
                                                     <i class="fas fa-tags me-2"></i>Category:
                                                 </td>
-                                                <td>{{ paperDetails.category?.name || 'N/A' }}</td>
+                                                <td>
+                                                    {{
+                                                        paperDetails.category?.name || 'No Category'
+                                                    }}
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="text-muted">
+                                                    <i class="fas fa-graduation-cap me-2"></i
+                                                    >School:
+                                                </td>
+                                                <td>
+                                                    {{ paperDetails.school?.name || 'No School' }}
+                                                </td>
                                             </tr>
                                             <tr>
                                                 <td class="text-muted">
                                                     <i class="fas fa-file-word me-2"></i>Pages:
                                                 </td>
-                                                <td>{{ paperDetails.pages || 'N/A' }}</td>
+                                                <td>{{ paperDetails.pages || 'No pages' }}</td>
                                             </tr>
                                             <tr>
                                                 <td class="text-muted">
                                                     <i class="fas fa-download me-2"></i>Downloads:
                                                 </td>
-                                                <td>{{ paperDetails.download_count || 'N/A' }}</td>
+                                                <td>
+                                                    {{
+                                                        paperDetails.download_count ||
+                                                        'No Downloads'
+                                                    }}
+                                                </td>
                                             </tr>
                                             <tr>
                                                 <td class="text-muted">
                                                     <i class="fas fa-star me-2"></i>Rating:
                                                 </td>
                                                 <td>
-                                                    <div class="d-flex align-items-center">
+                                                    <div class="align-items-center">
                                                         <div class="rating me-2">
                                                             <i
                                                                 v-for="i in 5"
@@ -247,7 +291,7 @@
                                                             >{{
                                                                 paperDetails.average_rating.toFixed(
                                                                     1,
-                                                                ) || 'N/A'
+                                                                ) || 0
                                                             }}
                                                             / 5</span
                                                         >

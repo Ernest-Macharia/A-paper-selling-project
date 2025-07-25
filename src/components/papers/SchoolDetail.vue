@@ -5,12 +5,12 @@
         <nav aria-label="breadcrumb" class="mb-4">
             <ol class="breadcrumb bg-light p-3 rounded-3">
                 <li class="breadcrumb-item">
-                    <router-link to="/courses" class="text-decoration-none text-muted">
-                        <i class="bi bi-arrow-left-short me-1"></i> All Courses
+                    <router-link to="/schools" class="text-decoration-none text-muted">
+                        <i class="bi bi-arrow-left-short me-1"></i> All Schools
                     </router-link>
                 </li>
                 <li class="breadcrumb-item active text-primary" aria-current="page">
-                    {{ courseName }}
+                    {{ school.name }}
                 </li>
             </ol>
         </nav>
@@ -18,10 +18,22 @@
         <!-- Header -->
         <div class="d-flex justify-content-between align-items-center mb-4">
             <div>
-                <h2 class="fw-bold mb-1">Papers in {{ courseName }}</h2>
-                <p class="text-muted mb-0" v-if="!isLoading">
-                    Showing {{ filteredPapers.length }} papers
+                <h2 class="fw-bold mb-1">{{ school.name }}</h2>
+                <p class="text-muted mb-0">
+                    <span class="badge bg-primary bg-opacity-10 text-primary">
+                        {{ school.country }}
+                    </span>
                 </p>
+            </div>
+            <div class="d-flex gap-2">
+                <span class="badge bg-light text-dark">
+                    <i class="bi bi-journal-text me-1"></i>
+                    {{ school.paper_count }} papers
+                </span>
+                <span class="badge bg-light text-dark">
+                    <i class="bi bi-book me-1"></i>
+                    {{ school.course_count }} courses
+                </span>
             </div>
         </div>
 
@@ -47,6 +59,7 @@
                         <select v-model="sortKey" @change="applyFilters" class="form-select">
                             <option value="title">Sort by Title</option>
                             <option value="upload_date">Sort by Upload Date</option>
+                            <option value="course">Sort by Course</option>
                         </select>
                     </div>
                 </div>
@@ -58,13 +71,13 @@
             <div class="spinner-grow text-primary" role="status">
                 <span class="visually-hidden">Loading...</span>
             </div>
-            <p class="mt-3 text-muted">Loading papers...</p>
+            <p class="mt-3 text-muted">Loading school papers...</p>
         </div>
 
         <!-- Empty State -->
         <div v-else-if="!filteredPapers.length" class="card border-0 shadow-sm text-center py-5">
             <i class="bi bi-file-earmark-text display-5 text-muted mb-3"></i>
-            <h5 class="text-muted">No papers found</h5>
+            <h5 class="text-muted">No papers found for this school</h5>
             <p class="text-muted mb-0">Try adjusting your search filters</p>
         </div>
 
@@ -141,28 +154,82 @@
                 </li>
             </ul>
         </nav>
+
+        <!-- Courses Section -->
+        <div class="mt-5 pt-4 border-top">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h3 class="fw-bold mb-0">Courses at {{ school.name }}</h3>
+                <router-link
+                    :to="`/schools/${school.id}/courses`"
+                    class="btn btn-sm btn-outline-primary"
+                >
+                    View All Courses
+                </router-link>
+            </div>
+
+            <div v-if="isLoadingCourses" class="text-center py-3">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+            </div>
+
+            <div v-else-if="!courses.length" class="text-center py-3">
+                <i class="bi bi-book display-5 text-muted mb-3"></i>
+                <p class="text-muted">No courses found for this school</p>
+            </div>
+
+            <div v-else class="row g-4">
+                <div
+                    v-for="course in courses.slice(0, 4)"
+                    :key="course.id"
+                    class="col-md-6 col-lg-3"
+                >
+                    <div class="card h-100 border-0 shadow-sm hover-shadow transition-all">
+                        <div class="card-body">
+                            <div
+                                class="course-icon bg-primary bg-opacity-10 text-primary rounded-3 mb-3 p-3 d-inline-flex"
+                            >
+                                <i class="bi bi-journal-text fs-4"></i>
+                            </div>
+                            <h5 class="fw-bold mb-2">{{ course.name }}</h5>
+                            <p class="text-muted small mb-3">{{ course.paper_count }} papers</p>
+                            <router-link
+                                :to="`/courses/${course.id}`"
+                                class="btn btn-sm btn-outline-primary stretched-link"
+                            >
+                                View Course
+                            </router-link>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
+    <Footer />
 </template>
 
 <script>
 import { mapActions } from 'vuex';
 import Navbar from '@/components/home/Navbar.vue';
+import Footer from '@/components/home/Footer.vue';
 
 export default {
-    name: 'CoursePapersPage',
-    components: { Navbar },
+    name: 'SchoolDetailPage',
+    components: { Navbar, Footer },
     data() {
         return {
+            school: {},
             allPapers: [],
             filteredPapers: [],
             paginatedPapers: [],
-            courseName: '',
+            courses: [],
             searchQuery: '',
             sortKey: 'title',
             sortAsc: true,
             currentPage: 1,
             perPage: 6,
             isLoading: false,
+            isLoadingCourses: false,
         };
     },
     computed: {
@@ -193,24 +260,41 @@ export default {
         },
     },
     methods: {
-        ...mapActions('papers', ['fetchCoursePapers']),
+        ...mapActions('papers', ['fetchSchool', 'fetchSchoolPapers', 'fetchSchoolCourses']),
 
-        async loadCoursePapers() {
+        async loadSchoolData() {
             this.isLoading = true;
-            const courseId = this.$route.params.courseId;
+            const schoolId = this.$route.params.id;
             try {
-                const papers = await this.fetchCoursePapers(courseId);
+                // Load school info
+                this.school = await this.fetchSchool(schoolId);
+
+                // Load papers
+                const papers = await this.fetchSchoolPapers(schoolId);
                 this.allPapers = Array.isArray(papers) ? papers : [];
-                if (this.allPapers.length) {
-                    this.courseName = this.allPapers[0].course?.name || 'Unknown';
-                }
                 this.applyFilters();
+
+                // Load courses
+                await this.loadCourses();
             } catch (error) {
-                console.error('Error loading papers:', error);
-                this.allPapers = [];
-                this.courseName = '';
+                console.error('Error loading school data:', error);
+                this.$router.push({ name: 'schools' });
+            } finally {
+                this.isLoading = false;
             }
-            this.isLoading = false;
+        },
+
+        async loadCourses() {
+            this.isLoadingCourses = true;
+            try {
+                const schoolId = this.$route.params.id;
+                const response = await this.fetchSchoolCourses(schoolId);
+                this.courses = Array.isArray(response) ? response : response.results || [];
+            } catch (error) {
+                console.error('Error loading school courses:', error);
+            } finally {
+                this.isLoadingCourses = false;
+            }
         },
 
         formatDate(date) {
@@ -230,9 +314,22 @@ export default {
             );
 
             filtered.sort((a, b) => {
-                const aVal = this.sortKey === 'upload_date' ? new Date(a.upload_date) : a.title;
-                const bVal = this.sortKey === 'upload_date' ? new Date(b.upload_date) : b.title;
-                return this.sortAsc ? (aVal > bVal ? 1 : -1) : aVal < bVal ? 1 : -1;
+                if (this.sortKey === 'upload_date') {
+                    const aDate = new Date(a.upload_date);
+                    const bDate = new Date(b.upload_date);
+                    return this.sortAsc ? aDate - bDate : bDate - aDate;
+                } else if (this.sortKey === 'course') {
+                    const aCourse = a.course?.name || '';
+                    const bCourse = b.course?.name || '';
+                    return this.sortAsc
+                        ? aCourse.localeCompare(bCourse)
+                        : bCourse.localeCompare(aCourse);
+                } else {
+                    // Default sort by title
+                    return this.sortAsc
+                        ? a.title.localeCompare(b.title)
+                        : b.title.localeCompare(a.title);
+                }
             });
 
             this.filteredPapers = filtered;
@@ -251,19 +348,9 @@ export default {
                 });
             }
         },
-
-        toggleSort(key) {
-            if (this.sortKey === key) {
-                this.sortAsc = !this.sortAsc;
-            } else {
-                this.sortKey = key;
-                this.sortAsc = true;
-            }
-            this.applyFilters();
-        },
     },
     async created() {
-        await this.loadCoursePapers();
+        await this.loadSchoolData();
     },
 };
 </script>
@@ -317,5 +404,14 @@ export default {
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
+}
+
+.course-icon {
+    transition: all 0.3s ease;
+}
+
+.card:hover .course-icon {
+    background-color: #007bff !important;
+    color: white !important;
 }
 </style>

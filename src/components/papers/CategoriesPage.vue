@@ -34,7 +34,10 @@
         </div>
 
         <!-- Empty State -->
-        <div v-else-if="categories.length === 0" class="text-center py-5">
+        <div
+            v-else-if="Array.isArray(categories) && categories.length === 0"
+            class="text-center py-5"
+        >
             <i class="bi bi-folder-x display-5 text-muted opacity-50 mb-3"></i>
             <h5 class="fw-semibold">No categories found</h5>
             <p class="text-muted">Try adjusting your search or check back later</p>
@@ -137,9 +140,12 @@ export default {
 
     computed: {
         sortedCategories() {
+            if (!Array.isArray(this.categories)) return [];
+
             return [...this.categories].sort((a, b) => {
                 const aVal = a[this.sortKey];
                 const bVal = b[this.sortKey];
+
                 if (typeof aVal === 'string') {
                     return this.sortAsc ? aVal.localeCompare(bVal) : bVal.localeCompare(aVal);
                 } else {
