@@ -596,7 +596,7 @@ export default {
     },
     methods: {
         ...mapActions('papers', [
-            'fetchAllPapers',
+            'fetchLatestPapers',
             'fetchPopularCourses',
             'fetchPopularCategories',
             'fetchPopularSchools',
@@ -605,7 +605,7 @@ export default {
 
         async loadLatestPapers() {
             try {
-                const data = await this.fetchAllPapers();
+                const data = await this.fetchLatestPapers();
                 const sortedPapers = data.results.sort(
                     (a, b) => new Date(b.upload_date) - new Date(a.upload_date),
                 );

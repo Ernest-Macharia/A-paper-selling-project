@@ -358,6 +358,16 @@ const actions = {
         }
     },
 
+    async fetchLatestPapers({ commit }) {
+        try {
+            const response = await api.get('/exampapers/papers/latest-papers/');
+            commit('SET_ALL_PAPERS', response.data);
+            return response.data;
+        } catch (error) {
+            throw error;
+        }
+    },
+
     async fetchPaperById({ commit }, paperId) {
         try {
             const response = await api.get(`/exampapers/papers/${paperId}/`);
