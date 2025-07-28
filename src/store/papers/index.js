@@ -300,6 +300,18 @@ const actions = {
         }
     },
 
+    async fetchUserUploadSchools({ commit }) {
+        try {
+            const response = await api.get('/exampapers/user-upload-schools/');
+            const data = response.data;
+            commit('SET_SCHOOLS', data.results || data);
+            return data.results || data;
+        } catch (error) {
+            console.error('Error fetching schools:', error);
+            return [];
+        }
+    },
+
     async fetchSchools({ commit }, params = {}) {
         try {
             const response = await api.get('/exampapers/schools/', { params });

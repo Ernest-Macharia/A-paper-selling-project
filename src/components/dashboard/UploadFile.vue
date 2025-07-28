@@ -225,6 +225,7 @@
                                         <input
                                             type="text"
                                             v-model="schoolSearch"
+                                            @input="onSchoolSearch($event.target.value)"
                                             @focus="showSchoolDropdown = true"
                                             @blur="onBlur('school')"
                                             placeholder="Search universities..."
@@ -439,6 +440,7 @@
 import { mapActions } from 'vuex';
 import UploadSuccessModal from '@/components/dashboard/UploadSuccessModal.vue';
 import { toast } from 'vue3-toastify';
+import { debounce } from 'lodash';
 
 export default {
     name: 'UploadPaper',
@@ -514,9 +516,11 @@ export default {
         },
 
         filteredSchools() {
-            if (!this.schoolSearch) return this.schools;
+            if (!this.schoolSearch) return this.schools.filter((school) => school !== null);
             const searchTerm = this.schoolSearch.toLowerCase();
-            return this.schools.filter((school) => school.name.toLowerCase().includes(searchTerm));
+            return this.schools.filter(
+                (school) => school && school.name.toLowerCase().includes(searchTerm),
+            );
         },
     },
 
@@ -527,7 +531,12 @@ export default {
     },
 
     methods: {
-        ...mapActions('papers', ['fetchCategories', 'fetchCourses', 'fetchSchools', 'uploadPaper']),
+        ...mapActions('papers', [
+            'fetchCategories',
+            'fetchCourses',
+            'fetchUserUploadSchools',
+            'uploadPaper',
+        ]),
 
         handleFile(event) {
             const file = event.target.files[0];
@@ -590,6 +599,8 @@ export default {
 
             this.isLoading = true;
             const formData = new FormData();
+
+            // Append all form data
             formData.append('title', this.paper.title);
             formData.append('description', this.paper.description);
             formData.append('price', this.paper.price);
@@ -597,12 +608,10 @@ export default {
             formData.append('category_id', this.paper.category);
             formData.append('course_id', this.paper.course);
             formData.append('school_id', this.paper.school);
-            // formData.append('preview_url', this.paper.preview_url);
-            // formData.append('preview_image', this.paper.preview_image);
             if (this.paper.file) formData.append('file', this.paper.file);
 
             try {
-                await this.uploadPaper(formData);
+                await this.uploadPaper({ formData, config });
                 this.resetForm();
                 toast.success('Paper uploaded successfully!');
                 this.successVisible = true;
@@ -691,12 +700,16 @@ export default {
 
         async loadSchools() {
             try {
-                const data = await this.fetchSchools();
+                const data = await this.fetchUserUploadSchools();
                 this.schools = data.results || data;
             } catch {
                 this.schools = [];
             }
         },
+
+        onSchoolSearch: debounce(function (searchTerm) {
+            this.schoolSearch = searchTerm;
+        }, 300),
 
         calculateEarnings() {
             const price = parseFloat(this.paper.price) || 0;
