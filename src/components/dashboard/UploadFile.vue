@@ -611,12 +611,22 @@ export default {
             if (this.paper.file) formData.append('file', this.paper.file);
 
             try {
-                await this.uploadPaper({ formData, config });
+                await this.uploadPaper(formData);
                 this.resetForm();
                 toast.success('Paper uploaded successfully!');
                 this.successVisible = true;
             } catch (error) {
-                toast.error(error.response?.data?.message || 'Error uploading paper');
+                const errors = error.response?.data;
+
+                if (errors?.file?.[0]) {
+                    toast.error(errors.file[0]);
+                } else if (error.response?.data?.message) {
+                    toast.error(error.response.data.message);
+                } else if (error.message) {
+                    toast.error(error.message); // fallback to JS error message
+                } else {
+                    toast.error('Unexpected error uploading paper');
+                }
             } finally {
                 this.isLoading = false;
             }
