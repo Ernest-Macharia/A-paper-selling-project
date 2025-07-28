@@ -153,7 +153,7 @@ export default {
     components: { Navbar },
     data() {
         return {
-            allPapers: [], // Initialize as empty array
+            allPapers: [],
             filteredPapers: [],
             paginatedPapers: [],
             categoryName: '',

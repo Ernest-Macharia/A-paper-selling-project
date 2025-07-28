@@ -296,7 +296,7 @@ const actions = {
             const response = await api.get(`/exampapers/papers/?category=${categoryId}`);
             const data = response.data;
             commit('SET_ALL_PAPERS', data.results);
-            return response.data.results;
+            return response.data;
         } catch (error) {
             console.error('Failed to fetch category papers:', error);
             throw error;
@@ -308,7 +308,7 @@ const actions = {
             const response = await api.get(`/exampapers/papers/?course=${courseId}`);
             const data = response.data;
             commit('SET_ALL_PAPERS', data.results);
-            return response.data.results;
+            return response.data;
         } catch (error) {
             console.error('Failed to fetch course papers:', error);
             throw error;
