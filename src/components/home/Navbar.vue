@@ -191,9 +191,7 @@
                                 aria-expanded="false"
                             >
                                 <i class="bi bi-person-circle me-1"></i>
-                                <span class="text-truncate">{{
-                                    user?.first_name || 'Account'
-                                }}</span>
+                                <span class="text-truncate">{{ user?.username || 'Account' }}</span>
                             </button>
                             <ul
                                 class="dropdown-menu dropdown-menu-end w-100"

@@ -127,31 +127,17 @@
                             <div class="row g-3">
                                 <div class="col-md-6">
                                     <label class="form-label"
-                                        >First Name <span class="text-danger">*</span></label
+                                        >Username <span class="text-danger">*</span></label
                                     >
                                     <input
-                                        v-model="form.first_name"
+                                        v-model="form.username"
                                         type="text"
                                         class="form-control"
-                                        :class="{ 'is-invalid': !form.first_name && formSubmitted }"
+                                        :class="{ 'is-invalid': !form.username && formSubmitted }"
                                         :disabled="loading"
                                         required
                                     />
-                                    <div class="invalid-feedback">First name is required</div>
-                                </div>
-                                <div class="col-md-6">
-                                    <label class="form-label"
-                                        >Last Name <span class="text-danger">*</span></label
-                                    >
-                                    <input
-                                        v-model="form.last_name"
-                                        type="text"
-                                        class="form-control"
-                                        :class="{ 'is-invalid': !form.last_name && formSubmitted }"
-                                        :disabled="loading"
-                                        required
-                                    />
-                                    <div class="invalid-feedback">Last name is required</div>
+                                    <div class="invalid-feedback">Username is required</div>
                                 </div>
                                 <div class="col-md-6">
                                     <label class="form-label"
@@ -316,8 +302,7 @@ export default {
             defaultAvatar: '/images/avatar.png',
             userDetails: {},
             form: {
-                first_name: '',
-                last_name: '',
+                username: '',
                 email: '',
                 school: '',
                 country: '',
@@ -328,7 +313,7 @@ export default {
                 school_type: '',
             },
             profileFields: [
-                { key: 'full_name', label: 'Full Name' },
+                { key: 'username', label: 'Username' },
                 { key: 'email', label: 'Email' },
                 { key: 'school', label: 'School' },
                 { key: 'country', label: 'Country' },
@@ -399,8 +384,7 @@ export default {
             this.avatarFile = null;
             this.avatarPreview = null;
             this.form = {
-                first_name: this.userDetails.first_name || '',
-                last_name: this.userDetails.last_name || '',
+                username: this.userDetails.username || '',
                 email: this.userDetails.email || '',
                 school: this.userDetails.school || '',
                 country: this.userDetails.country || '',
@@ -446,12 +430,7 @@ export default {
             this.loading = true;
 
             // Validate required fields
-            if (
-                !this.form.first_name ||
-                !this.form.last_name ||
-                !this.form.email ||
-                !this.isValidEmail(this.form.email)
-            ) {
+            if (!this.form.username || !this.form.email || !this.isValidEmail(this.form.email)) {
                 this.loading = false;
                 return;
             }

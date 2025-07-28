@@ -21,43 +21,24 @@
                 </div>
 
                 <form @submit.prevent="handleRegister" class="auth-form">
-                    <div class="row g-3">
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label for="firstName" class="form-label">First Name</label>
-                                <input
-                                    id="firstName"
-                                    type="text"
-                                    class="form-control form-control-lg"
-                                    placeholder="Enter first name"
-                                    v-model="firstName"
-                                    @input="clearFirstNameError"
-                                    :class="{ 'is-invalid': firstNameError }"
-                                    required
-                                />
-                                <div class="invalid-feedback" v-if="firstNameError">
-                                    {{ firstNameError }}
-                                </div>
-                            </div>
+                    <div class="mb-3">
+                        <label for="username" class="form-label">Username</label>
+                        <input
+                            id="username"
+                            type="text"
+                            class="form-control form-control-lg"
+                            placeholder="Choose a username"
+                            v-model="username"
+                            @input="clearUsernameError"
+                            :class="{ 'is-invalid': usernameError }"
+                            required
+                        />
+                        <div class="invalid-feedback" v-if="usernameError">
+                            {{ usernameError }}
                         </div>
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label for="lastName" class="form-label">Last Name</label>
-                                <input
-                                    id="lastName"
-                                    type="text"
-                                    class="form-control form-control-lg"
-                                    placeholder="Enter last name"
-                                    v-model="lastName"
-                                    @input="clearLastNameError"
-                                    :class="{ 'is-invalid': lastNameError }"
-                                    required
-                                />
-                                <div class="invalid-feedback" v-if="lastNameError">
-                                    {{ lastNameError }}
-                                </div>
-                            </div>
-                        </div>
+                        <!-- <div class="form-text">
+                            6-30 characters. Letters, numbers, and underscores only.
+                        </div> -->
                     </div>
 
                     <div class="mb-3">
@@ -184,12 +165,10 @@ export default {
     name: 'Register',
     data() {
         return {
-            firstName: '',
-            lastName: '',
+            username: '',
             email: '',
             password: '',
-            firstNameError: '',
-            lastNameError: '',
+            usernameError: '',
             emailError: '',
             passwordError: '',
             serverError: '',
@@ -204,19 +183,19 @@ export default {
     methods: {
         ...mapActions('authentication', ['register']),
 
-        validateFirstName() {
-            this.firstNameError = this.firstName ? '' : 'First name is required.';
+        validateUsername() {
+            if (!this.username) {
+                this.usernameError = 'Username is required.';
+            } else if (this.username.length < 3) {
+                this.usernameError = 'Username must be at least 3 characters long.';
+            } else if (!/^[a-zA-Z0-9_]+$/.test(this.username)) {
+                this.usernameError = 'Username can only contain letters, numbers, and underscores.';
+            } else {
+                this.usernameError = '';
+            }
         },
-        clearFirstNameError() {
-            this.firstNameError = '';
-            this.serverError = '';
-        },
-
-        validateLastName() {
-            this.lastNameError = this.lastName ? '' : 'Last name is required.';
-        },
-        clearLastNameError() {
-            this.lastNameError = '';
+        clearUsernameError() {
+            this.usernameError = '';
             this.serverError = '';
         },
 
@@ -259,8 +238,7 @@ export default {
             this.loading = true;
             try {
                 await this.register({
-                    first_name: this.firstName,
-                    last_name: this.lastName,
+                    username: this.username,
                     email: this.email,
                     password: this.password,
                 });
@@ -275,19 +253,13 @@ export default {
         },
 
         validateAllFields() {
-            this.validateFirstName();
-            this.validateLastName();
+            this.validateUsername();
             this.validateEmail();
             this.validatePassword();
         },
 
         hasErrors() {
-            return !!(
-                this.firstNameError ||
-                this.lastNameError ||
-                this.emailError ||
-                this.passwordError
-            );
+            return !!(this.usernameError || this.emailError || this.passwordError);
         },
 
         handleRegistrationError(error) {
@@ -295,10 +267,15 @@ export default {
             this.serverError =
                 responseData?.detail ||
                 responseData?.email?.[0] ||
+                responseData?.username?.[0] ||
                 'Registration failed. Please try again.';
 
             if (responseData?.email) {
                 this.emailError = responseData.email[0];
+            }
+
+            if (responseData?.username) {
+                this.usernameError = responseData.username[0];
             }
 
             toast.error(this.serverError);
