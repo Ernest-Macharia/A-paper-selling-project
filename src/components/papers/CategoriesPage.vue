@@ -2,27 +2,43 @@
     <Navbar />
 
     <div class="container py-5">
-        <!-- Header with Search -->
+        <!-- Header with Search and Sort -->
         <div
             class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-4 gap-3"
         >
             <div>
-                <h2 class="fw-bold mb-2">Browse Categories</h2>
-                <p class="text-muted">Explore academic resources by subject</p>
+                <h2 class="fw-bold mb-2">All Categories</h2>
+                <p class="text-muted">Browse academic resources by subject category</p>
             </div>
 
-            <div class="search-bar w-100" style="max-width: 400px">
+            <div class="d-flex flex-column w-100 gap-3" style="max-width: 500px">
                 <div class="input-group">
                     <span class="input-group-text bg-white border-end-0">
                         <i class="bi bi-search text-muted"></i>
                     </span>
                     <input
                         v-model="searchQuery"
-                        @input="onSearch"
+                        @input="handleSearchInput"
                         type="text"
                         class="form-control border-start-0"
                         placeholder="Search categories..."
                     />
+                </div>
+
+                <div class="d-flex align-items-center gap-2">
+                    <span class="text-muted small">Sort by:</span>
+                    <select
+                        v-model="sortKey"
+                        @change="loadCategories"
+                        class="form-select form-select-sm w-auto"
+                    >
+                        <option value="name">Name</option>
+                        <option value="paper_count">Paper Count</option>
+                        <option value="average_rating">Rating</option>
+                    </select>
+                    <button @click="toggleSortDirection" class="btn btn-sm btn-outline-secondary">
+                        <i :class="sortAsc ? 'bi bi-sort-down' : 'bi bi-sort-up'"></i>
+                    </button>
                 </div>
             </div>
         </div>
@@ -34,53 +50,55 @@
         </div>
 
         <!-- Empty State -->
-        <div
-            v-else-if="Array.isArray(categories) && categories.length === 0"
-            class="text-center py-5"
-        >
+        <div v-else-if="categories.length === 0" class="text-center py-5">
             <i class="bi bi-folder-x display-5 text-muted opacity-50 mb-3"></i>
-            <h5 class="fw-semibold">No categories found</h5>
-            <p class="text-muted">Try adjusting your search or check back later</p>
+            <h5 class="fw-semibold">No categories available</h5>
+            <p class="text-muted">Try adjusting your search filters</p>
         </div>
 
         <!-- Categories Grid -->
         <div v-else class="row g-4">
-            <div v-for="category in sortedCategories" :key="category.id" class="col-md-6 col-lg-4">
-                <router-link
-                    :to="`/categories/${category.id}`"
-                    class="category-card card h-100 border-0 shadow-sm text-decoration-none transition-all"
-                >
+            <div
+                v-for="category in categories"
+                :key="category.id"
+                class="col-md-6 col-lg-4 col-xl-3"
+            >
+                <div class="category-card card h-100 border-0 shadow-sm transition-all">
                     <div class="card-body p-4">
-                        <div class="d-flex justify-content-between align-items-start mb-3">
-                            <h5 class="fw-bold mb-0 text-primary">{{ category.name }}</h5>
-                            <span
-                                class="badge rounded-pill"
-                                :class="
-                                    category.paper_count > 0
-                                        ? 'bg-primary bg-opacity-10 text-primary'
-                                        : 'bg-light text-muted'
-                                "
-                            >
-                                {{ category.paper_count || 0 }}
-                                {{ category.paper_count === 1 ? 'Paper' : 'Papers' }}
+                        <div
+                            class="category-icon bg-primary bg-opacity-10 text-primary rounded-3 mb-3 p-3 d-inline-flex"
+                        >
+                            <i class="bi bi-collection fs-4"></i>
+                        </div>
+                        <h5 class="fw-bold mb-2">{{ category.name }}</h5>
+
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <span class="text-primary fw-bold small">
+                                {{ category.paper_count || 0 }} Papers
+                            </span>
+                            <span v-if="category.average_rating" class="text-warning small">
+                                <i class="bi bi-star-fill"></i>
+                                {{ category.average_rating.toFixed(1) }}
                             </span>
                         </div>
-                        <p class="text-muted mb-0 small">
-                            {{
-                                category.description ||
-                                'Explore academic resources in this category'
-                            }}
-                        </p>
-                    </div>
-                    <div class="card-footer bg-transparent border-top-0 pt-0 pb-3 px-4">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <span class="text-muted small">
-                                <i class="bi bi-clock-history me-1"></i> Updated recently
-                            </span>
-                            <i class="bi bi-arrow-right-short text-primary"></i>
+
+                        <div class="progress mb-2" style="height: 6px">
+                            <div
+                                class="progress-bar bg-primary"
+                                :style="{
+                                    width:
+                                        Math.min((category.paper_count / maxPapers) * 100, 100) +
+                                        '%',
+                                }"
+                            ></div>
                         </div>
                     </div>
-                </router-link>
+
+                    <router-link
+                        :to="`/categories/${category.id}`"
+                        class="stretched-link"
+                    ></router-link>
+                </div>
             </div>
         </div>
 
@@ -93,14 +111,19 @@
                             <i class="bi bi-chevron-left"></i>
                         </button>
                     </li>
-                    <li
-                        v-for="page in totalPages"
-                        :key="page"
-                        class="page-item"
-                        :class="{ active: currentPage === page }"
-                    >
-                        <button class="page-link" @click="changePage(page)">{{ page }}</button>
-                    </li>
+                    <template v-if="totalPages <= 5">
+                        <li
+                            v-for="page in totalPages"
+                            :key="page"
+                            class="page-item"
+                            :class="{ active: currentPage === page }"
+                        >
+                            <button class="page-link" @click="changePage(page)">{{ page }}</button>
+                        </li>
+                    </template>
+                    <template v-else>
+                        <!-- Dynamic pagination for many pages -->
+                    </template>
                     <li class="page-item" :class="{ disabled: currentPage === totalPages }">
                         <button class="page-link" @click="changePage(currentPage + 1)">
                             <i class="bi bi-chevron-right"></i>
@@ -132,27 +155,11 @@ export default {
             searchQuery: '',
             currentPage: 1,
             totalPages: 1,
-            sortKey: 'name',
-            sortAsc: true,
+            maxPapers: 0,
             isLoading: false,
+            sortKey: 'paper_count',
+            sortAsc: false,
         };
-    },
-
-    computed: {
-        sortedCategories() {
-            if (!Array.isArray(this.categories)) return [];
-
-            return [...this.categories].sort((a, b) => {
-                const aVal = a[this.sortKey];
-                const bVal = b[this.sortKey];
-
-                if (typeof aVal === 'string') {
-                    return this.sortAsc ? aVal.localeCompare(bVal) : bVal.localeCompare(aVal);
-                } else {
-                    return this.sortAsc ? aVal - bVal : bVal - aVal;
-                }
-            });
-        },
     },
 
     async created() {
@@ -168,19 +175,21 @@ export default {
                 const response = await this.fetchCategories({
                     search: this.searchQuery,
                     page: this.currentPage,
+                    ordering: this.sortAsc ? this.sortKey : `-${this.sortKey}`,
                 });
 
                 this.categories = response.results;
-                this.totalPages = Math.ceil(response.count / 10);
-            } catch {
-                this.categories = [];
-            }
-            this.isLoading = false;
-        },
+                const pageSize = 12;
+                this.totalPages = Math.ceil(response.count / pageSize);
 
-        onSearch() {
-            this.currentPage = 1;
-            this.loadCategories();
+                // Update maxPapers for the progress bar
+                this.maxPapers = Math.max(...this.categories.map((c) => c.paper_count || 0));
+            } catch (error) {
+                console.error('Failed to load categories:', error);
+                this.categories = [];
+            } finally {
+                this.isLoading = false;
+            }
         },
 
         changePage(page) {
@@ -190,13 +199,15 @@ export default {
             }
         },
 
-        toggleSort(key) {
-            if (this.sortKey === key) {
-                this.sortAsc = !this.sortAsc;
-            } else {
-                this.sortKey = key;
-                this.sortAsc = true;
-            }
+        handleSearchInput() {
+            this.currentPage = 1;
+            this.loadCategories();
+        },
+
+        toggleSortDirection() {
+            this.sortAsc = !this.sortAsc;
+            this.currentPage = 1;
+            this.loadCategories();
         },
     },
 };
@@ -206,6 +217,7 @@ export default {
 .category-card {
     transition: all 0.2s ease;
     border-radius: 12px;
+    overflow: hidden;
 }
 
 .category-card:hover {
@@ -213,24 +225,21 @@ export default {
     box-shadow: 0 10px 20px rgba(0, 0, 0, 0.08);
 }
 
-.search-bar .form-control:focus {
-    box-shadow: none;
-    border-color: #dee2e6;
-}
-
-.pagination .page-link {
-    border: none;
-    color: #495057;
-    margin: 0 4px;
-    border-radius: 8px !important;
-}
-
-.pagination .active .page-link {
-    background-color: #007bff;
-    color: white;
-}
-
-.transition-all {
+.category-icon {
     transition: all 0.3s ease;
+}
+
+.category-card:hover .category-icon {
+    background-color: #007bff !important;
+    color: white !important;
+}
+
+.progress {
+    background-color: #f8f9fa;
+    border-radius: 3px;
+}
+select option[disabled] {
+    color: #6c757d;
+    font-style: italic;
 }
 </style>

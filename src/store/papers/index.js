@@ -216,24 +216,7 @@ const mutations = {
 };
 
 const actions = {
-    async fetchCategories({ commit }, params = {}) {
-        try {
-            const response = await api.get('/exampapers/categories/', {
-                params: {
-                    ordering: '-paper_count',
-                    page_size: 12, // Adjust this if needed for pagination
-                    ...params, // Include search, page, etc.
-                },
-            });
-            commit('SET_CATEGORIES', response.data.results);
-            return response.data;
-        } catch (error) {
-            console.error('Error fetching categories:', error);
-            throw error;
-        }
-    },
-
-    async fetchCourses({ commit }, { search = '', page, ordering = null, schoolName = null } = {}) {
+    async fetchCategories({ commit }, { search = '', page, ordering = '-paper_count' } = {}) {
         try {
             const params = { search };
 
@@ -247,12 +230,30 @@ const actions = {
                 params.ordering = ordering;
             }
 
-            if (schoolName) {
-                params.school_name = schoolName;
-            }
+            const response = await api.get('/exampapers/categories/', { params });
+            commit('SET_CATEGORIES', response.data.results);
+            return response.data;
+        } catch (error) {
+            console.error('Error fetching categories:', error);
+            throw error;
+        }
+    },
+
+    async fetchCourses(
+        { commit },
+        { search = '', page = 1, ordering = '-paper_count', schoolName = null } = {},
+    ) {
+        try {
+            const params = {
+                search,
+                page,
+            };
+
+            if (ordering) params.ordering = ordering;
+            if (schoolName) params.school_name = schoolName;
 
             const response = await api.get('/exampapers/courses/', { params });
-            commit('SET_COURSES', response.data);
+            commit('SET_COURSES', response.data.results);
             return response.data;
         } catch (error) {
             console.error('Error fetching courses:', error);

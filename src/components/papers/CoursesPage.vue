@@ -33,7 +33,7 @@
                         class="form-select form-select-sm w-auto"
                     >
                         <option value="name">Name</option>
-                        <option value="paper_count">Paper Count</option>
+                        <option value="paper_count" selected>Paper Count</option>
                     </select>
                     <button @click="toggleSortDirection" class="btn btn-sm btn-outline-secondary">
                         <i :class="sortAsc ? 'bi bi-sort-down' : 'bi bi-sort-up'"></i>
@@ -72,11 +72,11 @@
                                 {{ course.paper_count || 0 }} Papers
                             </span>
                         </div>
-                        <span class="text-primary fw-bold small">
+                        <!-- <span class="text-primary fw-bold small">
                             {{ course.school_name }}
-                        </span>
+                        </span> -->
 
-                        <!-- <div class="progress mb-2" style="height: 6px">
+                        <div class="progress mb-2" style="height: 6px">
                             <div
                                 class="progress-bar bg-primary"
                                 :style="{
@@ -84,7 +84,7 @@
                                         Math.min((course.paper_count / maxPapers) * 100, 100) + '%',
                                 }"
                             ></div>
-                        </div> -->
+                        </div>
                     </div>
 
                     <router-link :to="`/courses/${course.id}`" class="stretched-link"></router-link>
@@ -101,19 +101,40 @@
                             <i class="bi bi-chevron-left"></i>
                         </button>
                     </li>
-                    <template v-if="totalPages <= 5">
-                        <li
-                            v-for="page in totalPages"
-                            :key="page"
-                            class="page-item"
-                            :class="{ active: currentPage === page }"
-                        >
+
+                    <!-- Always show first page -->
+                    <li class="page-item" :class="{ active: currentPage === 1 }">
+                        <button class="page-link" @click="changePage(1)">1</button>
+                    </li>
+
+                    <!-- Show ellipsis if needed -->
+                    <li v-if="currentPage > 3" class="page-item disabled">
+                        <span class="page-link">...</span>
+                    </li>
+
+                    <!-- Show surrounding pages -->
+                    <template v-for="page in middlePages">
+                        <li class="page-item" :class="{ active: currentPage === page }">
                             <button class="page-link" @click="changePage(page)">{{ page }}</button>
                         </li>
                     </template>
-                    <template v-else>
-                        <!-- Dynamic pagination for many pages -->
-                    </template>
+
+                    <!-- Show ellipsis if needed -->
+                    <li v-if="currentPage < totalPages - 2" class="page-item disabled">
+                        <span class="page-link">...</span>
+                    </li>
+
+                    <!-- Always show last page if different from first -->
+                    <li
+                        v-if="totalPages > 1"
+                        class="page-item"
+                        :class="{ active: currentPage === totalPages }"
+                    >
+                        <button class="page-link" @click="changePage(totalPages)">
+                            {{ totalPages }}
+                        </button>
+                    </li>
+
                     <li class="page-item" :class="{ disabled: currentPage === totalPages }">
                         <button class="page-link" @click="changePage(currentPage + 1)">
                             <i class="bi bi-chevron-right"></i>
@@ -147,10 +168,25 @@ export default {
             totalPages: 1,
             maxPapers: 0,
             isLoading: false,
-            sortKey: 'name',
-            sortAsc: true,
+            sortKey: 'paper_count',
+            sortAsc: false,
             schoolFilter: '',
         };
+    },
+
+    computed: {
+        middlePages() {
+            const pages = [];
+            const start = Math.max(2, this.currentPage - 1);
+            const end = Math.min(this.totalPages - 1, this.currentPage + 1);
+
+            for (let i = start; i <= end; i++) {
+                if (i > 1 && i < this.totalPages) {
+                    pages.push(i);
+                }
+            }
+            return pages;
+        },
     },
 
     async created() {
@@ -171,7 +207,7 @@ export default {
                 });
 
                 this.courses = response.results;
-                const pageSize = 10;
+                const pageSize = 12;
                 this.totalPages = Math.ceil(response.count / pageSize);
 
                 // Update maxPapers for the progress bar
@@ -239,5 +275,9 @@ export default {
 .progress {
     background-color: #f8f9fa;
     border-radius: 3px;
+}
+select option[disabled] {
+    color: #6c757d;
+    font-style: italic;
 }
 </style>

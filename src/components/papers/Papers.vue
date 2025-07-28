@@ -77,9 +77,9 @@
 
         <!-- Papers Grid -->
         <div v-else class="papers-grid">
-            <!-- Papers Cards -->
+            <!-- Papers Cards - Updated to 3 columns -->
             <div class="row g-4">
-                <div v-for="paper in paginatedPapers" :key="paper.id" class="col-lg-6">
+                <div v-for="paper in paginatedPapers" :key="paper.id" class="col-lg-4 col-md-6">
                     <div class="paper-card card border-0 shadow-sm h-100 hover-lift">
                         <div class="card-body p-4">
                             <div class="d-flex justify-content-between align-items-start mb-3">
@@ -220,10 +220,11 @@ export default {
             searchQuery: '',
             selectedCategory: '',
             currentPage: 1,
-            pageSize: 6,
+            pageSize: 9, // Changed from 6 to 9 to show 9 papers per page
             isLoading: false,
             sortKey: '',
             sortAsc: true,
+            allPapersLoaded: false,
         };
     },
     computed: {
@@ -260,9 +261,11 @@ export default {
             this.isLoading = true;
             try {
                 const data = await this.fetchAllPapers();
-                this.papers = data.results;
-                this.filteredPapers = data.results;
-            } catch {
+                this.papers = data.results || data;
+                this.filteredPapers = [...this.papers];
+                this.allPapersLoaded = true;
+            } catch (error) {
+                console.error('Error loading papers:', error);
                 this.papers = [];
             } finally {
                 this.isLoading = false;
@@ -271,7 +274,7 @@ export default {
         async loadCategories() {
             try {
                 const response = await this.fetchCategories();
-                this.categories = response.results;
+                this.categories = response.results || response;
             } catch (err) {
                 console.error('Error loading categories:', err);
             }

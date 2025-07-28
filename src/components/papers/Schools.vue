@@ -182,8 +182,8 @@ export default {
             currentPage: 1,
             totalPages: 1,
             isLoading: false,
-            sortKey: 'name',
-            sortAsc: true,
+            sortKey: 'paper_count',
+            sortAsc: false,
             debounceTimer: null,
         };
     },
@@ -298,5 +298,9 @@ export default {
     color: #6c757d;
     pointer-events: none;
     background-color: #f8f9fa;
+}
+select option[disabled] {
+    color: #6c757d;
+    font-style: italic;
 }
 </style>
