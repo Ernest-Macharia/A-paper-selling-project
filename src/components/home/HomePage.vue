@@ -288,6 +288,98 @@
             </div>
         </section>
 
+        <!-- Popular Categories -->
+        <section class="popular-categories py-8 bg-white">
+            <div class="container">
+                <div class="text-center mb-7">
+                    <h2 class="display-5 fw-bold mb-3">Browse by Popular Categories</h2>
+                    <p class="lead text-muted mx-auto" style="max-width: 700px">
+                        Explore academic resources organized by subject categories
+                    </p>
+                </div>
+
+                <div class="row g-4">
+                    <div
+                        class="col-md-6 col-lg-4 col-xl-3"
+                        v-for="(category, index) in popularCategories.slice(0, 8)"
+                        :key="index"
+                    >
+                        <div class="category-card card border-0 shadow-sm h-100 text-center">
+                            <div class="card-body p-5">
+                                <div
+                                    class="category-icon bg-info bg-opacity-10 text-info rounded-circle mb-4 mx-auto p-4"
+                                >
+                                    <i class="bi bi-collection fs-3"></i>
+                                </div>
+                                <h5 class="card-title mb-2">{{ category.name }}</h5>
+                                <p class="text-muted small mb-3">
+                                    {{ category.paper_count || 0 }} papers available
+                                </p>
+                                <router-link
+                                    :to="`/categories/${category.slug || category.id}`"
+                                    class="btn btn-sm btn-outline-info stretched-link"
+                                >
+                                    View Papers
+                                </router-link>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="text-center mt-6">
+                    <router-link to="/categories" class="btn btn-info px-5 py-3 text-white">
+                        Explore All Categories <i class="bi bi-arrow-right ms-2"></i>
+                    </router-link>
+                </div>
+            </div>
+        </section>
+
+        <!-- Popular Universities -->
+        <section class="popular-universities py-8 bg-light">
+            <div class="container">
+                <div class="text-center mb-7">
+                    <h2 class="display-5 fw-bold mb-3">Browse by Popular Universities</h2>
+                    <p class="lead text-muted mx-auto" style="max-width: 700px">
+                        Discover academic resources from top institutions worldwide
+                    </p>
+                </div>
+
+                <div class="row g-4">
+                    <div
+                        class="col-md-6 col-lg-4 col-xl-3"
+                        v-for="(school, index) in popularSchools.slice(0, 8)"
+                        :key="index"
+                    >
+                        <div class="school-card card border-0 shadow-sm h-100 text-center">
+                            <div class="card-body p-5">
+                                <div
+                                    class="school-icon bg-warning bg-opacity-10 text-warning rounded-circle mb-4 mx-auto p-4"
+                                >
+                                    <i class="bi bi-building fs-3"></i>
+                                </div>
+                                <h5 class="card-title mb-2">{{ school.name }}</h5>
+                                <p class="text-muted small mb-3">
+                                    {{ school.paper_count || 0 }} papers available
+                                </p>
+                                <router-link
+                                    :to="`/schools/${school.id}`"
+                                    class="btn btn-sm btn-outline-warning stretched-link"
+                                >
+                                    View Papers
+                                </router-link>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="text-center mt-6">
+                    <router-link to="/schools" class="btn btn-warning px-5 py-3 text-white">
+                        Explore All Schools <i class="bi bi-arrow-right ms-2"></i>
+                    </router-link>
+                </div>
+            </div>
+        </section>
+
         <!-- Testimonials -->
         <section class="testimonials py-8 bg-white">
             <div class="container">
@@ -471,6 +563,7 @@ export default {
             latestPapers: [],
             popularCourses: [],
             popularCategories: [],
+            popularSchools: [],
             subscribeEmail: '',
             subscribeError: '',
             testimonials: [
@@ -499,12 +592,14 @@ export default {
         await this.loadLatestPapers();
         await this.loadPopularCourses();
         await this.loadPopularCategories();
+        await this.loadPopularSchools();
     },
     methods: {
         ...mapActions('papers', [
             'fetchAllPapers',
             'fetchPopularCourses',
             'fetchPopularCategories',
+            'fetchPopularSchools',
         ]),
         ...mapActions('communications', ['sendContactMessage', 'subscribeToNewsletter']),
 
@@ -526,6 +621,15 @@ export default {
                 this.popularCourses = data.results;
             } catch (error) {
                 console.error('Error fetching popular courses:', error);
+            }
+        },
+
+        async loadPopularSchools() {
+            try {
+                const data = await this.fetchPopularSchools();
+                this.popularSchools = data.results;
+            } catch (error) {
+                console.error('Error fetching popular schools:', error);
             }
         },
 
@@ -696,6 +800,30 @@ export default {
 }
 
 .course-icon {
+    width: 80px;
+    height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Popular Categories & Universities */
+.category-card,
+.school-card {
+    transition: all 0.3s ease;
+    border-radius: 12px;
+}
+
+.category-card:hover,
+.school-card:hover {
+    transform: translateY(-5px);
+    box-shadow:
+        0 10px 15px -3px rgba(0, 0, 0, 0.1),
+        0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+.category-icon,
+.school-icon {
     width: 80px;
     height: 80px;
     display: flex;
