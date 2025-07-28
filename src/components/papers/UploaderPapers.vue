@@ -20,7 +20,7 @@
                 style="max-width: 800px"
             >
                 <div class="row g-3">
-                    <div class="col-md-6">
+                    <div class="col-md-5">
                         <div class="input-group">
                             <span class="input-group-text bg-transparent border-end-0">
                                 <i class="bi bi-search text-muted"></i>
@@ -52,12 +52,13 @@
                             </option>
                         </select>
                     </div>
-                    <div class="col-md-6">
+                    <div class="col-md-3">
                         <select v-model="sortKey" @change="toggleSort(sortKey)" class="form-select">
                             <option value="">Sort by</option>
                             <option value="title">Title</option>
                             <option value="price">Price</option>
                             <option value="upload_date">Date</option>
+                            <option value="school.name">School</option>
                         </select>
                     </div>
                 </div>
@@ -93,16 +94,16 @@
                     <i class="bi bi-upload me-2"></i>Upload Paper
                 </router-link>
             </template>
-            <router-link to="/papers" class="btn btn-outline-primary mt-3 ms-2">
-                <i class="bi bi-arrow-left me-2"></i>Browse All Papers
-            </router-link>
+            <button class="btn btn-outline-primary mt-3 ms-2" @click="resetFilters">
+                <i class="bi bi-arrow-counterclockwise me-2"></i>Reset Filters
+            </button>
         </div>
 
         <!-- Papers Grid -->
         <div v-else class="papers-grid">
-            <!-- Papers Cards -->
+            <!-- Papers Cards - Updated to 3 columns -->
             <div class="row g-4">
-                <div v-for="paper in paginatedPapers" :key="paper.id" class="col-lg-6">
+                <div v-for="paper in paginatedPapers" :key="paper.id" class="col-lg-4 col-md-6">
                     <div class="paper-card card border-0 shadow-sm h-100 hover-lift">
                         <div class="card-body p-4">
                             <div class="d-flex justify-content-between align-items-start mb-3">
@@ -243,7 +244,7 @@ export default {
             searchQuery: '',
             selectedCategory: '',
             currentPage: 1,
-            pageSize: 6,
+            pageSize: 9,
             isLoading: false,
             sortKey: '',
             sortAsc: true,
@@ -284,7 +285,6 @@ export default {
         this.loadUploaderPapers();
         this.loadCategories();
     },
-
     methods: {
         ...mapActions('papers', ['fetchPapersByAuthor', 'fetchCategories']),
         async loadUploaderPapers() {
@@ -303,7 +303,7 @@ export default {
         async loadCategories() {
             try {
                 const response = await this.fetchCategories();
-                this.categories = response.results;
+                this.categories = response.results || response;
             } catch (err) {
                 this.categories = [];
             }
@@ -342,8 +342,12 @@ export default {
             const asc = this.sortAsc ? 1 : -1;
 
             this.filteredPapers.sort((a, b) => {
-                const valA = a[key]?.toString().toLowerCase?.() || '';
-                const valB = b[key]?.toString().toLowerCase?.() || '';
+                const getNestedValue = (obj, path) => {
+                    return path.split('.').reduce((o, p) => (o ? o[p] : ''), obj);
+                };
+
+                const valA = getNestedValue(a, key)?.toString().toLowerCase() || '';
+                const valB = getNestedValue(b, key)?.toString().toLowerCase() || '';
 
                 if (!isNaN(a[key]) && !isNaN(b[key])) {
                     return (a[key] - b[key]) * asc;
@@ -373,3 +377,98 @@ export default {
     },
 };
 </script>
+
+<style scoped>
+.hero-section {
+    padding: 2rem 0;
+    background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+    border-radius: 1rem;
+    margin-bottom: 2rem;
+}
+
+.search-filter-container {
+    border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.paper-card {
+    border-radius: 0.75rem;
+    transition: all 0.3s ease;
+    overflow: hidden;
+    height: 100%;
+}
+
+.paper-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
+.hover-lift:hover {
+    transform: translateY(-5px);
+}
+
+.line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.empty-state {
+    background-color: #f8f9fa;
+    border-radius: 0.75rem;
+    padding: 3rem;
+}
+
+.page-link {
+    border: none;
+    color: #495057;
+    min-width: 40px;
+    text-align: center;
+    margin: 0 2px;
+    border-radius: 0.5rem !important;
+}
+
+.page-item.active .page-link {
+    background-color: #0d6efd;
+    color: white;
+}
+
+.page-item:not(.active):not(.disabled) .page-link:hover {
+    background-color: #e9ecef;
+}
+
+.input-group-text {
+    background-color: transparent;
+}
+
+.form-control:focus,
+.form-select:focus {
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.15);
+    border-color: #86b7fe;
+}
+
+.badge {
+    padding: 0.35em 0.65em;
+    font-weight: 500;
+}
+
+@media (max-width: 768px) {
+    .hero-section {
+        padding: 1.5rem 0;
+    }
+
+    .search-filter-container {
+        padding: 1rem !important;
+    }
+
+    .page-item {
+        display: none;
+    }
+
+    .page-item:first-child,
+    .page-item:last-child,
+    .page-item.active {
+        display: block;
+    }
+}
+</style>

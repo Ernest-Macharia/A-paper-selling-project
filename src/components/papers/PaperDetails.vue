@@ -485,6 +485,7 @@
                             v-if="paperDetails.preview_url"
                             :src="paperDetails.preview_url"
                             :visible="showPreviewModal"
+                            @close="showPreviewModal = false"
                         />
                         <!-- <img
                             v-else-if="paperDetails.preview_image"

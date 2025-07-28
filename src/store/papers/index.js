@@ -46,6 +46,7 @@ const state = {
     earnings: null,
     withdrawals: [],
     loading: false,
+    error: null,
     orders: [],
     orderDetails: null,
     currentEditingPaper: null,
@@ -84,20 +85,10 @@ const mutations = {
         state.schoolDetails = school;
     },
     SET_SCHOOL_PAPERS(state, data) {
-        state.schoolPapers = data.results || data;
-        state.schoolPapersPagination = {
-            count: data.count,
-            next: data.next,
-            previous: data.previous,
-        };
+        state.schoolPapers = data;
     },
     SET_SCHOOL_COURSES(state, data) {
-        state.schoolCourses = data.results || data;
-        state.schoolCoursesPagination = {
-            count: data.count,
-            next: data.next,
-            previous: data.previous,
-        };
+        state.schoolCourses = data;
     },
 
     SET_PAPER_DETAILS(state, paper) {
@@ -133,6 +124,9 @@ const mutations = {
     SET_LOADING(state, value) {
         state.loading = value;
     },
+    SET_ERROR(state, payload) {
+        state.error = payload;
+    },
     SET_ORDERS(state, orders) {
         state.orders = orders;
     },
@@ -141,6 +135,13 @@ const mutations = {
     },
     SET_CURRENT_EDITING_PAPER(state, paper) {
         state.currentEditingPaper = paper;
+    },
+
+    CLEAR_SCHOOL_STATE(state) {
+        state.schoolDetails = null;
+        state.schoolPapers = [];
+        state.schoolCourses = [];
+        state.error = null;
     },
 
     UPDATE_PAPER_IN_STATE(state, updatedPaper) {
@@ -339,13 +340,69 @@ const actions = {
 
     async fetchSchoolDetails({ commit }, schoolId) {
         try {
+            commit('SET_LOADING', true);
             const response = await api.get(`/exampapers/schools/${schoolId}/`);
             commit('SET_SCHOOL_DETAILS', response.data);
+            commit('SET_ERROR', null);
             return response.data;
         } catch (error) {
-            console.error('Error fetching school details:', error);
+            commit('SET_ERROR', error);
             throw error;
+        } finally {
+            commit('SET_LOADING', false);
         }
+    },
+
+    async fetchSchoolPapers({ commit }, { schoolId, params = {} }) {
+        try {
+            commit('SET_LOADING', true);
+            const response = await api.get(`/exampapers/schools/${schoolId}/papers/`, { params });
+            commit('SET_SCHOOL_PAPERS', response.data.results || response.data);
+            commit('SET_ERROR', null);
+            return response.data;
+        } catch (error) {
+            commit('SET_ERROR', error);
+            throw error;
+        } finally {
+            commit('SET_LOADING', false);
+        }
+    },
+    async fetchSchoolCourses({ commit }, { schoolId, params = {} }) {
+        try {
+            commit('SET_LOADING', true);
+            const response = await api.get(`/exampapers/schools/${schoolId}/courses/`, {
+                params: {
+                    page: params.page || 1,
+                    page_size: params.page_size || 6,
+                },
+            });
+
+            if (!response.data) {
+                throw new Error('Empty response from server');
+            }
+
+            commit('SET_SCHOOL_COURSES', response.data.results || []);
+            commit('SET_ERROR', null);
+
+            return {
+                data: response.data.results || [],
+                pagination: {
+                    count: response.data.count || 0,
+                    next: response.data.next || null,
+                    previous: response.data.previous || null,
+                    page_size: params.page_size || 6,
+                },
+            };
+        } catch (error) {
+            commit('SET_ERROR', error);
+            throw error;
+        } finally {
+            commit('SET_LOADING', false);
+        }
+    },
+
+    clearSchoolState({ commit }) {
+        commit('CLEAR_SCHOOL_STATE');
     },
 
     async fetchAllPapers({ commit }) {
@@ -671,6 +728,8 @@ const getters = {
     schoolDetails: (state) => state.schoolDetails,
     schoolPapers: (state) => state.schoolPapers,
     schoolCourses: (state) => state.schoolCourses,
+    loading: (state) => state.loading,
+    error: (state) => state.error,
     schoolPapersPagination: (state) => state.schoolPapersPagination,
     schoolCoursesPagination: (state) => state.schoolCoursesPagination,
     paperDetails: (state) => state.paperDetails,

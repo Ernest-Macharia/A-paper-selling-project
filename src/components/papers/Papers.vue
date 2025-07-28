@@ -220,7 +220,7 @@ export default {
             searchQuery: '',
             selectedCategory: '',
             currentPage: 1,
-            pageSize: 9, // Changed from 6 to 9 to show 9 papers per page
+            pageSize: 9,
             isLoading: false,
             sortKey: '',
             sortAsc: true,
