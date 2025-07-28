@@ -605,13 +605,26 @@ export default {
 
         async loadLatestPapers() {
             try {
-                const data = await this.fetchLatestPapers();
-                const sortedPapers = data.results.sort(
+                const response = await this.fetchLatestPapers();
+                const papers =
+                    response.results || response.data?.results || response.data || response || [];
+
+                if (!Array.isArray(papers)) {
+                    console.error('Invalid papers data format:', papers);
+                    this.latestPapers = [];
+                    return;
+                }
+
+                // Sort papers by upload date (newest first)
+                const sortedPapers = [...papers].sort(
                     (a, b) => new Date(b.upload_date) - new Date(a.upload_date),
                 );
+
                 this.latestPapers = sortedPapers.slice(0, 8);
             } catch (error) {
                 console.error('Error fetching latest papers:', error);
+                this.latestPapers = [];
+                toast.error('Failed to load latest papers. Please try again later.');
             }
         },
 
