@@ -262,6 +262,35 @@ const actions = {
         }
     },
 
+    async fetchUploadCourses(
+        { commit },
+        { search = '', page, ordering = null, schoolName = null } = {},
+    ) {
+        try {
+            const params = { search };
+
+            if (page) {
+                params.page = page;
+            } else {
+                params.all = true;
+            }
+
+            if (ordering) {
+                params.ordering = ordering;
+            }
+
+            if (schoolName) {
+                params.school_name = schoolName;
+            }
+
+            const response = await api.get('/exampapers/upload-courses/', { params });
+            commit('SET_COURSES', response.data);
+            return response.data;
+        } catch (error) {
+            console.error('Error fetching courses:', error);
+            throw error;
+        }
+    },
     async fetchPopularCourses({ commit }) {
         try {
             const response = await api.get('/exampapers/popular-courses/');

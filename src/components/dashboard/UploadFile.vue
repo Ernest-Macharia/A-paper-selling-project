@@ -533,7 +533,7 @@ export default {
     methods: {
         ...mapActions('papers', [
             'fetchCategories',
-            'fetchCourses',
+            'fetchUploadCourses',
             'fetchUserUploadSchools',
             'uploadPaper',
         ]),
@@ -701,7 +701,7 @@ export default {
 
         async loadCourses() {
             try {
-                const data = await this.fetchCourses();
+                const data = await this.fetchUploadCourses();
                 this.courses = data.results || data;
             } catch {
                 this.courses = [];
