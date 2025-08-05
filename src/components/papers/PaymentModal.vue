@@ -64,7 +64,7 @@
                     <p class="methods-title">Select payment method:</p>
 
                     <!-- Stripe Card Payment -->
-                    <button class="payment-btn stripe-btn" @click="handleStripePayment">
+                    <!-- <button class="payment-btn stripe-btn" @click="handleStripePayment">
                         <div class="btn-icon">
                             <svg
                                 viewBox="0 0 38 24"
@@ -106,10 +106,10 @@
                                 <path d="M5 12h14M12 5l7 7-7 7"></path>
                             </svg>
                         </div>
-                    </button>
+                    </button> -->
 
                     <!-- Paystack Payment -->
-                    <button class="payment-btn paystack-btn" @click="handlePaystackPayment">
+                    <!-- <button class="payment-btn paystack-btn" @click="handlePaystackPayment">
                         <div class="btn-icon">
                             <svg
                                 xmlns="http://www.w3.org/2000/svg"
@@ -146,7 +146,7 @@
                                 <path d="M5 12h14M12 5l7 7-7 7"></path>
                             </svg>
                         </div>
-                    </button>
+                    </button> -->
 
                     <!-- PayPal Payment -->
                     <button class="payment-btn paypal-btn" @click="handlePaypalPayment">
