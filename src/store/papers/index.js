@@ -145,12 +145,24 @@ const mutations = {
     },
 
     UPDATE_PAPER_IN_STATE(state, updatedPaper) {
-        state.allPapers = state.allPapers.map((p) => (p.id === updatedPaper.id ? updatedPaper : p));
-        if (state.uploadedPapers.results) {
-            state.uploadedPapers.results = state.uploadedPapers.results.map((p) =>
+        if (state.allPapers && Array.isArray(state.allPapers)) {
+            state.allPapers = state.allPapers.map((p) =>
                 p.id === updatedPaper.id ? updatedPaper : p,
             );
         }
+
+        if (state.uploadedPapers) {
+            if (Array.isArray(state.uploadedPapers)) {
+                state.uploadedPapers = state.uploadedPapers.map((p) =>
+                    p.id === updatedPaper.id ? updatedPaper : p,
+                );
+            } else if (state.uploadedPapers.results) {
+                state.uploadedPapers.results = state.uploadedPapers.results.map((p) =>
+                    p.id === updatedPaper.id ? updatedPaper : p,
+                );
+            }
+        }
+
         state.mostViewedPapers = state.mostViewedPapers.map((p) =>
             p.id === updatedPaper.id ? updatedPaper : p,
         );
@@ -161,6 +173,10 @@ const mutations = {
 
         if (state.paperDetails?.id === updatedPaper.id) {
             state.paperDetails = updatedPaper;
+        }
+
+        if (state.currentEditingPaper?.id === updatedPaper.id) {
+            state.currentEditingPaper = updatedPaper;
         }
     },
 
@@ -683,14 +699,15 @@ const actions = {
                 },
             };
 
-            const response = await api.put(`/exampapers/papers/${paperId}/`, formData, config);
+            const response = await api.put(
+                `/exampapers/papers/update/${paperId}/`,
+                formData,
+                config,
+            );
 
             commit('UPDATE_PAPER_IN_STATE', response.data);
             return response.data;
         } catch (error) {
-            console.error('Error updating paper:', error);
-
-            // Format validation errors for display
             if (error.response?.status === 400) {
                 const errors = error.response.data;
                 const formattedErrors = {};
@@ -700,7 +717,6 @@ const actions = {
                         ? messages.join(', ')
                         : messages;
                 }
-
                 throw { ...error, formattedErrors };
             }
 

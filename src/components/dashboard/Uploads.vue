@@ -486,7 +486,34 @@ export default {
             this.newFile = event.target.files[0];
         },
 
+        validateEditForm() {
+            if (!this.editingPaper.title || this.editingPaper.title.trim() === '') {
+                toast.error('Title is required');
+                return false;
+            }
+
+            if (this.editingPaper.price && isNaN(Number(this.editingPaper.price))) {
+                toast.error('Price must be a valid number');
+                return false;
+            }
+
+            if (
+                this.newFile &&
+                ![
+                    'application/pdf',
+                    'application/msword',
+                    'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                ].includes(this.newFile.type)
+            ) {
+                toast.error('Only PDF or Word documents are allowed');
+                return false;
+            }
+
+            return true;
+        },
+
         async submitEdit() {
+            if (!this.validateEditForm()) return;
             this.isSubmitting = true;
             this.isProcessing = true;
             try {
@@ -515,8 +542,11 @@ export default {
                         const message = Array.isArray(messages) ? messages.join(', ') : messages;
                         toast.error(`${field}: ${message}`);
                     }
+                } else if (error.response?.status === 403) {
+                    toast.error("You don't have permission to edit this paper");
                 } else {
                     toast.error('Failed to update paper');
+                    console.error('Update error:', error);
                 }
             } finally {
                 this.isSubmitting = false;
