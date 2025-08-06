@@ -506,7 +506,7 @@ const actions = {
         }
     },
 
-    async fetchUploadedPapers({ commit }, { search = '', page } = {}) {
+    async fetchUploadedPapers({ commit }, { search = '', page = 1 } = {}) {
         try {
             const response = await api.get('/exampapers/my-uploads/', {
                 params: {
@@ -516,6 +516,7 @@ const actions = {
                 },
             });
             commit('SET_UPLOADED_PAPERS', response.data);
+            console.log('response data', response.data);
             return response.data;
         } catch (error) {
             throw error;

@@ -74,6 +74,14 @@ const actions = {
         return response.data.checkout_info.checkout_url;
     },
 
+    async createPesapalSession(_, { paperIds }) {
+        const response = await api.post('/payments/checkout/initiate/', {
+            paper_ids: paperIds,
+            payment_method: 'pesapal',
+        });
+        return response.data.checkout_info.checkout_url;
+    },
+
     async verifyPayment(_, { sessionId, orderId }) {
         const response = await api.get('/payments/verify/', {
             params: {

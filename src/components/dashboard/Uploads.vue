@@ -176,32 +176,45 @@
                     </div>
 
                     <!-- Pagination -->
-                    <nav v-if="totalPages > 1" aria-label="Uploads navigation" class="mt-4">
+                    <nav v-if="pagination.totalPages > 1" class="pagination-container">
                         <ul class="pagination justify-content-center mb-0">
-                            <li class="page-item" :class="{ disabled: currentPage === 1 }">
+                            <!-- Previous Button -->
+                            <li
+                                class="page-item"
+                                :class="{ disabled: pagination.currentPage === 1 }"
+                            >
                                 <button
                                     class="page-link"
-                                    @click="changePage(currentPage - 1)"
-                                    aria-label="Previous"
+                                    @click="changePage(pagination.currentPage - 1)"
+                                    :disabled="pagination.currentPage === 1"
                                 >
                                     <i class="bi bi-chevron-left"></i>
                                 </button>
                             </li>
+
+                            <!-- Page Numbers -->
                             <li
-                                v-for="page in visiblePages"
+                                v-for="page in pagination.visiblePages"
                                 :key="page"
                                 class="page-item"
-                                :class="{ active: currentPage === page }"
+                                :class="{ active: pagination.currentPage === page }"
                             >
                                 <button class="page-link" @click="changePage(page)">
                                     {{ page }}
                                 </button>
                             </li>
-                            <li class="page-item" :class="{ disabled: currentPage === totalPages }">
+
+                            <!-- Next Button -->
+                            <li
+                                class="page-item"
+                                :class="{
+                                    disabled: pagination.currentPage === pagination.totalPages,
+                                }"
+                            >
                                 <button
                                     class="page-link"
-                                    @click="changePage(currentPage + 1)"
-                                    aria-label="Next"
+                                    @click="changePage(pagination.currentPage + 1)"
+                                    :disabled="pagination.currentPage === pagination.totalPages"
                                 >
                                     <i class="bi bi-chevron-right"></i>
                                 </button>
@@ -392,6 +405,11 @@ export default {
             sortKey: 'upload_date',
             sortAsc: false,
             isLoading: false,
+            pagination: {
+                currentPage: 1,
+                totalPages: 1,
+                visiblePages: [], // Dynamic page range (e.g., [1, 2, 3])
+            },
 
             // Edit modal state
             editingPaper: null,
@@ -467,13 +485,31 @@ export default {
         async fetchUploadedPapersHandler() {
             this.isLoading = true;
             try {
-                const response = await this.fetchUploadedPapers();
-                this.uploadedPapersList = response.results || [];
-                this.currentPage = 1;
-            } catch {
-                this.uploadedPapersList = [];
+                const response = await this.fetchUploadedPapers({
+                    page: this.pagination.currentPage,
+                });
+
+                // Update pagination from API response
+                this.pagination.totalPages = Math.ceil(response.count / this.perPage);
+                this.updateVisiblePages(); // Calculate visible page buttons
+
+                this.uploadedPapersList = response.results;
+            } catch (error) {
+                console.error('Error loading papers:', error);
+            } finally {
+                this.isLoading = false;
             }
-            this.isLoading = false;
+        },
+
+        updateVisiblePages() {
+            const range = 2;
+            let start = Math.max(1, this.pagination.currentPage - range);
+            let end = Math.min(this.pagination.totalPages, this.pagination.currentPage + range);
+
+            this.pagination.visiblePages = Array.from(
+                { length: end - start + 1 },
+                (_, i) => start + i,
+            );
         },
 
         openEditModal(paper) {
@@ -590,9 +626,9 @@ export default {
             this.currentPage = 1;
         },
         changePage(page) {
-            if (page >= 1 && page <= this.totalPages) {
-                this.currentPage = page;
-                window.scrollTo({ top: 0, behavior: 'smooth' });
+            if (page >= 1 && page <= this.pagination.totalPages) {
+                this.pagination.currentPage = page;
+                this.fetchUploadedPapersHandler();
             }
         },
         toggleSort(key) {

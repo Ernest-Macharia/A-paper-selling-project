@@ -199,6 +199,26 @@
                             </svg>
                         </div>
                     </button>
+
+                    <!-- Pesapal Payment -->
+                    <!-- <button class="payment-btn pesapal-btn" @click="handlePesapalPayment">
+                        <div class="btn-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="38" height="24">
+                                <path fill="#253B80" d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.6 0 12 0zm0 22C6.5 22 2 17.5 2 12S6.5 2 12 2s10 4.5 10 10-4.5 10-10 10z"/>
+                                <path fill="#253B80" d="M12 4c-4.4 0-8 3.6-8 8s3.6 8 8 8 8-3.6 8-8-3.6-8-8-8zm0 14c-3.3 0-6-2.7-6-6s2.7-6 6-6 6 2.7 6 6-2.7 6-6 6z"/>
+                                <path fill="#253B80" d="M12 8c-2.2 0-4 1.8-4 4s1.8 4 4 4 4-1.8 4-4-1.8-4-4-4zm0 6c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2z"/>
+                            </svg>
+                        </div>
+                        <div class="btn-content">
+                            <span class="btn-title">Pesapal</span>
+                            <span class="btn-subtitle">Pay with card or mobile money</span>
+                        </div>
+                        <div class="btn-arrow">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M5 12h14M12 5l7 7-7 7"></path>
+                            </svg>
+                        </div>
+                    </button> -->
                 </div>
             </div>
 
@@ -259,6 +279,7 @@ export default {
             'createStripeSession',
             'createPaypalSession',
             'createPaystackSession',
+            'createPesapalSession',
         ]),
 
         selectPaymentMethod(method) {
@@ -333,6 +354,22 @@ export default {
                 console.error('Paystack error:', err);
                 this.paymentError = 'Paystack payment failed.';
                 toast.error('Paystack payment failed.');
+            } finally {
+                this.isProcessing = false;
+            }
+        },
+
+        async handlePesapalPayment() {
+            this.isProcessing = true;
+            try {
+                const pesapalUrl = await this.createPesapalSession({
+                    paperIds: this.selectedPaperIds,
+                });
+                window.location.href = pesapalUrl;
+            } catch (err) {
+                console.error('Pesapal error:', err);
+                this.paymentError = 'Pesapal payment failed.';
+                toast.error('Pesapal payment failed.');
             } finally {
                 this.isProcessing = false;
             }
