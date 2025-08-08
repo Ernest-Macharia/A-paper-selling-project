@@ -55,28 +55,30 @@
                                     <!-- Preview container with multiple fallback options -->
                                     <div class="preview-content mb-2">
                                         <!-- Try PDF first if available -->
-                                        <object
-                                            v-if="paperDetails.preview_url"
-                                            :data="paperDetails.preview_url"
-                                            type="application/pdf"
-                                            class="preview-object"
-                                            @error="handlePdfError"
-                                        >
-                                            <!-- Fallback to image if PDF doesn't work -->
-                                            <!-- <img
+                                        <div v-if="!isMobile" class="preview-content mb-2">
+                                            <object
+                                                v-if="paperDetails.preview_url"
+                                                :data="paperDetails.preview_url"
+                                                type="application/pdf"
+                                                class="preview-object"
+                                                @error="handlePdfError"
+                                            ></object>
+                                        </div>
+
+                                        <!-- Fallback to image if PDF doesn't work -->
+                                        <!-- <img
                                                 v-if="paperDetails.preview_image"
                                                 :src="paperDetails.preview_image"
                                                 alt="Document preview"
                                                 class="img-fluid preview-image"
                                             /> -->
-                                            <!-- Final fallback message -->
-                                            <!-- <div class="preview-fallback" v-else>
+                                        <!-- Final fallback message -->
+                                        <!-- <div class="preview-fallback" v-else>
                                                 <i
                                                     class="fas fa-exclamation-triangle text-warning me-2"
                                                 ></i>
                                                 <span>Preview not available</span>
                                             </div> -->
-                                        </object>
 
                                         <!-- Show image directly if no PDF preview -->
                                         <!-- <img
@@ -580,6 +582,13 @@ export default {
         },
         hasPreview() {
             return this.paperDetails?.preview_url || this.paperDetails?.preview_image;
+        },
+
+        isMobile() {
+            return (
+                /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent) ||
+                window.innerWidth <= 768
+            );
         },
     },
 
