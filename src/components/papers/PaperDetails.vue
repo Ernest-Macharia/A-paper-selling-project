@@ -95,20 +95,13 @@
                                         :class="{
                                             'btn-primary': hasPreview,
                                             'btn-outline-secondary': !hasPreview,
-                                            'btn-sm': windowWidth < 768,
                                         }"
                                     >
                                         <i
                                             class="fas"
                                             :class="hasPreview ? 'fa-eye' : 'fa-ban'"
                                         ></i>
-                                        {{
-                                            hasPreview
-                                                ? windowWidth < 768
-                                                    ? 'Preview'
-                                                    : 'View Preview'
-                                                : 'Preview Not Available'
-                                        }}
+                                        {{ hasPreview ? 'View Preview' : 'Preview Not Available' }}
                                     </button>
 
                                     <!-- Watermark notice -->
