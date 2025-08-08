@@ -589,10 +589,12 @@ export default {
         ...mapGetters('authentication', ['isAuthenticated']),
     },
     async created() {
-        await this.loadLatestPapers();
-        await this.loadPopularCourses();
-        await this.loadPopularCategories();
-        await this.loadPopularSchools();
+        await Promise.all([
+            this.loadLatestPapers(),
+            this.loadPopularCourses(),
+            this.loadPopularCategories(),
+            this.loadPopularSchools(),
+        ]);
     },
     methods: {
         ...mapActions('papers', [
