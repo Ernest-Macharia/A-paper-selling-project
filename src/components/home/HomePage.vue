@@ -255,7 +255,7 @@
                 <div class="row g-4">
                     <div
                         class="col-md-6 col-lg-4 col-xl-3"
-                        v-for="(course, index) in popularCourses.slice(0, 8)"
+                        v-for="(course, index) in popularCourses"
                         :key="index"
                     >
                         <div class="course-card card border-0 shadow-sm h-100 text-center">
@@ -301,7 +301,7 @@
                 <div class="row g-4">
                     <div
                         class="col-md-6 col-lg-4 col-xl-3"
-                        v-for="(category, index) in popularCategories.slice(0, 8)"
+                        v-for="(category, index) in popularCategories"
                         :key="index"
                     >
                         <div class="category-card card border-0 shadow-sm h-100 text-center">
@@ -347,7 +347,7 @@
                 <div class="row g-4">
                     <div
                         class="col-md-6 col-lg-4 col-xl-3"
-                        v-for="(school, index) in popularSchools.slice(0, 8)"
+                        v-for="(school, index) in popularSchools"
                         :key="index"
                     >
                         <div class="school-card card border-0 shadow-sm h-100 text-center">
@@ -619,7 +619,7 @@ export default {
         async loadPopularCourses() {
             try {
                 const data = await this.fetchPopularCourses();
-                this.popularCourses = data.results;
+                this.popularCourses = data;
             } catch (error) {
                 console.error('Error fetching popular courses:', error);
             }
@@ -628,7 +628,7 @@ export default {
         async loadPopularSchools() {
             try {
                 const data = await this.fetchPopularSchools();
-                this.popularSchools = data.results;
+                this.popularSchools = data;
             } catch (error) {
                 console.error('Error fetching popular schools:', error);
             }
@@ -637,7 +637,7 @@ export default {
         async loadPopularCategories() {
             try {
                 const data = await this.fetchPopularCategories();
-                this.popularCategories = data.results;
+                this.popularCategories = data;
             } catch (error) {
                 console.error('Error fetching popular courses:', error);
             }
