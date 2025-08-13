@@ -462,13 +462,10 @@ const actions = {
 
     async fetchLatestPapers({ commit }) {
         try {
-            const response = await api.get('/exampapers/papers/latest-papers/');
-            const data = {
-                results: Array.isArray(response.data) ? response.data : [],
-                count: Array.isArray(response.data) ? response.data.length : 0,
-            };
-            commit('SET_ALL_PAPERS', data);
-            return data;
+            const { data } = await api.get('/exampapers/papers/latest-papers/');
+            const results = Array.isArray(data) ? data : [];
+            commit('SET_ALL_PAPERS', { results, count: results.length });
+            return results;
         } catch (error) {
             throw error;
         }
