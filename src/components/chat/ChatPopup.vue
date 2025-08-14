@@ -73,7 +73,6 @@ export default {
 
             this.socket.onopen = () => {
                 this.socketOpen = true;
-                console.log('Connected to chat server');
             };
 
             this.socket.onmessage = (e) => {

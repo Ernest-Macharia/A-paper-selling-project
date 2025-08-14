@@ -486,7 +486,6 @@ const actions = {
     async fetchPapersByAuthor({ commit }, authorId) {
         try {
             const response = await api.get(`/exampapers/papers/author/${authorId}/`);
-            console.log('API Response:', response);
             if (response.data) {
                 return {
                     papers: response.data.papers,
@@ -514,7 +513,6 @@ const actions = {
                 },
             });
             commit('SET_UPLOADED_PAPERS', response.data);
-            console.log('response data', response.data);
             return response.data;
         } catch (error) {
             throw error;

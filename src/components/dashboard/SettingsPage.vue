@@ -447,18 +447,12 @@ export default {
     },
     methods: {
         saveProfile() {
-            // API call to save profile
-            console.log('Profile saved:', this.profile);
             this.showToast('Profile updated successfully');
         },
         saveNotificationSettings() {
-            // API call to save notification preferences
-            console.log('Notification settings saved:', this.notifications);
             this.showToast('Notification preferences updated');
         },
         saveSystemPreferences() {
-            // API call to save system preferences
-            console.log('System preferences saved:', this.system);
             this.showToast('System preferences updated');
         },
         changePassword() {
@@ -466,9 +460,6 @@ export default {
                 this.showToast('Passwords do not match', 'error');
                 return;
             }
-
-            // API call to change password
-            console.log('Password changed');
             this.showToast('Password changed successfully');
             this.passwordModal.hide();
             this.password = { current: '', new: '', confirm: '' };
