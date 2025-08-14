@@ -5,8 +5,8 @@
         <nav aria-label="breadcrumb" class="mb-4">
             <ol class="breadcrumb bg-light p-3 rounded-3">
                 <li class="breadcrumb-item">
-                    <router-link to="/schools" class="text-decoration-none text-muted">
-                        <i class="bi bi-arrow-left-short me-1"></i> All Schools
+                    <router-link to="/schools" class="text-decoration-none">
+                        <i class="fas fa-chevron-left me-2"></i> All Schools
                     </router-link>
                 </li>
                 <li class="breadcrumb-item active text-primary" aria-current="page">
