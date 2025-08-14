@@ -244,7 +244,7 @@ export default {
             searchQuery: '',
             selectedCategory: '',
             currentPage: 1,
-            pageSize: 9,
+            pageSize: 12,
             isLoading: false,
             sortKey: '',
             sortAsc: true,
