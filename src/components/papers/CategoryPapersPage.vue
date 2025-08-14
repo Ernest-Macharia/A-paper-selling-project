@@ -161,7 +161,7 @@ export default {
             sortKey: 'title',
             sortAsc: true,
             currentPage: 1,
-            perPage: 9,
+            perPage: 12,
             isLoading: false,
         };
     },
