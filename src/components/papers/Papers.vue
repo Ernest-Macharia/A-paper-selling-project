@@ -79,7 +79,7 @@
         <div v-else class="papers-grid">
             <!-- Papers Cards - Updated to 3 columns -->
             <div class="row g-4">
-                <div v-for="paper in paginatedPapers" :key="paper.id" class="col-lg-4 col-md-6">
+                <div v-for="paper in papers" :key="paper.id" class="col-lg-4 col-md-6">
                     <div class="paper-card card border-0 shadow-sm h-100 hover-lift">
                         <div class="card-body p-4">
                             <div class="d-flex justify-content-between align-items-start mb-3">
@@ -220,7 +220,7 @@ export default {
             searchQuery: '',
             selectedCategory: '',
             currentPage: 1,
-            pageSize: 12,
+            totalPages: 1,
             isLoading: false,
             sortKey: '',
             sortAsc: true,
@@ -228,13 +228,6 @@ export default {
         };
     },
     computed: {
-        totalPages() {
-            return Math.ceil(this.filteredPapers.length / this.pageSize);
-        },
-        paginatedPapers() {
-            const start = (this.currentPage - 1) * this.pageSize;
-            return this.filteredPapers.slice(start, start + this.pageSize);
-        },
         middlePages() {
             if (this.totalPages <= 7) return [];
             if (this.currentPage <= 3) return [2, 3, 4];
@@ -257,13 +250,14 @@ export default {
     },
     methods: {
         ...mapActions('papers', ['fetchAllPapers', 'fetchCategories']),
-        async loadPapers() {
+        async loadPapers(page = 1) {
             this.isLoading = true;
             try {
-                const data = await this.fetchAllPapers();
+                const data = await this.fetchAllPapers({ page });
                 this.papers = data.results || data;
                 this.filteredPapers = [...this.papers];
-                this.allPapersLoaded = true;
+                this.totalPages = Math.ceil(data.count / 12);
+                this.currentPage = page;
             } catch (error) {
                 console.error('Error loading papers:', error);
                 this.papers = [];
@@ -271,12 +265,14 @@ export default {
                 this.isLoading = false;
             }
         },
+
         async loadCategories() {
             try {
                 const response = await this.fetchCategories();
                 this.categories = response.results || response;
             } catch (err) {
                 console.error('Error loading categories:', err);
+                this.categories = [];
             }
         },
         filterPapers() {
@@ -303,9 +299,11 @@ export default {
         changePage(page) {
             if (page >= 1 && page <= this.totalPages) {
                 this.currentPage = page;
+                this.loadPapers(page);
                 window.scrollTo({ top: 0, behavior: 'smooth' });
             }
         },
+
         sortPapers() {
             if (!this.sortKey) return;
 

@@ -450,12 +450,14 @@ const actions = {
         commit('CLEAR_SCHOOL_STATE');
     },
 
-    async fetchAllPapers({ commit }, { page = 1, pageSize = 20 } = {}) {
+    async fetchAllPapers({ commit }, { page = 1 } = {}) {
         try {
-            const params = { page, page_size: pageSize };
-            const response = await api.get('/exampapers/papers/', { params });
+            const response = await api.get('/exampapers/papers/', { params: { page } });
             commit('SET_ALL_PAPERS', response.data.results);
-            return response.data;
+            return {
+                count: response.data.count,
+                results: response.data.results,
+            };
         } catch (error) {
             throw error;
         }
