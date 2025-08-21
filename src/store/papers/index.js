@@ -237,15 +237,8 @@ const actions = {
         try {
             const params = { search };
 
-            if (page) {
-                params.page = page;
-            } else {
-                params.all = true;
-            }
-
-            if (ordering) {
-                params.ordering = ordering;
-            }
+            if (page) params.page = page;
+            if (ordering) params.ordering = ordering;
 
             const response = await api.get('/exampapers/categories/', { params });
             commit('SET_CATEGORIES', response.data.results);

@@ -2,7 +2,6 @@
     <Navbar />
 
     <div class="container py-5">
-        <!-- Header with Search and Sort -->
         <div
             class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-4 gap-3"
         >
