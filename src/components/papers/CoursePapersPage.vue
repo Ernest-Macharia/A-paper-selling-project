@@ -19,9 +19,7 @@
         <div class="d-flex justify-content-between align-items-center mb-4">
             <div>
                 <h2 class="fw-bold mb-1">Papers in {{ courseName }}</h2>
-                <p class="text-muted mb-0" v-if="!isLoading">
-                    Showing {{ filteredPapers.length }} papers
-                </p>
+                <p class="text-muted mb-0" v-if="!isLoading">Showing {{ totalCount }} papers</p>
             </div>
         </div>
 
@@ -47,6 +45,7 @@
                         <select v-model="sortKey" @change="applyFilters" class="form-select">
                             <option value="title">Sort by Title</option>
                             <option value="upload_date">Sort by Upload Date</option>
+                            <option value="price">Sort by Price</option>
                         </select>
                     </div>
                 </div>
@@ -62,7 +61,7 @@
         </div>
 
         <!-- Empty State -->
-        <div v-else-if="!filteredPapers.length" class="card border-0 shadow-sm text-center py-5">
+        <div v-else-if="!papers.length" class="card border-0 shadow-sm text-center py-5">
             <i class="bi bi-file-earmark-text display-5 text-muted mb-3"></i>
             <h5 class="text-muted">No papers found</h5>
             <p class="text-muted mb-0">Try adjusting your search filters</p>
@@ -70,7 +69,7 @@
 
         <!-- Papers Grid -->
         <div v-else class="row g-4">
-            <div v-for="paper in paginatedPapers" :key="paper.id" class="col-md-6 col-lg-4">
+            <div v-for="paper in papers" :key="paper.id" class="col-md-6 col-lg-4">
                 <div class="card h-100 border-0 shadow-sm hover-shadow transition-all">
                     <div class="card-body">
                         <div class="d-flex justify-content-between align-items-start mb-2">
@@ -153,21 +152,20 @@ export default {
     components: { Navbar },
     data() {
         return {
-            allPapers: [],
-            filteredPapers: [],
-            paginatedPapers: [],
+            papers: [],
             courseName: '',
             searchQuery: '',
             sortKey: 'title',
             sortAsc: true,
             currentPage: 1,
             perPage: 12,
+            totalCount: 0,
             isLoading: false,
         };
     },
     computed: {
         totalPages() {
-            return Math.ceil(this.filteredPapers.length / this.perPage);
+            return Math.ceil(this.totalCount / this.perPage);
         },
         visiblePages() {
             const range = 2;
@@ -198,18 +196,33 @@ export default {
         async loadCoursePapers() {
             this.isLoading = true;
             const courseId = this.$route.params.courseId;
+
             try {
-                const papers = await this.fetchCoursePapers(courseId);
-                this.allPapers = Array.isArray(papers) ? papers : [];
-                if (this.allPapers.length) {
-                    this.courseName = this.allPapers[0].course?.name || 'Unknown';
+                const ordering = this.sortAsc ? this.sortKey : `-${this.sortKey}`;
+
+                const response = await this.fetchCoursePapers({
+                    courseId,
+                    params: {
+                        search: this.searchQuery,
+                        ordering,
+                        page: this.currentPage,
+                        page_size: this.perPage,
+                    },
+                });
+
+                this.papers = response.results || [];
+                this.totalCount = response.count || 0;
+
+                if (this.papers.length) {
+                    this.courseName = this.papers[0].course?.name || 'Unknown';
                 }
-                this.applyFilters();
             } catch (error) {
                 console.error('Error loading papers:', error);
-                this.allPapers = [];
+                this.papers = [];
                 this.courseName = '';
+                this.totalCount = 0;
             }
+
             this.isLoading = false;
         },
 
@@ -223,32 +236,15 @@ export default {
         },
 
         applyFilters() {
-            const papersArray = Array.isArray(this.allPapers) ? this.allPapers : [];
-            const query = this.searchQuery.toLowerCase();
-            let filtered = papersArray.filter(
-                (p) => p && p.title && p.title.toLowerCase().includes(query),
-            );
-
-            filtered.sort((a, b) => {
-                const aVal = this.sortKey === 'upload_date' ? new Date(a.upload_date) : a.title;
-                const bVal = this.sortKey === 'upload_date' ? new Date(b.upload_date) : b.title;
-                return this.sortAsc ? (aVal > bVal ? 1 : -1) : aVal < bVal ? 1 : -1;
-            });
-
-            this.filteredPapers = filtered;
-            this.changePage(1);
+            this.currentPage = 1;
+            this.loadCoursePapers();
         },
 
         changePage(page) {
             if (page >= 1 && page <= this.totalPages) {
                 this.currentPage = page;
-                const start = (page - 1) * this.perPage;
-                const end = start + this.perPage;
-                this.paginatedPapers = this.filteredPapers.slice(start, end);
-                window.scrollTo({
-                    top: 0,
-                    behavior: 'smooth',
-                });
+                this.loadCoursePapers();
+                window.scrollTo({ top: 0, behavior: 'smooth' });
             }
         },
 

@@ -20,7 +20,7 @@
             <div>
                 <h2 class="fw-bold mb-1">Papers in {{ categoryName }}</h2>
                 <p class="text-muted mb-0" v-if="!isLoading">
-                    Showing {{ filteredPapers.length }} papers
+                    Showing {{ allPapers.length }} papers
                 </p>
             </div>
         </div>
@@ -62,7 +62,7 @@
         </div>
 
         <!-- Empty State -->
-        <div v-else-if="!filteredPapers.length" class="card border-0 shadow-sm text-center py-5">
+        <div v-else-if="!allPapers.length" class="card border-0 shadow-sm text-center py-5">
             <i class="bi bi-file-earmark-text display-5 text-muted mb-3"></i>
             <h5 class="text-muted">No papers found</h5>
             <p class="text-muted mb-0">Try adjusting your search filters</p>
@@ -70,7 +70,7 @@
 
         <!-- Papers Grid -->
         <div v-else class="row g-4">
-            <div v-for="paper in paginatedPapers" :key="paper.id" class="col-md-6 col-lg-4">
+            <div v-for="paper in allPapers" :key="paper.id" class="col-md-6 col-lg-4">
                 <div class="card h-100 border-0 shadow-sm hover-shadow transition-all">
                     <div class="card-body">
                         <div class="d-flex justify-content-between align-items-start mb-2">
@@ -154,20 +154,18 @@ export default {
     data() {
         return {
             allPapers: [],
-            filteredPapers: [],
-            paginatedPapers: [],
             categoryName: '',
             searchQuery: '',
             sortKey: 'title',
-            sortAsc: true,
             currentPage: 1,
             perPage: 12,
+            totalPages: 1,
             isLoading: false,
         };
     },
     computed: {
-        totalPages() {
-            return Math.ceil(this.filteredPapers.length / this.perPage);
+        paginatedPapers() {
+            return this.allPapers;
         },
         visiblePages() {
             const range = 2;
@@ -199,18 +197,41 @@ export default {
             this.isLoading = true;
             const categoryId = this.$route.params.categoryId;
             try {
-                const papers = await this.fetchCategoryPapers(categoryId);
-                this.allPapers = Array.isArray(papers) ? papers : [];
+                const response = await this.fetchCategoryPapers({
+                    categoryId,
+                    params: {
+                        page: this.currentPage,
+                        ordering: this.sortKey,
+                        search: this.searchQuery || undefined,
+                    },
+                });
+
+                this.allPapers = response.results || [];
+                this.totalPages = Math.ceil(response.count / this.perPage);
+
                 if (this.allPapers.length) {
                     this.categoryName = this.allPapers[0].category?.name || 'Unknown';
                 }
-                this.applyFilters();
             } catch (error) {
                 console.error('Error loading papers:', error);
                 this.allPapers = [];
                 this.categoryName = '';
+                this.totalPages = 1;
             }
             this.isLoading = false;
+        },
+
+        async changePage(page) {
+            if (page >= 1 && page <= this.totalPages) {
+                this.currentPage = page;
+                await this.loadCategoryPapers();
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        },
+
+        async applyFilters() {
+            this.currentPage = 1;
+            await this.loadCategoryPapers();
         },
 
         formatDate(date) {
@@ -220,47 +241,6 @@ export default {
                 month: 'short',
                 day: 'numeric',
             });
-        },
-
-        applyFilters() {
-            const papersArray = Array.isArray(this.allPapers) ? this.allPapers : [];
-            const query = this.searchQuery.toLowerCase();
-
-            let filtered = papersArray.filter(
-                (p) => p && p.title && p.title.toLowerCase().includes(query),
-            );
-
-            filtered.sort((a, b) => {
-                const aVal = this.sortKey === 'upload_date' ? new Date(a.upload_date) : a.title;
-                const bVal = this.sortKey === 'upload_date' ? new Date(b.upload_date) : b.title;
-                return this.sortAsc ? (aVal > bVal ? 1 : -1) : aVal < bVal ? 1 : -1;
-            });
-
-            this.filteredPapers = filtered;
-            this.changePage(1);
-        },
-
-        changePage(page) {
-            if (page >= 1 && page <= this.totalPages) {
-                this.currentPage = page;
-                const start = (page - 1) * this.perPage;
-                const end = start + this.perPage;
-                this.paginatedPapers = this.filteredPapers.slice(start, end);
-                window.scrollTo({
-                    top: 0,
-                    behavior: 'smooth',
-                });
-            }
-        },
-
-        toggleSort(key) {
-            if (this.sortKey === key) {
-                this.sortAsc = !this.sortAsc;
-            } else {
-                this.sortKey = key;
-                this.sortAsc = true;
-            }
-            this.applyFilters();
         },
     },
     async created() {

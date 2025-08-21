@@ -330,23 +330,25 @@ const actions = {
         }
     },
 
-    async fetchCategoryPapers({ commit }, categoryId) {
+    async fetchCategoryPapers({ commit }, { categoryId, params = {} }) {
         try {
-            const response = await api.get(`/exampapers/papers/?category=${categoryId}`);
+            const response = await api.get(`/exampapers/categories/category-papers/`, {
+                params: { category: categoryId, ...params },
+            });
             const data = response.data;
             commit('SET_ALL_PAPERS', data.results);
-            return response.data;
+            return data;
         } catch (error) {
             console.error('Failed to fetch category papers:', error);
             throw error;
         }
     },
 
-    async fetchCoursePapers({ commit }, courseId) {
+    async fetchCoursePapers({ commit }, { courseId, params = {} }) {
         try {
-            const response = await api.get(`/exampapers/papers/?course=${courseId}`);
-            const data = response.data;
-            commit('SET_ALL_PAPERS', data.results);
+            const response = await api.get(`/exampapers/courses/course-papers/`, {
+                params: { course: courseId, ...params },
+            });
             return response.data;
         } catch (error) {
             console.error('Failed to fetch course papers:', error);
