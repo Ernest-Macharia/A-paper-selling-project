@@ -396,10 +396,26 @@ const actions = {
     async fetchSchoolPapers({ commit }, { schoolId, params = {} }) {
         try {
             commit('SET_LOADING', true);
-            const response = await api.get(`/exampapers/schools/${schoolId}/papers/`, { params });
-            commit('SET_SCHOOL_PAPERS', response.data.results || response.data);
+            const response = await api.get(`/exampapers/schools/${schoolId}/papers/`, {
+                params: {
+                    page: params.page || 1,
+                    page_size: params.page_size || 12,
+                    ordering: params.ordering || '-upload_date',
+                    search: params.search || undefined,
+                },
+            });
+            commit('SET_SCHOOL_PAPERS', response.data.results || []);
             commit('SET_ERROR', null);
-            return response.data;
+
+            return {
+                data: response.data.results || [],
+                pagination: {
+                    count: response.data.count || 0,
+                    next: response.data.next,
+                    previous: response.data.previous,
+                    page_size: params.page_size || 12,
+                },
+            };
         } catch (error) {
             commit('SET_ERROR', error);
             throw error;
@@ -407,6 +423,7 @@ const actions = {
             commit('SET_LOADING', false);
         }
     },
+
     async fetchSchoolCourses({ commit }, { schoolId, params = {} }) {
         try {
             commit('SET_LOADING', true);
