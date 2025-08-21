@@ -79,7 +79,7 @@
         <div v-else class="papers-grid">
             <!-- Papers Cards - Updated to 3 columns -->
             <div class="row g-4">
-                <div v-for="paper in papers" :key="paper.id" class="col-lg-4 col-md-6">
+                <div v-for="paper in filteredPapers" :key="paper.id" class="col-lg-4 col-md-6">
                     <div class="paper-card card border-0 shadow-sm h-100 hover-lift">
                         <div class="card-body p-4">
                             <div class="d-flex justify-content-between align-items-start mb-3">

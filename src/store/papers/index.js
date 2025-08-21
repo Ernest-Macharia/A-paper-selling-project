@@ -450,9 +450,11 @@ const actions = {
         commit('CLEAR_SCHOOL_STATE');
     },
 
-    async fetchAllPapers({ commit }, { page = 1 } = {}) {
+    async fetchAllPapers({ commit }, { page = 1, search = '', ordering = '' } = {}) {
         try {
-            const response = await api.get('/exampapers/papers/', { params: { page } });
+            const response = await api.get('/exampapers/papers/', {
+                params: { page, search, ordering },
+            });
             commit('SET_ALL_PAPERS', response.data.results);
             return {
                 count: response.data.count,
