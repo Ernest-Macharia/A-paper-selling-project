@@ -499,22 +499,28 @@ const actions = {
         }
     },
 
-    async fetchPapersByAuthor({ commit }, authorId) {
+    async fetchPapersByAuthor(
+        { commit },
+        { authorId, page = 1, search = '', ordering = '', category = '' },
+    ) {
         try {
-            const response = await api.get(`/exampapers/papers/author/${authorId}/`);
-            if (response.data) {
-                return {
-                    papers: response.data.papers,
-                    author_name: response.data.author_name,
-                };
-            }
-            throw new Error('Invalid response format');
+            const params = { page };
+
+            if (search) params.search = search;
+            if (ordering) params.ordering = ordering;
+            if (category) params['category__name'] = category; // ✅ FIX
+
+            const response = await api.get(`/exampapers/papers/author/${authorId}/`, { params });
+
+            return {
+                papers: response.data.results,
+                author_name: response.data.author_name,
+                count: response.data.count,
+                next: response.data.next,
+                previous: response.data.previous,
+            };
         } catch (error) {
-            console.error('API Error:', {
-                config: error.config,
-                response: error.response,
-                message: error.message,
-            });
+            console.error('API Error:', error);
             throw error;
         }
     },

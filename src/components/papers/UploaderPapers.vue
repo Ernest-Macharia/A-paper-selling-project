@@ -27,7 +27,7 @@
                             </span>
                             <input
                                 v-model="searchQuery"
-                                @input="filterPapers"
+                                @input="applyFilters"
                                 type="text"
                                 class="form-control border-start-0 ps-0"
                                 :placeholder="
@@ -39,26 +39,30 @@
                     <div class="col-md-4">
                         <select
                             v-model="selectedCategory"
-                            @change="filterPapers"
+                            @change="applyFilters"
                             class="form-select"
                         >
                             <option value="">All Categories</option>
                             <option
                                 v-for="category in categories"
                                 :key="category.id"
-                                :value="category.name.toLowerCase()"
+                                :value="category.name"
                             >
                                 {{ category.name }}
                             </option>
                         </select>
                     </div>
                     <div class="col-md-3">
-                        <select v-model="sortKey" @change="toggleSort(sortKey)" class="form-select">
+                        <select v-model="sortKey" @change="applyFilters" class="form-select">
                             <option value="">Sort by</option>
-                            <option value="title">Title</option>
-                            <option value="price">Price</option>
-                            <option value="upload_date">Date</option>
-                            <option value="school.name">School</option>
+                            <option value="title">Title (A–Z)</option>
+                            <option value="-title">Title (Z–A)</option>
+                            <option value="price">Price (Low → High)</option>
+                            <option value="-price">Price (High → Low)</option>
+                            <option value="upload_date">Date (Oldest)</option>
+                            <option value="-upload_date">Date (Newest)</option>
+                            <option value="school__name">School (A–Z)</option>
+                            <option value="-school__name">School (Z–A)</option>
                         </select>
                     </div>
                 </div>
@@ -77,7 +81,7 @@
         </div>
 
         <!-- Empty State -->
-        <div v-else-if="filteredPapers.length === 0" class="empty-state text-center py-5 my-5">
+        <div v-else-if="papers.length === 0" class="empty-state text-center py-5 my-5">
             <i class="bi bi-file-earmark-x display-5 text-muted mb-4"></i>
             <h4 class="text-dark mb-2">
                 <template v-if="isCurrentUser"> You haven't uploaded any papers yet </template>
@@ -101,9 +105,8 @@
 
         <!-- Papers Grid -->
         <div v-else class="papers-grid">
-            <!-- Papers Cards - Updated to 3 columns -->
             <div class="row g-4">
-                <div v-for="paper in paginatedPapers" :key="paper.id" class="col-lg-4 col-md-6">
+                <div v-for="paper in papers" :key="paper.id" class="col-lg-4 col-md-6">
                     <div class="paper-card card border-0 shadow-sm h-100 hover-lift">
                         <div class="card-body p-4">
                             <div class="d-flex justify-content-between align-items-start mb-3">
@@ -113,8 +116,8 @@
                                     {{ paper.category?.name || 'General' }}
                                 </span>
                                 <span class="text-muted small">
-                                    <i class="bi bi-calendar me-1"></i
-                                    >{{ formatDate(paper.upload_date) }}
+                                    <i class="bi bi-calendar me-1"></i>
+                                    {{ formatDate(paper.upload_date) }}
                                 </span>
                             </div>
 
@@ -173,49 +176,16 @@
                             </button>
                         </li>
 
-                        <template v-if="totalPages <= 7">
-                            <li
-                                v-for="page in totalPages"
-                                :key="page"
-                                class="page-item"
-                                :class="{ active: currentPage === page }"
-                            >
-                                <button class="page-link" @click="changePage(page)">
-                                    {{ page }}
-                                </button>
-                            </li>
-                        </template>
-
-                        <template v-else>
-                            <li :class="{ active: currentPage === 1 }" class="page-item">
-                                <button class="page-link" @click="changePage(1)">1</button>
-                            </li>
-
-                            <li v-if="currentPage > 3" class="page-item disabled">
-                                <span class="page-link">...</span>
-                            </li>
-
-                            <li
-                                v-for="page in middlePages"
-                                :key="page"
-                                class="page-item"
-                                :class="{ active: currentPage === page }"
-                            >
-                                <button class="page-link" @click="changePage(page)">
-                                    {{ page }}
-                                </button>
-                            </li>
-
-                            <li v-if="currentPage < totalPages - 2" class="page-item disabled">
-                                <span class="page-link">...</span>
-                            </li>
-
-                            <li :class="{ active: currentPage === totalPages }" class="page-item">
-                                <button class="page-link" @click="changePage(totalPages)">
-                                    {{ totalPages }}
-                                </button>
-                            </li>
-                        </template>
+                        <li
+                            v-for="page in totalPages"
+                            :key="page"
+                            class="page-item"
+                            :class="{ active: currentPage === page }"
+                        >
+                            <button class="page-link" @click="changePage(page)">
+                                {{ page }}
+                            </button>
+                        </li>
 
                         <li class="page-item" :class="{ disabled: currentPage === totalPages }">
                             <button class="page-link" @click="changePage(currentPage + 1)">
@@ -239,15 +209,14 @@ export default {
     data() {
         return {
             papers: [],
-            filteredPapers: [],
             categories: [],
             searchQuery: '',
             selectedCategory: '',
             currentPage: 1,
             pageSize: 12,
+            totalCount: 0,
             isLoading: false,
             sortKey: '',
-            sortAsc: true,
             uploaderName: '',
             uploaderId: null,
         };
@@ -258,26 +227,7 @@ export default {
             return this.currentUser?.id === this.uploaderId;
         },
         totalPages() {
-            return Math.ceil(this.filteredPapers.length / this.pageSize);
-        },
-        paginatedPapers() {
-            const start = (this.currentPage - 1) * this.pageSize;
-            return this.filteredPapers.slice(start, start + this.pageSize);
-        },
-        middlePages() {
-            if (this.totalPages <= 7) return [];
-            if (this.currentPage <= 3) return [2, 3, 4];
-            if (this.currentPage >= this.totalPages - 2)
-                return [this.totalPages - 3, this.totalPages - 2, this.totalPages - 1];
-            return [this.currentPage - 1, this.currentPage, this.currentPage + 1];
-        },
-    },
-    watch: {
-        searchQuery() {
-            this.filterPapers();
-        },
-        selectedCategory() {
-            this.filterPapers();
+            return Math.ceil(this.totalCount / this.pageSize);
         },
     },
     created() {
@@ -290,12 +240,19 @@ export default {
         async loadUploaderPapers() {
             this.isLoading = true;
             try {
-                const response = await this.fetchPapersByAuthor(this.uploaderId);
+                const response = await this.fetchPapersByAuthor({
+                    authorId: this.uploaderId,
+                    page: this.currentPage,
+                    search: this.searchQuery,
+                    ordering: this.sortKey,
+                    category: this.selectedCategory,
+                });
                 this.papers = response.papers;
-                this.filteredPapers = response.papers;
+                this.totalCount = response.count;
                 this.uploaderName = response.author_name || 'Unknown Author';
             } catch {
                 this.papers = [];
+                this.totalCount = 0;
             } finally {
                 this.isLoading = false;
             }
@@ -304,68 +261,27 @@ export default {
             try {
                 const response = await this.fetchCategories();
                 this.categories = response.results || response;
-            } catch (err) {
+            } catch {
                 this.categories = [];
             }
         },
-        filterPapers() {
-            const query = this.searchQuery.toLowerCase();
-            this.filteredPapers = this.papers.filter((paper) => {
-                const matchesTitle = paper.title.toLowerCase().includes(query);
-                const matchesDesc = paper.description?.toLowerCase().includes(query) || false;
-                const matchesCategory =
-                    !this.selectedCategory ||
-                    paper.category?.name?.toLowerCase?.() === this.selectedCategory;
-                return (matchesTitle || matchesDesc) && matchesCategory;
-            });
-            this.sortPapers();
+        applyFilters() {
             this.currentPage = 1;
+            this.loadUploaderPapers();
         },
         resetFilters() {
             this.searchQuery = '';
             this.selectedCategory = '';
             this.sortKey = '';
-            this.sortAsc = true;
-            this.filteredPapers = [...this.papers];
             this.currentPage = 1;
+            this.loadUploaderPapers();
         },
         changePage(page) {
             if (page >= 1 && page <= this.totalPages) {
                 this.currentPage = page;
+                this.loadUploaderPapers();
                 window.scrollTo({ top: 0, behavior: 'smooth' });
             }
-        },
-        sortPapers() {
-            if (!this.sortKey) return;
-
-            const key = this.sortKey;
-            const asc = this.sortAsc ? 1 : -1;
-
-            this.filteredPapers.sort((a, b) => {
-                const getNestedValue = (obj, path) => {
-                    return path.split('.').reduce((o, p) => (o ? o[p] : ''), obj);
-                };
-
-                const valA = getNestedValue(a, key)?.toString().toLowerCase() || '';
-                const valB = getNestedValue(b, key)?.toString().toLowerCase() || '';
-
-                if (!isNaN(a[key]) && !isNaN(b[key])) {
-                    return (a[key] - b[key]) * asc;
-                }
-                if (key === 'upload_date') {
-                    return (new Date(a[key]) - new Date(b[key])) * asc;
-                }
-                return valA.localeCompare(valB) * asc;
-            });
-        },
-        toggleSort(key) {
-            if (this.sortKey === key) {
-                this.sortAsc = !this.sortAsc;
-            } else {
-                this.sortKey = key;
-                this.sortAsc = true;
-            }
-            this.sortPapers();
         },
         formatDate(date) {
             return new Date(date).toLocaleDateString(undefined, {
