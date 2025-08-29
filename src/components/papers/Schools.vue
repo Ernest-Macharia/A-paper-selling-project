@@ -7,12 +7,12 @@
             class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-4 gap-3"
         >
             <div>
-                <h2 class="fw-bold mb-2">All Schools</h2>
+                <h2 class="fw-bold mb-2 text-gradient-primary">All Schools</h2>
                 <p class="text-muted">Browse academic schools with available resources</p>
             </div>
 
             <div class="d-flex flex-column w-100 gap-3" style="max-width: 500px">
-                <div class="input-group">
+                <div class="input-group search-container">
                     <span class="input-group-text bg-white border-end-0">
                         <i class="bi bi-search text-muted"></i>
                     </span>
@@ -31,18 +31,15 @@
                         <select
                             v-model="sortKey"
                             @change="loadSchools"
-                            class="form-select form-select-sm w-auto"
+                            class="form-select form-select-sm w-auto custom-select"
                         >
                             <option value="name">Name</option>
                             <option value="paper_count">Paper Count</option>
                             <option value="course_count">Course Count</option>
                             <option value="average_rating">Rating</option>
                         </select>
-                        <button
-                            @click="toggleSortDirection"
-                            class="btn btn-sm btn-outline-secondary"
-                        >
-                            <i :class="sortAsc ? 'bi bi-sort-down' : 'bi bi-sort-up'"></i>
+                        <button @click="toggleSortDirection" class="btn btn-sm sort-direction-btn">
+                            <i :class="sortAsc ? 'bi bi-sort-down-alt' : 'bi bi-sort-up-alt'"></i>
                         </button>
                     </div>
                 </div>
@@ -51,13 +48,17 @@
 
         <!-- Loading State -->
         <div v-if="isLoading" class="text-center py-5">
-            <div class="spinner-border text-primary" role="status"></div>
-            <p class="mt-2 text-muted">Loading schools...</p>
+            <div class="spinner-grow text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <p class="mt-3 text-muted">Loading schools...</p>
         </div>
 
         <!-- Empty State -->
         <div v-else-if="schools.length === 0" class="text-center py-5">
-            <i class="bi bi-building display-5 text-muted opacity-50 mb-3"></i>
+            <div class="empty-state-icon mb-4">
+                <i class="bi bi-building display-4"></i>
+            </div>
             <h5 class="fw-semibold">No schools available</h5>
             <p class="text-muted">Try adjusting your search filters</p>
         </div>
@@ -72,27 +73,45 @@
                         >
                             <i class="bi bi-building fs-4"></i>
                         </div>
-                        <h5 class="fw-bold mb-2">{{ school.name }}</h5>
-                        <p class="text-muted small mb-3">{{ school.country }}</p>
-
-                        <div class="d-flex justify-content-between align-items-center mb-3">
-                            <span class="text-primary fw-bold small">
-                                {{ school.paper_count || 0 }} Papers
-                            </span>
-                            <span class="text-primary fw-bold small">
-                                {{ school.course_count || 0 }} Courses
+                        <h5 class="fw-bold mb-2 text-truncate">{{ school.name }}</h5>
+                        <div class="country-flag mb-3">
+                            <span class="badge bg-light text-dark">
+                                <i class="bi bi-geo-alt me-1"></i>{{ school.country }}
                             </span>
                         </div>
 
-                        <div class="d-flex justify-content-between">
-                            <span class="text-warning small">
+                        <div class="stats-container mb-3">
+                            <div class="stat-item">
+                                <div class="stat-icon paper-icon">
+                                    <i class="bi bi-file-text"></i>
+                                </div>
+                                <div>
+                                    <div class="stat-value">{{ school.paper_count || 0 }}</div>
+                                    <div class="stat-label">Papers</div>
+                                </div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-icon course-icon">
+                                    <i class="bi bi-journal-bookmark"></i>
+                                </div>
+                                <div>
+                                    <div class="stat-value">{{ school.course_count || 0 }}</div>
+                                    <div class="stat-label">Courses</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div
+                            class="d-flex justify-content-between align-items-center pt-2 border-top"
+                        >
+                            <div class="rating-badge">
                                 <i class="bi bi-star-fill"></i>
                                 {{ school.average_rating?.toFixed(1) || 'N/A' }}
-                            </span>
-                            <span class="text-muted small">
+                            </div>
+                            <div class="download-badge">
                                 <i class="bi bi-download"></i>
                                 {{ school.total_downloads || 0 }}
-                            </span>
+                            </div>
                         </div>
                     </div>
 
@@ -269,38 +288,174 @@ export default {
 </script>
 
 <style scoped>
-.school-card {
-    transition: all 0.2s ease;
+/* Text gradient for header */
+.text-gradient-primary {
+    background: linear-gradient(90deg, #007bff, #6610f2);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* Enhanced search container */
+.search-container {
     border-radius: 12px;
     overflow: hidden;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
+}
+
+.search-container:focus-within {
+    box-shadow: 0 6px 12px rgba(0, 123, 255, 0.15);
+    transform: translateY(-2px);
+}
+
+/* Custom select styling */
+.custom-select {
+    border-radius: 8px;
+    border: 1px solid #e2e8f0;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23007bff' viewBox='0 0 16 16'%3E%3Cpath d='M8 12a.5.5 0 0 0 .5-.5V5.707l2.146 2.147a.5.5 0 0 0 .708-.708l-3-3a.5.5 0 0 0-.708 0l-3 3a.5.5 0 1 0 .708.708L7.5 5.707V11.5a.5.5 0 0 0 .5.5z'/%3E%3C/svg%3E");
+    background-position: right 0.5rem center;
+    background-repeat: no-repeat;
+    background-size: 16px 12px;
+    padding-right: 2rem;
+}
+
+/* Sort direction button */
+.sort-direction-btn {
+    background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    color: #495057;
+    transition: all 0.2s ease;
+}
+
+.sort-direction-btn:hover {
+    background: linear-gradient(135deg, #e9ecef, #dee2e6);
+    color: #007bff;
+}
+
+/* Enhanced school card */
+.school-card {
+    transition: all 0.3s ease;
+    border-radius: 16px;
+    overflow: hidden;
+    background: #fff;
 }
 
 .school-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.08);
+    transform: translateY(-8px);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
 }
 
 .school-icon {
     transition: all 0.3s ease;
+    background: linear-gradient(135deg, rgba(0, 123, 255, 0.1), rgba(102, 16, 242, 0.1)) !important;
 }
 
 .school-card:hover .school-icon {
-    background-color: #007bff !important;
+    background: linear-gradient(135deg, #007bff, #6610f2) !important;
     color: white !important;
+    transform: scale(1.05);
 }
 
+/* Stats container */
+.stats-container {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+.stat-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.stat-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.paper-icon {
+    background: rgba(86, 197, 249, 0.15);
+    color: #56c5f9;
+}
+
+.course-icon {
+    background: rgba(255, 184, 0, 0.15);
+    color: #ffb800;
+}
+
+.stat-value {
+    font-weight: 700;
+    font-size: 1.1rem;
+    line-height: 1;
+    color: #2d3748;
+}
+
+.stat-label {
+    font-size: 0.75rem;
+    color: #718096;
+}
+
+/* Rating and download badges */
+.rating-badge {
+    background: rgba(255, 184, 0, 0.1);
+    color: #e9b800;
+    padding: 0.25rem 0.5rem;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 0.875rem;
+}
+
+.download-badge {
+    background: rgba(123, 97, 255, 0.1);
+    color: #7b61ff;
+    padding: 0.25rem 0.5rem;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 0.875rem;
+}
+
+/* Empty state icon */
+.empty-state-icon {
+    color: #c5cee0;
+    opacity: 0.7;
+}
+
+/* Country flag styling */
+.country-flag .badge {
+    border-radius: 8px;
+    font-size: 0.75rem;
+    padding: 0.35rem 0.65rem;
+}
+
+/* Pagination styling */
 .page-link {
     min-width: 40px;
     text-align: center;
+    border-radius: 8px;
+    margin: 0 2px;
+    border: 1px solid #edf2f7;
+    color: #4a5568;
+}
+
+.page-item.active .page-link {
+    background: linear-gradient(135deg, #007bff, #6610f2);
+    border-color: #007bff;
+}
+
+.page-link:hover {
+    background-color: #f7fafc;
+    border-color: #e2e8f0;
 }
 
 .page-item.disabled .page-link {
-    color: #6c757d;
-    pointer-events: none;
-    background-color: #f8f9fa;
-}
-select option[disabled] {
-    color: #6c757d;
-    font-style: italic;
+    color: #a0aec0;
+    background-color: #f7fafc;
 }
 </style>
