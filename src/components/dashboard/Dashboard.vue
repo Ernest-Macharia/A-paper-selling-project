@@ -3,18 +3,24 @@
         <div class="container">
             <!-- Header Section -->
             <div class="dashboard-header text-center mb-5">
-                <h1 class="display-5 fw-bold text-gradient-primary mb-3">📊 Dashboard Overview</h1>
-                <p class="lead text-muted">Your academic resources at a glance</p>
+                <div class="header-content animate-fade-in">
+                    <h1 class="display-5 fw-bold text-gradient-primary mb-3">
+                        📊 Dashboard Overview
+                    </h1>
+                    <p class="lead text-muted">Your academic resources at a glance</p>
+                </div>
             </div>
 
             <!-- Loading State -->
             <div v-if="isLoading" class="loading-state text-center py-5">
-                <div
-                    class="spinner-grow text-primary"
-                    style="width: 3rem; height: 3rem"
-                    role="status"
-                >
-                    <span class="visually-hidden">Loading...</span>
+                <div class="spinner-container">
+                    <div
+                        class="spinner-grow text-primary"
+                        style="width: 3rem; height: 3rem"
+                        role="status"
+                    >
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
                 </div>
                 <p class="mt-3 fs-5 text-muted">Preparing your dashboard...</p>
             </div>
@@ -22,43 +28,25 @@
             <!-- Content -->
             <div v-else>
                 <!-- Metrics Cards Grid - Compact 2 rows of 4 cards -->
-                <div class="row g-2 mb-3">
-                    <!-- First Row -->
+                <div class="row g-3 mb-4">
                     <div
                         class="col-xl-3 col-lg-4 col-md-6"
-                        v-for="(stat, index) in metrics.slice(0, 4)"
-                        :key="'first-' + index"
+                        v-for="(stat, index) in metrics"
+                        :key="index"
                     >
-                        <div class="metric-card card border-0 h-100 transition-all hover-lift-sm">
-                            <div class="card-body text-center p-2">
-                                <div class="metric-icon mb-1">
+                        <div
+                            class="metric-card card border-0 h-100 transition-all hover-lift-sm"
+                            :class="`metric-card-${index % 4}`"
+                        >
+                            <div class="card-body text-center p-3">
+                                <div class="metric-icon mb-2">
                                     <span class="fs-2">{{ stat.icon }}</span>
                                 </div>
                                 <h6 class="card-title fw-semibold mb-1 small">{{ stat.title }}</h6>
                                 <p class="metric-value fs-4 fw-bold mb-0">
                                     {{ stat.display }}
                                 </p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="row g-2 mb-4">
-                    <!-- Second Row -->
-                    <div
-                        class="col-xl-3 col-lg-4 col-md-6"
-                        v-for="(stat, index) in metrics.slice(4)"
-                        :key="'second-' + index"
-                    >
-                        <div class="metric-card card border-0 h-100 transition-all hover-lift-sm">
-                            <div class="card-body text-center p-2">
-                                <div class="metric-icon mb-1">
-                                    <span class="fs-2">{{ stat.icon }}</span>
-                                </div>
-                                <h6 class="card-title fw-semibold mb-1 small">{{ stat.title }}</h6>
-                                <p class="metric-value fs-4 fw-bold mb-0">
-                                    {{ stat.display }}
-                                </p>
+                                <div class="metric-bg-shape"></div>
                             </div>
                         </div>
                     </div>
@@ -596,7 +584,8 @@ export default {
 /* Dashboard Layout */
 .dashboard-page {
     padding: 2rem 0 4rem;
-    background-color: #f8fafc;
+    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+    min-height: 100vh;
 }
 
 .dashboard-header {
@@ -605,9 +594,16 @@ export default {
     margin-right: auto;
 }
 
+.header-content {
+    padding: 2rem;
+    background: white;
+    border-radius: 1rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+}
+
 /* Text Gradient */
 .text-gradient-primary {
-    background: linear-gradient(to right, #4f46e5, #10b981);
+    background: linear-gradient(to right, #4e54c8, #8f94fb);
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
@@ -622,15 +618,52 @@ export default {
     justify-content: center;
 }
 
-/* Metrics Cards - Smaller size */
-.metric-card {
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+.spinner-container {
+    position: relative;
 }
 
-.hover-lift-sm:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+.spinner-grow {
+    animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+    0%,
+    100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.1);
+    }
+}
+
+/* Metrics Cards */
+.metric-card {
+    border-radius: 12px;
+    overflow: hidden;
+    position: relative;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+}
+
+.metric-card-0 {
+    background: linear-gradient(135deg, #e0e7ff, #c7d2fe);
+}
+
+.metric-card-1 {
+    background: linear-gradient(135deg, #d1fae5, #a7f3d0);
+}
+
+.metric-card-2 {
+    background: linear-gradient(135deg, #e0f2fe, #bae6fd);
+}
+
+.metric-card-3 {
+    background: linear-gradient(135deg, #fef3c7, #fde68a);
+}
+
+.metric-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
 }
 
 .metric-icon {
@@ -638,17 +671,27 @@ export default {
 }
 
 .metric-value {
-    color: #4f46e5;
+    color: #1e293b;
     line-height: 1.2;
+}
+
+.metric-bg-shape {
+    position: absolute;
+    bottom: -10px;
+    right: -10px;
+    width: 60px;
+    height: 60px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    z-index: 0;
 }
 
 /* Papers Sections */
 .papers-section {
-    border-radius: 12px;
+    border-radius: 16px;
     overflow: hidden;
-    box-shadow:
-        0 4px 6px -1px rgba(0, 0, 0, 0.05),
-        0 2px 4px -1px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+    background: white;
 }
 
 .section-title {
@@ -658,12 +701,13 @@ export default {
 }
 
 .filter-controls {
-    padding: 0.5rem 0;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid #e2e8f0;
 }
 
 .paper-item {
     margin-bottom: 1rem;
-    border-radius: 8px;
+    border-radius: 12px;
     overflow: hidden;
     transition: all 0.2s ease;
 }
@@ -677,17 +721,16 @@ export default {
 }
 
 .paper-content {
-    background: white;
-    border-radius: 8px;
+    background: #f8fafc;
+    border-radius: 12px;
     transition: all 0.2s ease;
     border: 1px solid rgba(0, 0, 0, 0.05);
 }
 
 .paper-content:hover {
-    border-color: rgba(79, 70, 229, 0.3);
-    box-shadow:
-        0 4px 6px -1px rgba(79, 70, 229, 0.1),
-        0 2px 4px -1px rgba(79, 70, 229, 0.06);
+    border-color: rgba(78, 84, 200, 0.3);
+    box-shadow: 0 4px 12px rgba(78, 84, 200, 0.15);
+    transform: translateY(-2px);
 }
 
 .paper-title {
@@ -697,7 +740,7 @@ export default {
 }
 
 .paper-link:hover .paper-title {
-    color: #4f46e5;
+    color: #4e54c8;
 }
 
 .paper-meta {
@@ -717,7 +760,8 @@ export default {
 /* Empty State */
 .empty-state {
     background-color: #f8fafc;
-    border-radius: 8px;
+    border-radius: 12px;
+    padding: 2rem;
 }
 
 /* Badges */
@@ -743,10 +787,63 @@ export default {
     color: #b91c1c;
 }
 
+/* Form Elements */
+.form-control:focus,
+.form-select:focus {
+    border-color: #8f94fb;
+    box-shadow: 0 0 0 0.2rem rgba(143, 148, 251, 0.25);
+}
+
+.btn-outline-secondary:hover {
+    background-color: #4e54c8;
+    border-color: #4e54c8;
+    color: white;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #4e54c8, #8f94fb);
+    border: none;
+}
+
+.btn-primary:hover {
+    background: linear-gradient(135deg, #4348a8, #7a80e0);
+    transform: translateY(-1px);
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.animate-fade-in {
+    opacity: 0;
+    animation: fadeIn 0.6s ease forwards;
+}
+
+/* Transition Effects */
+.transition-all {
+    transition: all 0.3s ease;
+}
+
+.hover-lift-sm:hover {
+    transform: translateY(-3px);
+}
+
 /* Responsive Adjustments */
 @media (max-width: 767.98px) {
     .dashboard-header h1 {
         font-size: 2rem;
+    }
+
+    .header-content {
+        padding: 1.5rem;
     }
 
     .metric-value {
@@ -762,14 +859,9 @@ export default {
         margin-bottom: 0.5rem;
         width: 100% !important;
     }
-}
 
-/* Transition Effects */
-.transition-all {
-    transition: all 0.2s ease;
-}
-
-.hover-lift:hover {
-    transform: translateY(-3px);
+    .papers-section {
+        margin-bottom: 1.5rem;
+    }
 }
 </style>

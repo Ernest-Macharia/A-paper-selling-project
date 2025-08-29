@@ -67,7 +67,7 @@
         </div>
 
         <!-- Stats Bar -->
-        <div class="stats-bar bg-white rounded-4 shadow-sm p-3 mb-5 animate-fade-in delay-3">
+        <!-- <div class="stats-bar bg-white rounded-4 shadow-sm p-3 mb-5 animate-fade-in delay-3">
             <div class="row text-center">
                 <div class="col-md-3 col-6">
                     <div class="stat-item">
@@ -96,7 +96,7 @@
                     </div>
                 </div>
             </div>
-        </div>
+        </div> -->
 
         <!-- Loading State -->
         <div v-if="isLoading" class="text-center py-5 my-5">
