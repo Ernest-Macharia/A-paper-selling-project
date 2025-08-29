@@ -5,37 +5,42 @@
         <!-- Hero Section -->
         <section class="hero-section position-relative overflow-hidden">
             <div class="hero-overlay"></div>
+            <div class="hero-pattern"></div>
             <div class="container position-relative z-index-1">
                 <div class="row min-vh-80 align-items-center py-8">
                     <div class="col-lg-8 mx-auto text-center">
-                        <h1 class="display-3 fw-bold text-white mb-4">
-                            Elevate Your Academic Journey
-                        </h1>
-                        <p class="lead text-white-80 mb-5">
-                            Access premium academic resources or monetize your work with our global
-                            community of scholars and researchers.
-                        </p>
-                        <div class="d-flex gap-3 justify-content-center">
-                            <router-link
-                                v-if="!isAuthenticated"
-                                to="/register"
-                                class="btn btn-primary btn-lg px-5 py-3 rounded-pill shadow"
+                        <div class="hero-content">
+                            <h1 class="display-3 fw-bold text-white mb-4 animate-fade-in">
+                                Elevate Your Academic Journey
+                            </h1>
+                            <p class="lead text-white-80 mb-5 animate-fade-in delay-1">
+                                Access premium academic resources or monetize your work with our
+                                global community of scholars and researchers.
+                            </p>
+                            <div
+                                class="d-flex gap-3 justify-content-center animate-fade-in delay-2"
                             >
-                                Start Selling Papers
-                            </router-link>
-                            <router-link
-                                v-else
-                                to="/dashboard/upload-file"
-                                class="btn btn-success btn-lg px-5 py-3 rounded-pill shadow"
-                            >
-                                Upload New Paper
-                            </router-link>
-                            <router-link
-                                to="/papers"
-                                class="btn btn-dark btn-lg px-5 py-3 rounded-pill"
-                            >
-                                Browse Papers
-                            </router-link>
+                                <router-link
+                                    v-if="!isAuthenticated"
+                                    to="/register"
+                                    class="btn btn-primary btn-lg px-5 py-3 rounded-pill shadow glow-on-hover"
+                                >
+                                    Start Selling Papers
+                                </router-link>
+                                <router-link
+                                    v-else
+                                    to="/dashboard/upload-file"
+                                    class="btn btn-success btn-lg px-5 py-3 rounded-pill shadow glow-on-hover"
+                                >
+                                    Upload New Paper
+                                </router-link>
+                                <router-link
+                                    to="/papers"
+                                    class="btn btn-outline-light btn-lg px-5 py-3 rounded-pill"
+                                >
+                                    Browse Papers
+                                </router-link>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -64,28 +69,12 @@
         <div class="stats-bar bg-white shadow-sm py-4">
             <div class="container">
                 <div class="row g-4 text-center">
-                    <div class="col-md-3">
+                    <div class="col-md-3" v-for="(stat, index) in stats" :key="index">
                         <div class="stat-item">
-                            <div class="stat-value display-5 fw-bold text-primary">10,000+</div>
-                            <div class="stat-label text-muted">Academic Papers</div>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="stat-item">
-                            <div class="stat-value display-5 fw-bold text-success">5,000+</div>
-                            <div class="stat-label text-muted">Active Contributors</div>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="stat-item">
-                            <div class="stat-value display-5 fw-bold text-warning">$250K+</div>
-                            <div class="stat-label text-muted">Earned by Users</div>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="stat-item">
-                            <div class="stat-value display-5 fw-bold text-info">100+</div>
-                            <div class="stat-label text-muted">Universities</div>
+                            <div class="stat-value display-5 fw-bold" :class="`text-${stat.color}`">
+                                {{ stat.value }}
+                            </div>
+                            <div class="stat-label text-muted">{{ stat.label }}</div>
                         </div>
                     </div>
                 </div>
@@ -93,7 +82,7 @@
         </div>
 
         <!-- How It Works -->
-        <section class="how-it-works py-8 bg-light">
+        <section class="how-it-works py-8">
             <div class="container">
                 <div class="text-center mb-7">
                     <h2 class="display-5 fw-bold mb-3">How GradesWorld Works</h2>
@@ -103,55 +92,19 @@
                 </div>
 
                 <div class="row g-5">
-                    <div class="col-lg-4">
+                    <div class="col-lg-4" v-for="(step, index) in steps" :key="index">
                         <div class="step-card text-center p-5 h-100">
                             <div
-                                class="step-number bg-primary bg-opacity-10 text-primary rounded-circle mb-4 mx-auto"
+                                class="step-number rounded-circle mb-4 mx-auto"
+                                :class="`bg-${step.color}-subtle text-${step.color}`"
                             >
-                                1
+                                {{ step.number }}
                             </div>
-                            <div class="step-icon display-3 text-primary mb-4">
-                                <i class="bi bi-person-plus"></i>
+                            <div class="step-icon display-3 mb-4" :class="`text-${step.color}`">
+                                <i :class="step.icon"></i>
                             </div>
-                            <h3 class="h4 mb-3">Create Your Account</h3>
-                            <p class="text-muted mb-0">
-                                Sign up in seconds to join our academic community. Start as a
-                                contributor or learner.
-                            </p>
-                        </div>
-                    </div>
-                    <div class="col-lg-4">
-                        <div class="step-card text-center p-5 h-100">
-                            <div
-                                class="step-number bg-success bg-opacity-10 text-success rounded-circle mb-4 mx-auto"
-                            >
-                                2
-                            </div>
-                            <div class="step-icon display-3 text-success mb-4">
-                                <i class="bi bi-cloud-arrow-up"></i>
-                            </div>
-                            <h3 class="h4 mb-3">Upload Your Papers</h3>
-                            <p class="text-muted mb-0">
-                                Share your academic work with proper categorization. Set your price
-                                or offer for free.
-                            </p>
-                        </div>
-                    </div>
-                    <div class="col-lg-4">
-                        <div class="step-card text-center p-5 h-100">
-                            <div
-                                class="step-number bg-warning bg-opacity-10 text-warning rounded-circle mb-4 mx-auto"
-                            >
-                                3
-                            </div>
-                            <div class="step-icon display-3 text-warning mb-4">
-                                <i class="bi bi-cash-coin"></i>
-                            </div>
-                            <h3 class="h4 mb-3">Earn & Learn</h3>
-                            <p class="text-muted mb-0">
-                                Get paid when others download your work. Access premium content to
-                                boost your studies.
-                            </p>
+                            <h3 class="h4 mb-3">{{ step.title }}</h3>
+                            <p class="text-muted mb-0">{{ step.description }}</p>
                         </div>
                     </div>
                 </div>
@@ -159,7 +112,6 @@
         </section>
 
         <!-- Featured Papers -->
-
         <section class="featured-papers py-8">
             <div class="container">
                 <div class="d-flex justify-content-between align-items-end mb-6">
@@ -180,8 +132,8 @@
                     >
                         <div class="paper-card card border-0 shadow-sm h-100 overflow-hidden">
                             <div
-                                class="card-img-top position-relative overflow-hidden"
-                                style="height: 160px; background-color: #f8f9fa"
+                                class="card-img-top position-relative overflow-hidden paper-placeholder"
+                                :class="`bg-${paperColors[index % paperColors.length]}`"
                             >
                                 <div class="position-absolute w-100" style="top: 20%">
                                     <div
@@ -201,9 +153,6 @@
                                         style="height: 8px; width: 92%"
                                     ></div>
                                 </div>
-                                <!-- <div class="position-absolute bottom-0 start-0 end-0 text-center pb-2">
-                                    <span class="badge bg-primary">PDF</span>
-                                </div> -->
                             </div>
                             <div class="card-body">
                                 <div class="d-flex justify-content-between align-items-start mb-3">
@@ -243,7 +192,7 @@
         </section>
 
         <!-- Popular Courses -->
-        <section class="popular-courses py-8 bg-light">
+        <section class="popular-courses py-8">
             <div class="container">
                 <div class="text-center mb-7">
                     <h2 class="display-5 fw-bold mb-3">Browse by Popular Courses</h2>
@@ -289,7 +238,7 @@
         </section>
 
         <!-- Popular Categories -->
-        <section class="popular-categories py-8 bg-white">
+        <section class="popular-categories py-8">
             <div class="container">
                 <div class="text-center mb-7">
                     <h2 class="display-5 fw-bold mb-3">Browse by Popular Categories</h2>
@@ -335,7 +284,7 @@
         </section>
 
         <!-- Popular Universities -->
-        <section class="popular-universities py-8 bg-light">
+        <section class="popular-universities py-8">
             <div class="container">
                 <div class="text-center mb-7">
                     <h2 class="display-5 fw-bold mb-3">Browse by Popular Universities</h2>
@@ -381,7 +330,7 @@
         </section>
 
         <!-- Testimonials -->
-        <section class="testimonials py-8 bg-white">
+        <section class="testimonials py-8">
             <div class="container">
                 <div class="text-center mb-7">
                     <h2 class="display-5 fw-bold mb-3">Trusted by Academics Worldwide</h2>
@@ -395,13 +344,12 @@
                         <div class="testimonial-card card border-0 shadow-sm h-100">
                             <div class="card-body p-5">
                                 <div class="d-flex align-items-center mb-4">
-                                    <img
-                                        :src="`https://i.pravatar.cc/100?img=${index + 3}`"
-                                        class="rounded-circle me-3"
-                                        width="60"
-                                        height="60"
-                                        alt="User"
-                                    />
+                                    <div
+                                        class="testimonial-avatar rounded-circle me-3"
+                                        :class="`bg-${testimonialColors[index]}`"
+                                    >
+                                        {{ testimonial.name.charAt(0) }}
+                                    </div>
                                     <div>
                                         <h6 class="mb-0">{{ testimonial.name }}</h6>
                                         <span class="text-muted small">Academic Contributor</span>
@@ -421,7 +369,7 @@
         </section>
 
         <!-- CTA Section -->
-        <section class="cta-section py-8 bg-primary text-white">
+        <section class="cta-section py-8 text-white">
             <div class="container">
                 <div class="row align-items-center">
                     <div class="col-lg-8 mb-5 mb-lg-0">
@@ -435,14 +383,14 @@
                         <router-link
                             v-if="!isAuthenticated"
                             to="/register"
-                            class="btn btn-light btn-lg px-5 py-3 rounded-pill shadow"
+                            class="btn btn-light btn-lg px-5 py-3 rounded-pill shadow glow-on-hover"
                         >
                             Get Started Now
                         </router-link>
                         <router-link
                             v-else
                             to="/dashboard/upload-file"
-                            class="btn btn-light btn-lg px-5 py-3 rounded-pill shadow"
+                            class="btn btn-light btn-lg px-5 py-3 rounded-pill shadow glow-on-hover"
                         >
                             Upload Your Paper
                         </router-link>
@@ -452,7 +400,7 @@
         </section>
 
         <!-- Contact Section -->
-        <section class="contact-section py-8 bg-white">
+        <section class="contact-section py-8">
             <div class="container">
                 <div class="row justify-content-center">
                     <div class="col-lg-10">
@@ -469,17 +417,6 @@
                                 <div class="pe-lg-5">
                                     <h3 class="h4 mb-4">Contact Information</h3>
                                     <ul class="list-unstyled">
-                                        <!-- <li class="mb-3">
-                                            <div class="d-flex">
-                                                <div class="me-3 text-primary">
-                                                    <i class="bi bi-geo-alt fs-4"></i>
-                                                </div>
-                                                <div>
-                                                    <h5 class="h6 mb-0">Our Location</h5>
-                                                    <p class="text-muted small">123 Academic Street, Suite 100<br>Cambridge, MA 02138</p>
-                                                </div>
-                                            </div>
-                                        </li> -->
                                         <li class="mb-3">
                                             <div class="d-flex">
                                                 <div class="me-3 text-primary">
@@ -493,19 +430,6 @@
                                                 </div>
                                             </div>
                                         </li>
-                                        <!-- <li class="mb-3">
-                                            <div class="d-flex">
-                                                <div class="me-3 text-primary">
-                                                    <i class="bi bi-telephone fs-4"></i>
-                                                </div>
-                                                <div>
-                                                    <h5 class="h6 mb-0">Call Us</h5>
-                                                    <p class="text-muted small">
-                                                        +1 (617) 555-0123<br />Mon-Fri, 9am-5pm EST
-                                                    </p>
-                                                </div>
-                                            </div>
-                                        </li> -->
                                     </ul>
 
                                     <div class="mt-5">
@@ -566,6 +490,40 @@ export default {
             popularSchools: [],
             subscribeEmail: '',
             subscribeError: '',
+            stats: [
+                { value: '10,000+', label: 'Academic Papers', color: 'primary' },
+                { value: '5,000+', label: 'Active Contributors', color: 'success' },
+                { value: '$250K+', label: 'Earned by Users', color: 'warning' },
+                { value: '100+', label: 'Universities', color: 'info' },
+            ],
+            steps: [
+                {
+                    number: 1,
+                    title: 'Create Your Account',
+                    description:
+                        'Sign up in seconds to join our academic community. Start as a contributor or learner.',
+                    icon: 'bi bi-person-plus',
+                    color: 'primary',
+                },
+                {
+                    number: 2,
+                    title: 'Upload Your Papers',
+                    description:
+                        'Share your academic work with proper categorization. Set your price or offer for free.',
+                    icon: 'bi bi-cloud-arrow-up',
+                    color: 'success',
+                },
+                {
+                    number: 3,
+                    title: 'Earn & Learn',
+                    description:
+                        'Get paid when others download your work. Access premium content to boost your studies.',
+                    icon: 'bi bi-cash-coin',
+                    color: 'warning',
+                },
+            ],
+            paperColors: ['primary-subtle', 'info-subtle', 'success-subtle', 'warning-subtle'],
+            testimonialColors: ['primary', 'success', 'warning'],
             testimonials: [
                 {
                     name: 'Dr. Sarah Johnson',
@@ -702,8 +660,8 @@ export default {
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
-    background-attachment: fixed; /* Optional: creates parallax effect */
-    min-height: 100vh; /* Ensures full viewport height */
+    background-attachment: fixed;
+    min-height: 100vh;
 }
 
 .hero-overlay {
@@ -712,7 +670,19 @@ export default {
     left: 0;
     width: 100%;
     height: 100%;
-    background: linear-gradient(to right, rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.3));
+    background: rgba(0, 0, 0, 0.4);
+    z-index: 0;
+}
+
+.hero-pattern {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image:
+        radial-gradient(circle at 10% 20%, rgba(255, 255, 255, 0.1) 0%, transparent 20%),
+        radial-gradient(circle at 90% 60%, rgba(255, 255, 255, 0.1) 0%, transparent 20%);
     z-index: 0;
 }
 
@@ -733,17 +703,28 @@ export default {
     height: 100%;
 }
 
+.hero-content {
+    position: relative;
+    z-index: 2;
+}
+
 /* Stats Bar */
 .stats-bar {
     position: relative;
     margin-top: -50px;
     z-index: 10;
-    border-radius: 12px;
+    border-radius: 16px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
 }
 
 .stat-item {
-    padding: 1rem;
+    padding: 1.5rem;
     border-right: 1px solid rgba(0, 0, 0, 0.05);
+    transition: transform 0.3s ease;
+}
+
+.stat-item:hover {
+    transform: translateY(-5px);
 }
 
 .stat-item:last-child {
@@ -751,78 +732,85 @@ export default {
 }
 
 /* How It Works */
+.how-it-works {
+    background: linear-gradient(to bottom, #f8f9fa, #ffffff);
+}
+
 .step-card {
     background: white;
-    border-radius: 12px;
+    border-radius: 16px;
     transition: all 0.3s ease;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+    border-top: 4px solid transparent;
 }
 
 .step-card:hover {
     transform: translateY(-10px);
-    box-shadow:
-        0 20px 25px -5px rgba(0, 0, 0, 0.1),
-        0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
 }
 
 .step-number {
-    width: 50px;
-    height: 50px;
+    width: 60px;
+    height: 60px;
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 1.5rem;
     font-weight: bold;
+    transition: all 0.3s ease;
+}
+
+.step-card:hover .step-number {
+    transform: scale(1.1);
 }
 
 /* Featured Papers */
+.featured-papers {
+    background: linear-gradient(to bottom, #ffffff, #f8f9fa);
+}
+
 .paper-card {
     transition: all 0.3s ease;
     border-radius: 12px;
     overflow: hidden;
+    border-top: 3px solid var(--bs-primary);
 }
 
 .paper-card:hover {
     transform: translateY(-5px);
-    box-shadow:
-        0 10px 15px -3px rgba(0, 0, 0, 0.1),
-        0 4px 6px -2px rgba(0, 0, 0, 0.05);
-}
-/* Popular Courses */
-.course-card {
-    transition: all 0.3s ease;
-    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
 }
 
-.course-card:hover {
-    transform: translateY(-5px);
-    box-shadow:
-        0 10px 15px -3px rgba(0, 0, 0, 0.1),
-        0 4px 6px -2px rgba(0, 0, 0, 0.05);
-}
-
-.course-icon {
-    width: 80px;
-    height: 80px;
+.paper-placeholder {
+    height: 160px;
     display: flex;
     align-items: center;
     justify-content: center;
 }
 
-/* Popular Categories & Universities */
+/* Popular Courses, Categories, Universities */
+.popular-courses,
+.popular-categories,
+.popular-universities {
+    background: linear-gradient(to bottom, #f8f9fa, #ffffff);
+}
+
+.course-card,
 .category-card,
 .school-card {
     transition: all 0.3s ease;
-    border-radius: 12px;
+    border-radius: 16px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
 }
 
+.course-card:hover,
 .category-card:hover,
 .school-card:hover {
     transform: translateY(-5px);
-    box-shadow:
-        0 10px 15px -3px rgba(0, 0, 0, 0.1),
-        0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
 }
 
+.course-icon,
 .category-icon,
 .school-icon {
     width: 80px;
@@ -830,24 +818,46 @@ export default {
     display: flex;
     align-items: center;
     justify-content: center;
+    transition: all 0.3s ease;
+}
+
+.course-card:hover .course-icon,
+.category-card:hover .category-icon,
+.school-card:hover .school-icon {
+    transform: scale(1.1);
 }
 
 /* Testimonials */
+.testimonials {
+    background: linear-gradient(to bottom, #ffffff, #f8f9fa);
+}
+
 .testimonial-card {
     transition: all 0.3s ease;
-    border-radius: 12px;
+    border-radius: 16px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+    border-top: 3px solid var(--bs-primary);
 }
 
 .testimonial-card:hover {
     transform: translateY(-5px);
-    box-shadow:
-        0 10px 15px -3px rgba(0, 0, 0, 0.1),
-        0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+}
+
+.testimonial-avatar {
+    width: 60px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: bold;
+    font-size: 1.5rem;
 }
 
 /* CTA Section */
 .cta-section {
-    background: linear-gradient(135deg, #4e54c8, #8f94fb);
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     position: relative;
     overflow: hidden;
 }
@@ -872,6 +882,58 @@ export default {
     height: 300px;
     background: rgba(255, 255, 255, 0.1);
     border-radius: 50%;
+}
+
+/* Contact Section */
+.contact-section {
+    background: linear-gradient(to bottom, #f8f9fa, #ffffff);
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.animate-fade-in {
+    opacity: 0;
+    animation: fadeIn 0.8s ease forwards;
+}
+
+.delay-1 {
+    animation-delay: 0.2s;
+}
+.delay-2 {
+    animation-delay: 0.4s;
+}
+
+/* Button Effects */
+.glow-on-hover {
+    position: relative;
+    z-index: 1;
+    overflow: hidden;
+}
+
+.glow-on-hover::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: all 0.6s ease;
+    z-index: -1;
+}
+
+.glow-on-hover:hover::before {
+    left: 100%;
 }
 
 /* Utility Classes */
