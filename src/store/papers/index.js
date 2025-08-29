@@ -399,7 +399,6 @@ const actions = {
             const response = await api.get(`/exampapers/schools/${schoolId}/papers/`, {
                 params: {
                     page: params.page || 1,
-                    page_size: params.page_size || 12,
                     ordering: params.ordering || '-upload_date',
                     search: params.search || undefined,
                 },
@@ -413,7 +412,7 @@ const actions = {
                     count: response.data.count || 0,
                     next: response.data.next,
                     previous: response.data.previous,
-                    page_size: params.page_size || 12,
+                    page_size: response.data.results?.length || 9,
                 },
             };
         } catch (error) {
@@ -430,7 +429,6 @@ const actions = {
             const response = await api.get(`/exampapers/schools/${schoolId}/courses/`, {
                 params: {
                     page: params.page || 1,
-                    page_size: params.page_size || 6,
                 },
             });
 
@@ -447,7 +445,7 @@ const actions = {
                     count: response.data.count || 0,
                     next: response.data.next || null,
                     previous: response.data.previous || null,
-                    page_size: params.page_size || 6,
+                    page_size: response.data.results?.length || 8,
                 },
             };
         } catch (error) {

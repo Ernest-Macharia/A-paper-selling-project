@@ -435,13 +435,6 @@ export default {
                     color: 'text-success',
                 },
                 {
-                    title: 'Orders',
-                    value: stats?.user_orders,
-                    display: stats?.user_orders > 0 ? stats?.user_orders : 'No orders',
-                    icon: '🛒',
-                    color: 'text-danger',
-                },
-                {
                     title: 'Views',
                     value: stats?.user_total_views,
                     display: stats?.user_total_views > 0 ? stats?.user_total_views : 'No views',
