@@ -58,7 +58,7 @@
                                 </span>
                                 <input
                                     v-model="searchQuery"
-                                    @input="applyFilters"
+                                    @input="debounceSearch"
                                     type="text"
                                     class="form-control border-start-0"
                                     placeholder="Search papers by title..."
@@ -86,10 +86,7 @@
             </div>
 
             <!-- Empty State -->
-            <div
-                v-else-if="!filteredPapers.length"
-                class="card border-0 shadow-sm text-center py-5"
-            >
+            <div v-else-if="!papers.length" class="card border-0 shadow-sm text-center py-5">
                 <i class="bi bi-file-earmark-text display-5 text-muted mb-3"></i>
                 <h5 class="text-muted">No papers found for this school</h5>
                 <p class="text-muted mb-0">Try adjusting your search filters</p>
@@ -97,7 +94,7 @@
 
             <!-- Papers Grid -->
             <div v-else class="row g-4">
-                <div v-for="paper in paginatedPapers" :key="paper.id" class="col-md-6 col-lg-4">
+                <div v-for="paper in papers" :key="paper.id" class="col-md-6 col-lg-4">
                     <div class="card h-100 border-0 shadow-sm hover-shadow transition-all">
                         <div class="card-body">
                             <div class="d-flex justify-content-between align-items-start mb-2">
@@ -134,12 +131,12 @@
             </div>
 
             <!-- Pagination -->
-            <nav v-if="totalPages > 1" class="mt-5">
+            <nav v-if="pagination.totalPages > 1" class="mt-5">
                 <ul class="pagination justify-content-center">
-                    <li class="page-item" :class="{ disabled: currentPage === 1 }">
+                    <li class="page-item" :class="{ disabled: pagination.currentPage === 1 }">
                         <button
                             class="page-link"
-                            @click="changePage(currentPage - 1)"
+                            @click="changePage(pagination.currentPage - 1)"
                             aria-label="Previous"
                         >
                             <i class="bi bi-chevron-left"></i>
@@ -151,7 +148,7 @@
                         :key="page"
                         class="page-item"
                         :class="{
-                            active: currentPage === page,
+                            active: pagination.currentPage === page,
                             disabled: page === '...',
                         }"
                     >
@@ -164,10 +161,13 @@
                         </button>
                     </li>
 
-                    <li class="page-item" :class="{ disabled: currentPage === totalPages }">
+                    <li
+                        class="page-item"
+                        :class="{ disabled: pagination.currentPage === pagination.totalPages }"
+                    >
                         <button
                             class="page-link"
-                            @click="changePage(currentPage + 1)"
+                            @click="changePage(pagination.currentPage + 1)"
                             aria-label="Next"
                         >
                             <i class="bi bi-chevron-right"></i>
@@ -200,11 +200,7 @@
                 </div>
 
                 <div v-else class="row g-4">
-                    <div
-                        v-for="course in paginatedCourses"
-                        :key="course.id"
-                        class="col-md-6 col-lg-3"
-                    >
+                    <div v-for="course in courses" :key="course.id" class="col-md-6 col-lg-3">
                         <div class="card h-100 border-0 shadow-sm hover-shadow transition-all">
                             <div class="card-body">
                                 <div
@@ -225,12 +221,15 @@
                     </div>
                 </div>
             </div>
-            <nav v-if="coursesTotalPages > 1" class="mt-4">
+            <nav v-if="coursesPagination.totalPages > 1" class="mt-4">
                 <ul class="pagination justify-content-center">
-                    <li class="page-item" :class="{ disabled: coursesCurrentPage === 1 }">
+                    <li
+                        class="page-item"
+                        :class="{ disabled: coursesPagination.currentPage === 1 }"
+                    >
                         <button
                             class="page-link"
-                            @click="changeCoursesPage(coursesCurrentPage - 1)"
+                            @click="changeCoursesPage(coursesPagination.currentPage - 1)"
                         >
                             &laquo;
                         </button>
@@ -240,7 +239,7 @@
                         v-for="page in coursesVisiblePages"
                         :key="page"
                         class="page-item"
-                        :class="{ active: coursesCurrentPage === page }"
+                        :class="{ active: coursesPagination.currentPage === page }"
                     >
                         <button class="page-link" @click="changeCoursesPage(page)">
                             {{ page }}
@@ -249,11 +248,14 @@
 
                     <li
                         class="page-item"
-                        :class="{ disabled: coursesCurrentPage === coursesTotalPages }"
+                        :class="{
+                            disabled:
+                                coursesPagination.currentPage === coursesPagination.totalPages,
+                        }"
                     >
                         <button
                             class="page-link"
-                            @click="changeCoursesPage(coursesCurrentPage + 1)"
+                            @click="changeCoursesPage(coursesPagination.currentPage + 1)"
                         >
                             &raquo;
                         </button>
@@ -276,14 +278,22 @@ export default {
     data() {
         return {
             searchQuery: '',
-            sortKey: 'title',
-            sortAsc: true,
-            currentPage: 1,
-            perPage: 9,
+            sortKey: 'upload_date',
+            sortAsc: false,
+            debounceTimer: null,
+            pagination: {
+                currentPage: 1,
+                totalPages: 1,
+                pageSize: 12,
+                totalItems: 0,
+            },
+            coursesPagination: {
+                currentPage: 1,
+                totalPages: 1,
+                pageSize: 8,
+                totalItems: 0,
+            },
             loadingCourses: false,
-            coursesCurrentPage: 1,
-            coursesPerPage: 8,
-            coursesTotalPages: 1,
         };
     },
     computed: {
@@ -294,56 +304,19 @@ export default {
             return this.schoolDetails || {};
         },
 
-        courses() {
-            return this.schoolCourses || [];
-        },
-
-        allPapers() {
+        papers() {
             return this.schoolPapers || [];
         },
 
-        filteredPapers() {
-            const query = this.searchQuery.toLowerCase();
-            let filtered = this.allPapers.filter((paper) =>
-                paper.title.toLowerCase().includes(query),
-            );
-
-            return filtered.sort((a, b) => {
-                if (this.sortKey === 'upload_date') {
-                    return this.sortAsc
-                        ? new Date(a.upload_date) - new Date(b.upload_date)
-                        : new Date(b.upload_date) - new Date(a.upload_date);
-                } else if (this.sortKey === 'course') {
-                    const aCourse = a.course?.name || '';
-                    const bCourse = b.course?.name || '';
-                    return this.sortAsc
-                        ? aCourse.localeCompare(bCourse)
-                        : bCourse.localeCompare(aCourse);
-                } else if (this.sortKey === 'downloads') {
-                    return this.sortAsc ? a.downloads - b.downloads : b.downloads - a.downloads;
-                } else {
-                    return this.sortAsc
-                        ? a.title.localeCompare(b.title)
-                        : b.title.localeCompare(a.title);
-                }
-            });
-        },
-
-        paginatedPapers() {
-            const start = (this.currentPage - 1) * this.perPage;
-            const end = start + this.perPage;
-            return this.filteredPapers.slice(start, end);
-        },
-
-        totalPages() {
-            return Math.ceil(this.filteredPapers.length / this.perPage);
+        courses() {
+            return this.schoolCourses || [];
         },
 
         visiblePages() {
             const range = 2;
             const pages = [];
-            let start = Math.max(1, this.currentPage - range);
-            let end = Math.min(this.totalPages, this.currentPage + range);
+            let start = Math.max(1, this.pagination.currentPage - range);
+            let end = Math.min(this.pagination.totalPages, this.pagination.currentPage + range);
 
             if (start > 1) {
                 pages.push(1);
@@ -354,9 +327,9 @@ export default {
                 pages.push(i);
             }
 
-            if (end < this.totalPages) {
-                if (end < this.totalPages - 1) pages.push('...');
-                pages.push(this.totalPages);
+            if (end < this.pagination.totalPages) {
+                if (end < this.pagination.totalPages - 1) pages.push('...');
+                pages.push(this.pagination.totalPages);
             }
 
             return pages;
@@ -365,8 +338,11 @@ export default {
         coursesVisiblePages() {
             const range = 2;
             const pages = [];
-            let start = Math.max(1, this.coursesCurrentPage - range);
-            let end = Math.min(this.coursesTotalPages, this.coursesCurrentPage + range);
+            let start = Math.max(1, this.coursesPagination.currentPage - range);
+            let end = Math.min(
+                this.coursesPagination.totalPages,
+                this.coursesPagination.currentPage + range,
+            );
 
             if (start > 1) {
                 pages.push(1);
@@ -377,17 +353,12 @@ export default {
                 pages.push(i);
             }
 
-            if (end < this.coursesTotalPages) {
-                if (end < this.coursesTotalPages - 1) pages.push('...');
-                pages.push(this.coursesTotalPages);
+            if (end < this.coursesPagination.totalPages) {
+                if (end < this.coursesPagination.totalPages - 1) pages.push('...');
+                pages.push(this.coursesPagination.totalPages);
             }
 
             return pages;
-        },
-        paginatedCourses() {
-            const start = (this.coursesCurrentPage - 1) * this.coursesPerPage;
-            const end = start + this.coursesPerPage;
-            return this.courses.slice(start, end);
         },
     },
     methods: {
@@ -402,15 +373,31 @@ export default {
             const schoolId = this.$route.params.id;
             try {
                 await this.fetchSchoolDetails(schoolId);
-                await this.fetchSchoolPapers({
-                    schoolId,
-                    params: {
-                        page_size: 100,
-                    },
-                });
+                await this.loadPapers();
                 await this.loadCourses();
             } catch (error) {
                 console.error('Error loading school data:', error);
+            }
+        },
+
+        async loadPapers() {
+            try {
+                const response = await this.fetchSchoolPapers({
+                    schoolId: this.$route.params.id,
+                    params: {
+                        page: this.pagination.currentPage,
+                        page_size: this.pagination.pageSize,
+                        ordering: this.sortAsc ? this.sortKey : `-${this.sortKey}`,
+                        search: this.searchQuery || undefined,
+                    },
+                });
+
+                this.pagination.totalPages = Math.ceil(
+                    response.pagination.count / this.pagination.pageSize,
+                );
+                this.pagination.totalItems = response.pagination.count;
+            } catch (error) {
+                console.error('Error loading papers:', error);
             }
         },
 
@@ -420,40 +407,42 @@ export default {
                 const response = await this.fetchSchoolCourses({
                     schoolId: this.$route.params.id,
                     params: {
-                        page: this.coursesCurrentPage,
-                        page_size: this.coursesPerPage,
+                        page: this.coursesPagination.currentPage,
+                        page_size: this.coursesPagination.pageSize,
                     },
                 });
 
-                if (response.pagination.count === 0) {
-                    this.coursesTotalPages = 1;
-                    this.coursesCurrentPage = 1;
-                    return;
-                }
-
-                this.coursesTotalPages = Math.ceil(response.pagination.count / this.coursesPerPage);
-
-                // Reset to page 1 if current page exceeds total pages
-                if (this.coursesCurrentPage > this.coursesTotalPages) {
-                    this.coursesCurrentPage = 1;
-                    await this.loadCourses();
-                }
+                this.coursesPagination.totalPages = Math.ceil(
+                    response.pagination.count / this.coursesPagination.pageSize,
+                );
+                this.coursesPagination.totalItems = response.pagination.count;
             } catch (error) {
                 console.error('Error loading courses:', error);
-                this.coursesTotalPages = 1;
-                this.coursesCurrentPage = 1;
             } finally {
                 this.loadingCourses = false;
             }
         },
 
-        applyFilters() {
-            this.currentPage = 1;
+        debounceSearch() {
+            clearTimeout(this.debounceTimer);
+            this.debounceTimer = setTimeout(() => {
+                this.applyFilters();
+            }, 500);
         },
 
-        changePage(page) {
-            if (page >= 1 && page <= this.totalPages && page !== this.currentPage) {
-                this.currentPage = page;
+        applyFilters() {
+            this.pagination.currentPage = 1;
+            this.loadPapers();
+        },
+
+        async changePage(page) {
+            if (
+                page >= 1 &&
+                page <= this.pagination.totalPages &&
+                page !== this.pagination.currentPage
+            ) {
+                this.pagination.currentPage = page;
+                await this.loadPapers();
                 window.scrollTo({
                     top: 0,
                     behavior: 'smooth',
@@ -469,9 +458,10 @@ export default {
                 day: 'numeric',
             });
         },
+
         async changeCoursesPage(page) {
-            if (page >= 1 && page <= this.coursesTotalPages) {
-                this.coursesCurrentPage = page;
+            if (page >= 1 && page <= this.coursesPagination.totalPages) {
+                this.coursesPagination.currentPage = page;
                 await this.loadCourses();
                 window.scrollTo({
                     top: 0,
