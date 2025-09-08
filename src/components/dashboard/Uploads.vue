@@ -41,7 +41,7 @@
                     <i class="bi bi-file-earmark-x text-muted" style="font-size: 3rem"></i>
                     <h3 class="h5 mt-3">No Uploads Found</h3>
                     <p class="text-muted">Papers you upload will appear here</p>
-                    <router-link to="/upload-file" class="btn btn-primary mt-3">
+                    <router-link to="/uploads" class="btn btn-primary mt-3">
                         <i class="bi bi-plus-circle me-1"></i>Upload New Paper
                     </router-link>
                 </div>

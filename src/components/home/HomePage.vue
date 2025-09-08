@@ -425,7 +425,7 @@
                                                 <div>
                                                     <h5 class="h6 mb-0">Email Us</h5>
                                                     <p class="text-muted small">
-                                                        support@gradesworld.com<br />contact@gradesworld.com<br />scholar@gradesworld.com
+                                                        scholar@gradesworld.com
                                                     </p>
                                                 </div>
                                             </div>
