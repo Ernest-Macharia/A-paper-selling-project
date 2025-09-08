@@ -36,7 +36,7 @@
                                 </router-link>
                                 <router-link
                                     to="/papers"
-                                    class="btn btn-outline-light btn-lg px-5 py-3 rounded-pill"
+                                    class="btn btn-primary btn-lg px-5 py-3 rounded-pill"
                                 >
                                     Browse Papers
                                 </router-link>
