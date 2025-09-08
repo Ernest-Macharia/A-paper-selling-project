@@ -13,17 +13,50 @@
             <p class="lead text-muted mb-4">
                 Your paper{{ paperDetailsList.length > 1 ? 's are' : ' is' }} ready for download
             </p>
+
+            <!-- Download Progress Overview -->
+            <div v-if="downloadProgress.overall.total > 0" class="mb-4">
+                <div class="row justify-content-center">
+                    <div class="col-md-8">
+                        <div class="card bg-light border-0">
+                            <div class="card-body py-3">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <span class="small text-muted">Overall Progress</span>
+                                    <span class="small text-muted">
+                                        {{ downloadProgress.overall.completed }}/{{
+                                            downloadProgress.overall.total
+                                        }}
+                                    </span>
+                                </div>
+                                <div class="progress" style="height: 8px">
+                                    <div
+                                        class="progress-bar bg-success"
+                                        :style="{
+                                            width: `${(downloadProgress.overall.completed / downloadProgress.overall.total) * 100}%`,
+                                        }"
+                                    ></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <div v-if="paperDetailsList.length > 1" class="d-flex justify-content-center gap-3">
                 <button
                     @click="downloadAllPapers"
                     class="btn btn-primary"
-                    :disabled="isDownloadingAll"
+                    :disabled="
+                        isDownloadingAll ||
+                        downloadProgress.overall.completed === downloadProgress.overall.total
+                    "
                 >
                     <span
                         v-if="isDownloadingAll"
                         class="spinner-border spinner-border-sm me-2"
                     ></span>
-                    <i class="bi bi-download me-2"></i>Download All
+                    <i class="bi bi-download me-2"></i>
+                    {{ downloadProgress.overall.completed > 0 ? 'Resume All' : 'Download All' }}
                 </button>
                 <router-link to="/dashboard/downloads" class="btn btn-outline-secondary">
                     <i class="bi bi-list-check me-2"></i>View Downloads
@@ -66,27 +99,125 @@
                             </li>
                         </ul>
 
+                        <!-- Download Status Indicators -->
+                        <div v-if="downloadProgress.papers[paper.id]" class="mb-3">
+                            <div
+                                class="d-flex justify-content-between align-items-center small text-muted mb-1"
+                            >
+                                <span>
+                                    <span
+                                        v-if="
+                                            downloadProgress.papers[paper.id].status ===
+                                            'downloading'
+                                        "
+                                    >
+                                        Downloading...
+                                    </span>
+                                    <span
+                                        v-else-if="
+                                            downloadProgress.papers[paper.id].status === 'completed'
+                                        "
+                                    >
+                                        Downloaded successfully
+                                    </span>
+                                    <span
+                                        v-else-if="
+                                            downloadProgress.papers[paper.id].status === 'error'
+                                        "
+                                    >
+                                        Download failed
+                                    </span>
+                                    <span v-else> Ready to download </span>
+                                </span>
+                                <span v-if="downloadProgress.papers[paper.id].progress > 0">
+                                    {{ Math.round(downloadProgress.papers[paper.id].progress) }}%
+                                </span>
+                            </div>
+                            <div class="progress" style="height: 6px">
+                                <div
+                                    class="progress-bar"
+                                    :class="{
+                                        'bg-success':
+                                            downloadProgress.papers[paper.id].status ===
+                                            'completed',
+                                        'bg-danger':
+                                            downloadProgress.papers[paper.id].status === 'error',
+                                        'bg-primary':
+                                            downloadProgress.papers[paper.id].status ===
+                                                'downloading' ||
+                                            downloadProgress.papers[paper.id].status === 'pending',
+                                    }"
+                                    :style="{
+                                        width: `${downloadProgress.papers[paper.id].progress}%`,
+                                    }"
+                                ></div>
+                            </div>
+                        </div>
+
                         <div class="d-flex flex-wrap gap-2">
                             <button
                                 @click="downloadSinglePaper(paper.id)"
-                                class="btn btn-success flex-grow-1"
-                                :disabled="isDownloading === paper.id"
+                                class="btn flex-grow-1"
+                                :class="{
+                                    'btn-success':
+                                        downloadProgress.papers[paper.id]?.status !== 'completed',
+                                    'btn-outline-success':
+                                        downloadProgress.papers[paper.id]?.status === 'completed',
+                                    disabled:
+                                        downloadProgress.papers[paper.id]?.status === 'completed',
+                                }"
+                                :disabled="
+                                    isDownloading === paper.id ||
+                                    downloadProgress.papers[paper.id]?.status === 'completed'
+                                "
                             >
                                 <span
                                     v-if="isDownloading === paper.id"
                                     class="spinner-border spinner-border-sm me-2"
                                 ></span>
-                                <i class="bi bi-download me-1"></i>Download
+                                <template
+                                    v-else-if="
+                                        downloadProgress.papers[paper.id]?.status === 'completed'
+                                    "
+                                >
+                                    <i class="bi bi-check-circle-fill me-1"></i>Downloaded
+                                </template>
+                                <template v-else>
+                                    <i class="bi bi-download me-1"></i>Download
+                                </template>
                             </button>
                             <button
                                 @click="openReviewModal(paper)"
                                 class="btn btn-outline-primary flex-grow-1"
+                                :disabled="
+                                    downloadProgress.papers[paper.id]?.status !== 'completed'
+                                "
                             >
                                 <i class="bi bi-star me-1"></i>Review
                             </button>
                         </div>
                     </div>
                 </div>
+            </div>
+        </div>
+
+        <!-- Download Complete Toast -->
+        <div
+            v-if="showDownloadCompleteToast"
+            class="position-fixed bottom-0 end-0 p-3"
+            style="z-index: 11"
+        >
+            <div class="toast show" role="alert">
+                <div class="toast-header bg-success text-white">
+                    <i class="bi bi-check-circle-fill me-2"></i>
+                    <strong class="me-auto">Download Complete</strong>
+                    <button
+                        type="button"
+                        class="btn-close btn-close-white"
+                        @click="showDownloadCompleteToast = false"
+                    ></button>
+                </div>
+                <div class="toast-body">All papers have been downloaded successfully!</div>
             </div>
         </div>
 
@@ -199,6 +330,14 @@ export default {
             submissionError: null,
             isDownloading: null,
             isDownloadingAll: false,
+            showDownloadCompleteToast: false,
+            downloadProgress: {
+                overall: {
+                    total: 0,
+                    completed: 0,
+                },
+                papers: {},
+            },
         };
     },
     methods: {
@@ -217,6 +356,17 @@ export default {
                     .split(',')
                     .map((id) => parseInt(id.trim(), 10))
                     .filter(Boolean);
+
+                // Initialize download progress tracking
+                this.downloadProgress.overall.total = paperIds.length;
+                this.downloadProgress.overall.completed = 0;
+
+                paperIds.forEach((id) => {
+                    this.$set(this.downloadProgress.papers, id, {
+                        status: 'pending',
+                        progress: 0,
+                    });
+                });
 
                 const results = await Promise.all(
                     paperIds.map(async (id) => {
@@ -243,14 +393,46 @@ export default {
 
         async downloadSinglePaper(paperId) {
             this.isDownloading = paperId;
+
+            this.downloadProgress.papers[paperId] = {
+                status: 'downloading',
+                progress: 0,
+            };
+
             try {
+                // Simulate progress for demonstration (in real app, you'd use actual download progress events)
+                const progressInterval = setInterval(() => {
+                    if (this.downloadProgress.papers[paperId].progress < 90) {
+                        this.downloadProgress.papers[paperId].progress += 10;
+                    }
+                }, 300);
+
                 const fileUrl = await this.downloadPaperById(paperId);
+
+                // Clear the interval and set to 100%
+                clearInterval(progressInterval);
+                this.downloadProgress.papers[paperId].progress = 100;
+                this.downloadProgress.papers[paperId].status = 'completed';
+                this.downloadProgress.overall.completed += 1;
+
                 if (fileUrl) {
                     window.open(fileUrl, '_blank');
-                    toast.success('Download started successfully!');
+                    toast.success('Download completed successfully!');
+
+                    // Show completion toast if all downloads are done
+                    if (
+                        this.downloadProgress.overall.completed ===
+                        this.downloadProgress.overall.total
+                    ) {
+                        this.showDownloadCompleteToast = true;
+                        setTimeout(() => {
+                            this.showDownloadCompleteToast = false;
+                        }, 5000);
+                    }
                 }
             } catch (error) {
                 console.error('Download failed:', error);
+                this.downloadProgress.papers[paperId].status = 'error';
                 toast.error('Failed to download paper');
             } finally {
                 this.isDownloading = null;
@@ -261,9 +443,11 @@ export default {
             this.isDownloadingAll = true;
             try {
                 for (const paper of this.paperDetailsList) {
-                    await this.downloadSinglePaper(paper.id);
+                    // Skip already downloaded papers
+                    if (this.downloadProgress.papers[paper.id]?.status !== 'completed') {
+                        await this.downloadSinglePaper(paper.id);
+                    }
                 }
-                toast.success('All downloads started successfully!');
             } catch (error) {
                 console.error('Batch download failed:', error);
                 toast.error('Some downloads failed');
@@ -416,5 +600,9 @@ export default {
 .btn {
     border-radius: 0.5rem;
     padding: 0.5rem 1.25rem;
+}
+
+.toast {
+    opacity: 1;
 }
 </style>

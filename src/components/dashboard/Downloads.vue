@@ -40,6 +40,7 @@
                                     <th>File</th>
                                     <th>Price</th>
                                     <th>Download Date</th>
+                                    <th>Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -49,15 +50,14 @@
                                     class="download-item"
                                 >
                                     <td class="ps-4">
-                                        <router-link
-                                            :to="{
-                                                name: 'paper-details',
-                                                params: { id: paper.id },
-                                            }"
+                                        <a
+                                            :href="paper.file"
+                                            target="_blank"
+                                            rel="noopener noreferrer"
                                             class="text-decoration-none text-primary fw-semibold"
                                         >
                                             {{ paper.title }}
-                                        </router-link>
+                                        </a>
                                     </td>
                                     <td>
                                         <a
@@ -88,6 +88,14 @@
                                         <span class="text-muted">{{
                                             formatDate(paper.download_date)
                                         }}</span>
+                                    </td>
+                                    <td>
+                                        <button
+                                            @click="openReviewModal(paper)"
+                                            class="btn btn-sm btn-outline-primary"
+                                        >
+                                            <i class="bi bi-star me-1"></i>Review
+                                        </button>
                                     </td>
                                 </tr>
                             </tbody>
@@ -129,11 +137,91 @@
                 </div>
             </div>
         </div>
+
+        <!-- Review Modal -->
+        <div v-if="showModal" class="modal-backdrop fade show"></div>
+        <div
+            v-if="showModal"
+            class="modal fade show d-block"
+            tabindex="-1"
+            aria-modal="true"
+            role="dialog"
+        >
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content border-0 shadow-lg">
+                    <div class="modal-header border-0">
+                        <h5 class="modal-title fw-bold">Review Paper</h5>
+                        <button type="button" class="btn-close" @click="closeReviewModal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <h6 class="mb-3 text-primary">{{ selectedPaper?.title }}</h6>
+
+                        <div class="mb-4">
+                            <label class="form-label fw-semibold">Rating</label>
+                            <div class="star-rating">
+                                <i
+                                    v-for="n in 5"
+                                    :key="n"
+                                    class="bi me-2 fs-3"
+                                    :class="{
+                                        'bi-star-fill text-warning': reviewForm.rating >= n,
+                                        'bi-star text-muted': reviewForm.rating < n,
+                                    }"
+                                    style="cursor: pointer"
+                                    @click="reviewForm.rating = n"
+                                ></i>
+                                <span class="ms-2 text-muted small">
+                                    {{ reviewForm.rating }} of 5 stars
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label fw-semibold">Your Review</label>
+                            <textarea
+                                v-model="reviewForm.comment"
+                                class="form-control"
+                                rows="4"
+                                placeholder="Share your experience with this paper..."
+                            ></textarea>
+                        </div>
+
+                        <div v-if="submissionError" class="alert alert-danger mb-4">
+                            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                            {{ submissionError }}
+                        </div>
+
+                        <div class="d-flex justify-content-end gap-2">
+                            <button
+                                type="button"
+                                class="btn btn-secondary"
+                                @click="closeReviewModal"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                type="submit"
+                                class="btn btn-primary"
+                                @click="submitReview"
+                                :disabled="reviewForm.rating === 0 || isSubmittingReview"
+                            >
+                                <span
+                                    v-if="isSubmittingReview"
+                                    class="spinner-border spinner-border-sm me-2"
+                                ></span>
+                                Submit Review
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </template>
 
 <script>
 import { mapActions } from 'vuex';
+import { toast } from 'vue3-toastify';
 
 export default {
     name: 'DownloadsPage',
@@ -143,6 +231,14 @@ export default {
             currentPage: 1,
             perPage: 8,
             isLoading: false,
+            showModal: false,
+            selectedPaper: null,
+            reviewForm: {
+                rating: 0,
+                comment: '',
+            },
+            isSubmittingReview: false,
+            submissionError: null,
         };
     },
     computed: {
@@ -158,7 +254,8 @@ export default {
         await this.fetchDownloadedPapersHandler();
     },
     methods: {
-        ...mapActions('papers', ['fetchDownloadedPapers']),
+        ...mapActions('papers', ['fetchDownloadedPapers', 'submitPaperReview']),
+
         async fetchDownloadedPapersHandler() {
             this.isLoading = true;
             try {
@@ -167,9 +264,11 @@ export default {
                 this.currentPage = 1;
             } catch (error) {
                 console.error('Failed to fetch downloaded papers:', error);
+                toast.error('Failed to load your downloads');
             }
             this.isLoading = false;
         },
+
         formatDate(date) {
             if (!date) return '—';
             return new Date(date).toLocaleDateString(undefined, {
@@ -179,6 +278,42 @@ export default {
                 hour: '2-digit',
                 minute: '2-digit',
             });
+        },
+
+        openReviewModal(paper) {
+            this.selectedPaper = paper;
+            this.showModal = true;
+        },
+
+        closeReviewModal() {
+            this.showModal = false;
+            this.reviewForm = { rating: 0, comment: '' };
+            this.submissionError = null;
+        },
+
+        async submitReview() {
+            if (!this.selectedPaper?.id) {
+                this.submissionError = 'No paper selected for review';
+                return;
+            }
+
+            this.isSubmittingReview = true;
+            this.submissionError = null;
+
+            try {
+                await this.submitPaperReview({
+                    paper: this.selectedPaper.id,
+                    reviewData: this.reviewForm,
+                });
+                toast.success('Review submitted successfully!');
+                this.closeReviewModal();
+            } catch (error) {
+                console.error('Review submission failed:', error);
+                this.submissionError = error.response?.data?.message || 'Failed to submit review';
+                toast.error('Review submission failed');
+            } finally {
+                this.isSubmittingReview = false;
+            }
         },
     },
 };
@@ -213,6 +348,20 @@ export default {
 .page-link {
     min-width: 40px;
     text-align: center;
+}
+
+.star-rating {
+    display: flex;
+    align-items: center;
+}
+
+.modal-backdrop {
+    z-index: 1040;
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+.modal {
+    z-index: 1050;
 }
 
 @media (max-width: 768px) {
