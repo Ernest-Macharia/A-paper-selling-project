@@ -58,6 +58,14 @@ const actions = {
         return response.data.checkout_info.checkout_url;
     },
 
+    async createIntasendSession(_, { paperIds }) {
+        const response = await api.post('/payments/checkout/initiate/', {
+            paper_ids: paperIds,
+            payment_method: 'intasend',
+        });
+        return response.data.checkout_info.checkout_url;
+    },
+
     async createPaypalSession(_, { paperIds }) {
         const response = await api.post('/payments/checkout/initiate/', {
             paper_ids: paperIds,

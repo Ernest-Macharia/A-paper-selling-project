@@ -40,10 +40,12 @@ import TermsAndConditions from '@/components/views/TermsAndConditions.vue';
 import PrivacyPolicy from '@/components/views/PrivacyPolicy.vue';
 import RefundPolicy from '@/components/views/RefundPolicy.vue';
 import ContactUs from '@/components/views/ContactUs.vue';
-import Blog from '@/components/views/Blog.vue';
 import HelpCenter from '@/components/views/HelpCenter.vue';
 import Faq from '@/components/views/Faq.vue';
 import ChatPopup from '@/components/chat/ChatPopup.vue';
+import BlogList from '@/components/views/BlogList.vue';
+import BlogDetail from '@/components/views/BlogDetail.vue';
+import BlogCreate from '@/components/views/BlogCreate.vue';
 
 const routes = [
     {
@@ -84,7 +86,6 @@ const routes = [
             { path: '/privacy', component: PrivacyPolicy },
             { path: '/contact', component: ContactUs },
             { path: '/refund-policy', component: RefundPolicy },
-            { path: '/blog', component: Blog },
             { path: '/faq', component: Faq },
             { path: '/help', component: HelpCenter },
             { path: '/chat', component: ChatPopup },
@@ -122,6 +123,23 @@ const routes = [
                 component: SchoolDetail,
                 meta: { title: 'School Details' },
                 props: true,
+            },
+            {
+                path: '/blog',
+                name: 'Blog',
+                component: BlogList,
+            },
+            {
+                path: '/blog/:id',
+                name: 'BlogDetail',
+                component: BlogDetail,
+                props: true,
+            },
+            {
+                path: '/blog/create',
+                name: 'BlogCreate',
+                component: BlogCreate,
+                meta: { requiresAuth: true },
             },
         ],
     },

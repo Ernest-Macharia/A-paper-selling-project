@@ -151,38 +151,30 @@
                     <!-- PayPal Payment -->
                     <button class="payment-btn paypal-btn" @click="handlePaypalPayment">
                         <div class="btn-icon">
+                            <!-- PayPal official logo (cleaner, scalable) -->
                             <svg
                                 xmlns="http://www.w3.org/2000/svg"
-                                viewBox="0 0 24 24"
                                 width="38"
                                 height="24"
+                                viewBox="0 0 32 32"
+                                fill="none"
                             >
                                 <path
                                     fill="#253B80"
-                                    d="M7.3 17.1h1.5l.5-3.2c.1-.4.4-.6.8-.6h1.1c3.5 0 5.6-1.7 6-4.6.2-1.4 0-2.5-.6-3.2C15.7 5 14.4 5 13 5H7.7c-.4 0-.7.3-.8.7L5 17.1c0 .4.3.7.7.7h1.6z"
-                                ></path>
+                                    d="M10.2 25.8h2l.6-3.9c.1-.5.4-.8.9-.8h1.4c4.4 0 7.1-2.1 7.7-5.8.3-1.8 0-3.1-.7-4C21.2 9.7 19.6 9 17.7 9h-6c-.5 0-.9.4-1 .9l-2.6 15.6c-.1.4.2.8.7.8z"
+                                />
                                 <path
                                     fill="#179BD7"
-                                    d="M19.4 8.3c-.4 2.9-2.5 4.6-6 4.6h-1.1c-.4 0-.7.2-.8.6l-.6 3.7-.1.5h-1.5c-.4 0-.7.3-.7.7v.2l.4 2.4v.1c0 .4.3.7.7.7h1.3l.1-.7.7-4.5v-.3c0-.4.3-.7.8-.7h1.6c3.1 0 5.5-1.3 6.1-4.3.2-1.3.1-2.4-.4-3.1-.3-.4-.9-.6-1.7-.6"
-                                ></path>
-                                <path
-                                    fill="#222D65"
-                                    d="M9.3 8.1H7.8c-.4 0-.7.3-.8.7L5 17.1c0 .4.3.7.7.7h1.6l.5-3.2c.1-.4.4-.6.8-.6h1.1c3.5 0 5.6-1.7 6-4.6.2-1.4 0-2.5-.6-3.2-.7-.7-2-1.1-4.4-1.1zm.3 1.2c.1 0 .2 0 .3.1 1.3.3 2.3.8 2.8 1.6.3.5.4 1.1.3 1.8-.3 2.1-1.9 3.2-4.8 3.2H8.2l.4-2.5c0-.3.3-.6.6-.6h1.4z"
-                                ></path>
-                                <path
-                                    fill="#253B80"
-                                    d="M15.2 8.2c-.1-.1-.2-.1-.3-.1-1.3-.3-2.3-.8-2.8-1.6-.3-.5-.4-1.1-.3-1.8.1-.6.3-1.1.6-1.5.4-.4.9-.7 1.5-.8h4.9c.4 0 .7.3.7.7v.6l-1 6.2c-.1.4-.4.6-.8.6h-1.1c-.4 0-.7-.2-.8-.6l-.1-.5-.6-3.7v-.3c0-.1-.1-.2-.1-.3"
-                                ></path>
-                                <path
-                                    fill="#179BD7"
-                                    d="M18.9 4.1h-4.9c-.6.1-1.1.4-1.5.8-.3.4-.5.9-.6 1.5-.1.7 0 1.3.3 1.8.5.8 1.5 1.3 2.8 1.6.1 0 .2.1.3.1h1.1c.4 0 .7-.2.8-.6l.6-3.7v-.3c0-.4-.3-.7-.7-.7h-.8z"
-                                ></path>
+                                    d="M26 12.1c-.5 3.7-3.2 5.8-7.7 5.8h-1.4c-.5 0-.8.3-.9.8l-.7 4.7-.1.6H13c-.5 0-.9.4-.9.9v.2l.5 3c.1.5.4.9.9.9h1.7l.1-.9.9-5.7v-.3c0-.5.4-.9.9-.9h2c3.9 0 7-1.6 7.7-5.4.2-1.6.1-3-.5-3.9-.4-.6-1.1-.8-2-.8z"
+                                />
                             </svg>
                         </div>
+
                         <div class="btn-content">
                             <span class="btn-title">PayPal</span>
                             <span class="btn-subtitle">Pay with PayPal balance or card</span>
                         </div>
+
                         <div class="btn-arrow">
                             <svg
                                 xmlns="http://www.w3.org/2000/svg"
@@ -195,7 +187,66 @@
                                 stroke-linecap="round"
                                 stroke-linejoin="round"
                             >
-                                <path d="M5 12h14M12 5l7 7-7 7"></path>
+                                <path d="M5 12h14M12 5l7 7-7 7" />
+                            </svg>
+                        </div>
+                    </button>
+
+                    <!-- IntaSend Payment -->
+                    <button class="payment-btn intasend-btn" @click="handleIntasendPayment">
+                        <div class="btn-icon" aria-hidden="true">
+                            <!-- Inline credit-card SVG (brand-neutral) -->
+                            <svg
+                                width="38"
+                                height="24"
+                                viewBox="0 0 64 40"
+                                xmlns="http://www.w3.org/2000/svg"
+                                role="img"
+                                aria-label="Credit card"
+                            >
+                                <rect
+                                    x="1"
+                                    y="1"
+                                    width="62"
+                                    height="38"
+                                    rx="6"
+                                    fill="#ffffff"
+                                    stroke="#d1d8df"
+                                />
+                                <rect x="1" y="6" width="62" height="8" rx="4" fill="#f3fafc" />
+                                <rect x="8" y="12" width="10" height="8" rx="1.2" fill="#e8eef3" />
+                                <rect
+                                    x="9.6"
+                                    y="13.6"
+                                    width="6"
+                                    height="5"
+                                    rx="0.8"
+                                    fill="#cdd6dd"
+                                />
+                                <rect x="22" y="14" width="28" height="3" rx="1" fill="#dfe8ef" />
+                                <rect x="22" y="19" width="18" height="3" rx="1" fill="#e9f0f5" />
+                            </svg>
+                        </div>
+
+                        <div class="btn-content">
+                            <span class="btn-title">Card Payment</span>
+                            <span class="btn-subtitle">Pay with Card(Visa/)</span>
+                        </div>
+
+                        <div class="btn-arrow">
+                            <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                width="18"
+                                height="18"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="1.6"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                            >
+                                <rect x="1.5" y="4.5" width="21" height="15" rx="2.5"></rect>
+                                <line x1="1.5" y1="9.5" x2="22.5" y2="9.5"></line>
                             </svg>
                         </div>
                     </button>
@@ -280,6 +331,7 @@ export default {
             'createPaypalSession',
             'createPaystackSession',
             'createPesapalSession',
+            'createIntasendSession',
         ]),
 
         selectPaymentMethod(method) {
@@ -323,6 +375,22 @@ export default {
             } catch {
                 this.paymentError = 'Stripe payment failed.';
                 toast.error('Stripe payment failed.');
+            } finally {
+                this.isProcessing = false;
+            }
+        },
+
+        async handleIntasendPayment() {
+            this.isProcessing = true;
+            try {
+                const checkoutUrl = await this.createIntasendSession({
+                    paperIds: this.selectedPaperIds,
+                });
+                window.location.href = checkoutUrl;
+            } catch (error) {
+                this.paymentError = 'IntaSend payment failed.';
+                toast.error('IntaSend payment failed.');
+                console.error(error);
             } finally {
                 this.isProcessing = false;
             }
@@ -496,6 +564,43 @@ export default {
 
 .payment-btn:active {
     transform: translateY(0);
+}
+
+/* Make icons uniform and sharp */
+.payment-btn .btn-icon svg {
+    display: block;
+    width: 38px;
+    height: 24px;
+}
+
+/* Align titles and subtitles neatly */
+.payment-btn .btn-content {
+    flex: 1;
+    line-height: 1.2;
+}
+
+/* PayPal brand feel */
+.paypal-btn {
+    border-left: 4px solid #253b80;
+}
+.paypal-btn:hover {
+    background: #f8fbff;
+    border-color: #179bd7;
+}
+
+/* IntaSend brand-neutral style */
+.intasend-btn {
+    border-left: 4px solid #4a6bdf;
+}
+.intasend-btn:hover {
+    background: #f5f7ff;
+    border-color: #3a5bd9;
+}
+
+/* Slight hover animation on arrow */
+.payment-btn:hover .btn-arrow svg {
+    transform: translateX(4px);
+    transition: transform 0.15s ease;
 }
 
 .btn-icon {
