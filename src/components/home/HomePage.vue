@@ -11,11 +11,12 @@
                     <div class="col-lg-8 mx-auto text-center">
                         <div class="hero-content">
                             <h1 class="display-3 fw-bold text-white mb-4 animate-fade-in">
-                                Elevate Your Academic Journey
+                                Global Knowledge Hub for Everyone
                             </h1>
                             <p class="lead text-white-80 mb-5 animate-fade-in delay-1">
-                                Access premium academic resources or monetize your work with our
-                                global community of scholars and researchers.
+                                Access unlimited academic resources - books, research papers,
+                                theses, and study materials. No barriers, no limits. Share your work
+                                and learn from the global community.
                             </p>
                             <div
                                 class="d-flex gap-3 justify-content-center animate-fade-in delay-2"
@@ -25,20 +26,20 @@
                                     to="/register"
                                     class="btn btn-primary btn-lg px-5 py-3 rounded-pill shadow glow-on-hover"
                                 >
-                                    Start Selling Papers
+                                    Join Global Community
                                 </router-link>
                                 <router-link
                                     v-else
                                     to="/dashboard/upload-file"
                                     class="btn btn-success btn-lg px-5 py-3 rounded-pill shadow glow-on-hover"
                                 >
-                                    Upload New Paper
+                                    Share Your Knowledge
                                 </router-link>
                                 <router-link
                                     to="/papers"
                                     class="btn btn-primary btn-lg px-5 py-3 rounded-pill"
                                 >
-                                    Browse Papers
+                                    Explore Resources
                                 </router-link>
                             </div>
                         </div>
@@ -87,7 +88,8 @@
                 <div class="text-center mb-7">
                     <h2 class="display-5 fw-bold mb-3">How GradesWorld Works</h2>
                     <p class="lead text-muted mx-auto" style="max-width: 700px">
-                        A simple three-step process to share knowledge and earn rewards
+                        Join our inclusive platform to share knowledge and access unlimited
+                        resources
                     </p>
                 </div>
 
@@ -111,16 +113,18 @@
             </div>
         </section>
 
-        <!-- Featured Papers -->
+        <!-- Featured Resources -->
         <section class="featured-papers py-8">
             <div class="container">
                 <div class="d-flex justify-content-between align-items-end mb-6">
                     <div>
-                        <h2 class="display-5 fw-bold mb-2">Featured Academic Papers</h2>
-                        <p class="text-muted">Recently added premium resources</p>
+                        <h2 class="display-5 fw-bold mb-2">Featured Academic Resources</h2>
+                        <p class="text-muted">
+                            Recently added books, papers, theses, and materials
+                        </p>
                     </div>
                     <router-link to="/papers" class="btn btn-outline-primary">
-                        View All Papers <i class="bi bi-arrow-right ms-2"></i>
+                        View All Resources <i class="bi bi-arrow-right ms-2"></i>
                     </router-link>
                 </div>
 
@@ -191,13 +195,13 @@
             </div>
         </section>
 
-        <!-- Popular Courses -->
+        <!-- Popular Subjects -->
         <section class="popular-courses py-8">
             <div class="container">
                 <div class="text-center mb-7">
-                    <h2 class="display-5 fw-bold mb-3">Browse by Popular Courses</h2>
+                    <h2 class="display-5 fw-bold mb-3">Browse by Popular Subjects</h2>
                     <p class="lead text-muted mx-auto" style="max-width: 700px">
-                        Discover academic resources tailored to your field of study
+                        Discover academic resources across various fields of study and research
                     </p>
                 </div>
 
@@ -216,13 +220,13 @@
                                 </div>
                                 <h5 class="card-title mb-2">{{ course.name }}</h5>
                                 <p class="text-muted small mb-3">
-                                    {{ course.paper_count || 0 }} papers available
+                                    {{ course.paper_count || 0 }} resources available
                                 </p>
                                 <router-link
                                     :to="`/courses/${course.slug || course.id}`"
                                     class="btn btn-sm btn-outline-primary stretched-link"
                                 >
-                                    View Papers
+                                    Explore Resources
                                 </router-link>
                             </div>
                         </div>
@@ -231,7 +235,7 @@
 
                 <div class="text-center mt-6">
                     <router-link to="/courses" class="btn btn-primary px-5 py-3">
-                        Explore All Courses <i class="bi bi-arrow-right ms-2"></i>
+                        Explore All Subjects <i class="bi bi-arrow-right ms-2"></i>
                     </router-link>
                 </div>
             </div>
@@ -241,9 +245,10 @@
         <section class="popular-categories py-8">
             <div class="container">
                 <div class="text-center mb-7">
-                    <h2 class="display-5 fw-bold mb-3">Browse by Popular Categories</h2>
+                    <h2 class="display-5 fw-bold mb-3">Browse by Resource Types</h2>
                     <p class="lead text-muted mx-auto" style="max-width: 700px">
-                        Explore academic resources organized by subject categories
+                        Explore different types of academic materials - from books to research
+                        papers
                     </p>
                 </div>
 
@@ -262,13 +267,13 @@
                                 </div>
                                 <h5 class="card-title mb-2">{{ category.name }}</h5>
                                 <p class="text-muted small mb-3">
-                                    {{ category.paper_count || 0 }} papers available
+                                    {{ category.paper_count || 0 }} items available
                                 </p>
                                 <router-link
                                     :to="`/categories/${category.slug || category.id}`"
                                     class="btn btn-sm btn-outline-info stretched-link"
                                 >
-                                    View Papers
+                                    Browse Collection
                                 </router-link>
                             </div>
                         </div>
@@ -283,13 +288,13 @@
             </div>
         </section>
 
-        <!-- Popular Universities -->
+        <!-- Popular Institutions -->
         <section class="popular-universities py-8">
             <div class="container">
                 <div class="text-center mb-7">
-                    <h2 class="display-5 fw-bold mb-3">Browse by Popular Universities</h2>
+                    <h2 class="display-5 fw-bold mb-3">Resources from Global Institutions</h2>
                     <p class="lead text-muted mx-auto" style="max-width: 700px">
-                        Discover academic resources from top institutions worldwide
+                        Access academic materials from institutions and organizations worldwide
                     </p>
                 </div>
 
@@ -308,13 +313,13 @@
                                 </div>
                                 <h5 class="card-title mb-2">{{ school.name }}</h5>
                                 <p class="text-muted small mb-3">
-                                    {{ school.paper_count || 0 }} papers available
+                                    {{ school.paper_count || 0 }} resources available
                                 </p>
                                 <router-link
                                     :to="`/schools/${school.id}`"
                                     class="btn btn-sm btn-outline-warning stretched-link"
                                 >
-                                    View Papers
+                                    View Resources
                                 </router-link>
                             </div>
                         </div>
@@ -323,7 +328,7 @@
 
                 <div class="text-center mt-6">
                     <router-link to="/schools" class="btn btn-warning px-5 py-3 text-white">
-                        Explore All Schools <i class="bi bi-arrow-right ms-2"></i>
+                        Explore All Institutions <i class="bi bi-arrow-right ms-2"></i>
                     </router-link>
                 </div>
             </div>
@@ -333,9 +338,11 @@
         <section class="testimonials py-8">
             <div class="container">
                 <div class="text-center mb-7">
-                    <h2 class="display-5 fw-bold mb-3">Trusted by Academics Worldwide</h2>
+                    <h2 class="display-5 fw-bold mb-3">
+                        Trusted by Learners & Researchers Worldwide
+                    </h2>
                     <p class="lead text-muted mx-auto" style="max-width: 700px">
-                        What our community members say about GradesWorld
+                        What our global community members say about GradesWorld
                     </p>
                 </div>
 
@@ -352,7 +359,7 @@
                                     </div>
                                     <div>
                                         <h6 class="mb-0">{{ testimonial.name }}</h6>
-                                        <span class="text-muted small">Academic Contributor</span>
+                                        <span class="text-muted small">{{ testimonial.role }}</span>
                                     </div>
                                 </div>
                                 <p class="mb-0">
@@ -375,8 +382,8 @@
                     <div class="col-lg-8 mb-5 mb-lg-0">
                         <h2 class="display-5 fw-bold mb-3">Ready to Share Your Knowledge?</h2>
                         <p class="lead mb-0 opacity-75">
-                            Join thousands of academics who are already earning from their research
-                            and study materials.
+                            Join our global community of learners, researchers, and educators. Share
+                            your work and access unlimited resources from around the world.
                         </p>
                     </div>
                     <div class="col-lg-4 text-lg-end">
@@ -385,14 +392,14 @@
                             to="/register"
                             class="btn btn-light btn-lg px-5 py-3 rounded-pill shadow glow-on-hover"
                         >
-                            Get Started Now
+                            Join Free Today
                         </router-link>
                         <router-link
                             v-else
                             to="/dashboard/upload-file"
                             class="btn btn-light btn-lg px-5 py-3 rounded-pill shadow glow-on-hover"
                         >
-                            Upload Your Paper
+                            Share Your Work
                         </router-link>
                     </div>
                 </div>
@@ -408,7 +415,7 @@
                             <h2 class="display-5 fw-bold mb-3">Get In Touch</h2>
                             <p class="lead text-muted mx-auto" style="max-width: 700px">
                                 Have questions or need support? Our team is here to help you with
-                                any inquiries.
+                                any inquiries about accessing or sharing knowledge.
                             </p>
                         </div>
 
@@ -491,34 +498,34 @@ export default {
             subscribeEmail: '',
             subscribeError: '',
             stats: [
-                { value: '10,000+', label: 'Academic Papers', color: 'primary' },
-                { value: '5,000+', label: 'Active Contributors', color: 'success' },
-                { value: '$250K+', label: 'Earned by Users', color: 'warning' },
-                { value: '100+', label: 'Universities', color: 'info' },
+                { value: '50,000+', label: 'Academic Resources', color: 'primary' },
+                { value: '25,000+', label: 'Global Members', color: 'success' },
+                { value: '150+', label: 'Countries', color: 'warning' },
+                { value: '500+', label: 'Institutions', color: 'info' },
             ],
             steps: [
                 {
                     number: 1,
-                    title: 'Create Your Account',
+                    title: 'Join Our Global Community',
                     description:
-                        'Sign up in seconds to join our academic community. Start as a contributor or learner.',
-                    icon: 'bi bi-person-plus',
+                        'Sign up for free - no degree requirements. Everyone is welcome to learn and share knowledge.',
+                    icon: 'bi bi-people',
                     color: 'primary',
                 },
                 {
                     number: 2,
-                    title: 'Upload Your Papers',
+                    title: 'Share Your Work',
                     description:
-                        'Share your academic work with proper categorization. Set your price or offer for free.',
-                    icon: 'bi bi-cloud-arrow-up',
+                        'Upload books, research papers, theses, or any academic materials. Help others learn from your work.',
+                    icon: 'bi bi-share',
                     color: 'success',
                 },
                 {
                     number: 3,
-                    title: 'Earn & Learn',
+                    title: 'Access Unlimited Resources',
                     description:
-                        'Get paid when others download your work. Access premium content to boost your studies.',
-                    icon: 'bi bi-cash-coin',
+                        'Explore materials from worldwide contributors. Learn, research, and grow without limitations.',
+                    icon: 'bi bi-globe',
                     color: 'warning',
                 },
             ],
@@ -526,19 +533,22 @@ export default {
             testimonialColors: ['primary', 'success', 'warning'],
             testimonials: [
                 {
-                    name: 'Dr. Sarah Johnson',
+                    name: 'Maria Rodriguez',
+                    role: 'Independent Researcher',
                     message:
-                        'GradesWorld has transformed how I share my research. I earn passive income while helping students worldwide.',
+                        'This platform gave me access to resources I could never afford before. Now I can continue my research without institutional barriers.',
                 },
                 {
-                    name: 'Michael Chen',
+                    name: 'James Chen',
+                    role: 'University Student',
                     message:
-                        'As a graduate student, the quality papers I found here saved me countless hours of research. Worth every penny!',
+                        'As a student from a developing country, this platform has been life-changing. I can access the same materials as students from top universities.',
                 },
                 {
-                    name: 'Prof. David Wilson',
+                    name: 'Dr. Amina Bello',
+                    role: 'College Lecturer',
                     message:
-                        'Finally a platform that properly values academic work. My papers earn more here than through traditional publishing.',
+                        'I share my teaching materials and research here. It is wonderful to see my work helping students and researchers across the globe.',
                 },
             ],
         };
@@ -570,7 +580,7 @@ export default {
             } catch (error) {
                 console.error('Error fetching latest papers:', error);
                 this.latestPapers = [];
-                toast.error('Failed to load latest papers. Please try again later.');
+                toast.error('Failed to load latest resources. Please try again later.');
             }
         },
 
