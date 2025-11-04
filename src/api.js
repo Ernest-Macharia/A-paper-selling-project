@@ -9,7 +9,9 @@ const isLocalhost =
 const api = axios.create({
     baseURL: isLocalhost
         ? 'http://localhost:8000/api'
-        : import.meta.env.VITE_API_BASE_URL || 'https://gradesworld.com/api',
+        : import.meta.env.VITE_API_BASE_URL ||
+          'https://gradesworld.com/api' ||
+          'https://gradesworld-backend.onrender.com/api',
 });
 
 let auth0;

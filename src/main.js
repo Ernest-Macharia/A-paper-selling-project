@@ -107,7 +107,10 @@ if (window.location.search.includes('code=')) {
 }
 
 // Set base API URL
-api.defaults.baseURL = import.meta.env.VITE_API_BASE_URL || 'https://gradesworld.com/api';
+api.defaults.baseURL =
+    import.meta.env.VITE_API_BASE_URL ||
+    'https://gradesworld.com/api' ||
+    'https://gradesworld-backend.onrender.com/api';
 
 // Use plugins
 app.use(router);
